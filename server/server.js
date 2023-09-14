@@ -1,5 +1,6 @@
 const express = require('express');
 const mysql = require('mysql2');
+const crypto = require('crypto');
 const app = express();
 const port = 8000;
 
@@ -19,9 +20,10 @@ app.use(express.urlencoded({ extended: true }));
 
 // Add an item to the database using parameterized query
 app.post('/api/addUser', (req, res) => {
-    const { username, password, email } = req.body;
+    let { username, password, email } = req.body;
 
     const sql = 'INSERT INTO Users (username, password, email) VALUES (?, ?, ?)';
+    password = crypto.createHash('sha256').update(password).digest('hex');
     const values = [username, password, email];
 
     connection.execute(sql, values, (error) => {
