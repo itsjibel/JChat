@@ -57,25 +57,12 @@ input {
 	border-radius: 5px;
 }
 
-button {
-	width: 60%;
-	height: 40px;
-	margin: 10px auto !important;
-	justify-content: center;
-	display: block;
+.button {
 	color: #fff;
 	background: #25c4d0;
-	font-size: 1em;
-	font-weight: bold;
-	margin-top: 20px;
-	outline: none;
-	border: none;
-	border-radius: 5px !important;
-	transition: .2s ease-in;
-	cursor: pointer;
 }
 
-button:hover {
+.button:hover {
 	background: #18a9b3;
 }
 

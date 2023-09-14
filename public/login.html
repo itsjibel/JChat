@@ -25,27 +25,27 @@
         <div class="main">
             <input type="checkbox" id="chk" aria-hidden="true">
             <div class="signup">
-                <form>
+                <form id="signUpForm">
                     <label for="chk" aria-hidden="true" class="user-select-none">Sign up</label>
-                    <input type="text" id="username" placeholder="User name" required="">
-                    <input type="email" id="email" placeholder="Email" required="">
+                    <input type="text" id="sign-up-username" placeholder="User name" required>
+                    <input type="email" id="sign-up-email" placeholder="Email" required>
                     <div class="password-input">
-                        <input type="password" id="sign-up-password" placeholder="Password" required="">
+                        <input type="password" id="sign-up-password" placeholder="Password" required>
                         <i class="bi bi-eye-slash" id="toggleSignUpPassword"></i>
                     </div>
-                    <button>Sign up</button>
+                    <input class="button" type="submit" value="Sign Up">
                 </form>
             </div>
 
             <div class="login">
                 <form>
                     <label for="chk" aria-hidden="true" class="user-select-none">Login</label>
-                    <input type="text" id="username" placeholder="User name" required="">
+                    <input type="text" id="username" placeholder="User name" required>
                     <div class="password-input">
-                        <input type="password" id="login-password" placeholder="Password" required="">
+                        <input type="password" id="login-password" placeholder="Password" required>
                         <i class="bi bi-eye-slash" id="toggleLoginPassword"></i>
                     </div>
-                    <button>Login</button>
+                    <input class="button" type="submit" value="Login">
                 </form>
             </div>
         </div>

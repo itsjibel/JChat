@@ -17,3 +17,41 @@ toggleLoginPassword.addEventListener('click', () => {
     toggleLoginPassword.classList.toggle('bi-eye');
     toggleLoginPassword.classList.toggle('bi-eye-slash');
 });
+
+function addUser(e) {
+    e.preventDefault(); // Prevent the default form submission
+
+    // Get input values
+    const signUpUsername = document.getElementById("sign-up-username").value;
+    const signUpEmail = document.getElementById("sign-up-email").value;
+    const signUpPassword = document.getElementById("sign-up-password").value;
+
+    // Create a FormData object
+    const formData = new FormData();
+    formData.append("username", signUpUsername);
+    formData.append("password", signUpPassword);
+    formData.append("email", signUpEmail);
+    console.log(formData);
+
+    // Make an HTTP POST request to the server
+    fetch('/api/addUser', {
+        method: 'POST',
+        body: new URLSearchParams(formData),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        if (data.success) {
+            document.getElementById("sign-up-username").value = "";
+            document.getElementById("sign-up-email").value = "";
+            document.getElementById("sign-up-password").value = "";
+        } else {
+            console.log("Error adding user. Please try again.");
+        }
+    })
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
+// Attach the addUser function to the form's submit event
+document.getElementById("signUpForm").addEventListener("submit", addUser);

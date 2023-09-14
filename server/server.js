@@ -15,14 +15,12 @@ const connection = mysql.createConnection({
 app.use(express.static('../public'));
 
 // Middleware to parse JSON requests
-app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Add an item to the database using parameterized query
 app.post('/api/addUser', (req, res) => {
-    // Retrieve item data from the request body
     const { username, password, email } = req.body;
 
-    // Insert the new item into the database with parameterized query
     const sql = 'INSERT INTO Users (username, password, email) VALUES (?, ?, ?)';
     const values = [username, password, email];
 
@@ -33,8 +31,8 @@ app.post('/api/addUser', (req, res) => {
             return;
         }
 
-        console.log(`A user with the username of \"${username}\" and the email of \"${email}\" was added successfully to the database.`);
-        res.json({ message: 'Item added successfully!' });
+        console.log(`"${username}" user with email of "${email}" was added successfully to the database.`);
+        res.json({ success: true, message: 'User added successfully!' });
     });
 });
 
