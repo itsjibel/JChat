@@ -41,9 +41,7 @@ function addUser(e) {
     .then((response) => response.json())
     .then((data) => {
         if (data.success) {
-            document.getElementById("sign-up-username").value = "";
-            document.getElementById("sign-up-email").value = "";
-            document.getElementById("sign-up-password").value = "";
+            window.location.href = "/index.html";
         } else {
             console.log("Error adding user. Please try again.");
         }
