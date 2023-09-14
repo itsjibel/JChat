@@ -11,6 +11,7 @@
 	<meta name="author" content="Jibel">
 	<link rel="stylesheet" type="text/css" href="assets/css/login.css">
 	<link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.3.0/font/bootstrap-icons.css">
 </head>
 
 <body>
@@ -21,28 +22,35 @@
 	</header>
 
 	<div class="body">
-		<div class="main">  	
-			<input type="checkbox" id="chk" aria-hidden="true">
-			<div class="signup">
-				<form>
-					<label for="chk" aria-hidden="true">Sign up</label>
-					<input type="text" name="txt" placeholder="User name" required="">
-					<input type="email" name="email" placeholder="Email" required="">
-					<input type="password" name="pswd" placeholder="Password" required="">
-					<button>Sign up</button>
-				</form>
-			</div>
+        <div class="main">
+            <input type="checkbox" id="chk" aria-hidden="true">
+            <div class="signup">
+                <form>
+                    <label for="chk" aria-hidden="true">Sign up</label>
+                    <input type="text" id="username" placeholder="User name" required="">
+                    <input type="email" id="email" placeholder="Email" required="">
+                    <div class="password-input">
+                        <input type="password" id="sign-up-password" placeholder="Password" required="">
+                        <i class="bi bi-eye-slash" id="toggleSignUpPassword"></i>
+                    </div>
+                    <button>Sign up</button>
+                </form>
+            </div>
 
-			<div class="login">
-				<form>
-					<label for="chk" aria-hidden="true">Login</label>
-					<input type="text" name="txt" placeholder="User name" required="">
-					<input type="password" name="pswd" placeholder="Password" required="">
-					<button>Login</button>
-				</form>
-			</div>
-		</div>
-	</div>
+            <div class="login">
+                <form>
+                    <label for="chk" aria-hidden="true">Login</label>
+                    <input type="text" id="username" placeholder="User name" required="">
+                    <div class="password-input">
+                        <input type="password" id="login-password" placeholder="Password" required="">
+                        <i class="bi bi-eye-slash" id="toggleLoginPassword"></i>
+                    </div>
+                    <button>Login</button>
+                </form>
+            </div>
+        </div>
+    </div>
     <script src="assets/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/login.js"></script>
 </body>
 </html>

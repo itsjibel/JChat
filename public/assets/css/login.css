@@ -110,3 +110,19 @@ button:hover {
 	height: 60px;
 	width: auto;
 }
+
+.password-input {
+    position: relative;
+}
+
+.password-input input {
+    padding-right: 32px;
+}
+
+.password-input i {
+    position: absolute;
+    top: 50%;
+    right: 80px;
+    transform: translateY(-50%);
+    cursor: pointer;
+}
