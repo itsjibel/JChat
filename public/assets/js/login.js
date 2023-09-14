@@ -31,7 +31,6 @@ function addUser(e) {
     formData.append("username", signUpUsername);
     formData.append("password", signUpPassword);
     formData.append("email", signUpEmail);
-    console.log(formData);
 
     // Make an HTTP POST request to the server
     fetch('/api/addUser', {
