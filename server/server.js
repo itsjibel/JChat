@@ -52,7 +52,7 @@ app.post('/api/addUser', (req, res) => {
     connection.execute(checkSql, checkValues, (error, results) => {
         if (error) {
             console.error('Error checking for existing user:', error);
-            res.status(500).json({ message:  'An error occurred.' });
+            res.status(500).json({ message: 'An error occurred.' });
             return;
         }
 
@@ -77,6 +77,30 @@ app.post('/api/addUser', (req, res) => {
             console.log(`"${username}" user with email of "${email}" was added successfully to the database.`);
             res.json({ success: true, message: 'User added successfully!' });
         });
+    });
+});
+
+app.get('/api/loginUser', (req, res) => {
+    let { username, password, email } = req.body;
+    password = crypto.createHash('sha256').update(password).digest('hex');
+
+    const checkSql = 'SELECT * FROM Users WHERE (username = ? OR email = ?) AND password = ?';
+    const checkValues = [username, email, password];
+
+    connection.execute(checkSql, checkValues, (error, results) => {
+        if (error) {
+            console.error('Error checking for existing user:', error);
+            res.status(500).json({ message: 'An error occurred.' });
+            return;
+        }
+
+        if (results.length > 0) {
+            res.json({ success: true, message: 'User can login!' });
+            return;
+        } else {
+            res.status(400).json({ message: "Incorrect username or password." });
+            return;
+        }
     });
 });
 
