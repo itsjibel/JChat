@@ -42,7 +42,7 @@ function addUser(e) {
 
     // Check if the password is valid
     if (!isValidPassword(signUpPassword)) {
-        document.getElementById("err-message").textContent = "Invalid password. Only use valid characters and lengths between 5-100.";
+        document.getElementById("error-message").textContent = "Invalid password. Only use valid characters and lengths between 5-100.";
         return;
     }
 
@@ -64,9 +64,9 @@ function addUser(e) {
         } else if (data.message) {
             if (data.message.code === "ER_DUP_ENTRY") {
                 // Handle the "Duplicate entry" error
-                document.getElementById("err-message").textContent = "This username or email is already in use.";
+                document.getElementById("error-message").textContent = "This username or email is already in use.";
             } else {
-                document.getElementById("err-message").textContent = "An error occurred.";
+                document.getElementById("error-message").textContent = "An error occurred.";
             }
         }
     })
