@@ -28,7 +28,7 @@ app.post('/api/addUser', (req, res) => {
     connection.execute(checkSql, checkValues, (error, results) => {
         if (error) {
             console.error('Error checking for existing user:', error);
-            res.status(500).json({ message: error });
+            res.status(500).json({ message:  'An error occurred.' });
             return;
         }
 
@@ -46,7 +46,7 @@ app.post('/api/addUser', (req, res) => {
         connection.execute(sql, values, (insertError) => {
             if (insertError) {
                 console.error('Error in adding user!');
-                res.status(500).json({ message: insertError });
+                res.status(500).json({ message: 'An error occurred.' });
                 return;
             }
 
