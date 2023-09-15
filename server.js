@@ -1,8 +1,7 @@
 const express = require('express');
 const mysql = require('mysql2');
 const crypto = require('crypto');
-const cors = require('cors');
-const session = require('express-session');
+const jwt = require('jsonwebtoken');
 
 const app = express();
 const port = 8000;
@@ -19,16 +18,9 @@ const connection = mysql.createConnection({
 app.use(express.static('public'));
 app.use(express.json()); // To parse JSON requests
 app.use(express.urlencoded({ extended: true })); // To parse form data
-app.use(cors());
 
 // Middleware to parse JSON requests
-const secretKey = crypto.randomBytes(32).toString('hex');
-console.log('Generated Secret Key:', secretKey);
-app.use(session({
-    secret: secretKey,
-    resave: false,
-    saveUninitialized: true,
-}));
+const jwtSecretKey = '8f2f5c3d113379d9247386841bb17b8cdbd302f272723beacb0fd4ad13080959'
 
 function isValidUsername(username) {
     const validUsernameRegex = /^[a-zA-Z][a-zA-Z0-9._]{2,19}$/;
@@ -87,7 +79,9 @@ app.post('/api/addUser', (req, res) => {
             }
 
             console.log(`"${username}" user with email of "${email}" was added successfully to the database.`);
-            res.json({ success: true, message: 'User added successfully!' });
+            // Generate JWT token and send it in the response
+            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: '1h' });
+            res.json({ success: true, message: 'User added successfully!', token });
         });
     });
 });
@@ -108,61 +102,72 @@ app.post('/api/loginUser', (req, res) => {
 
         if (results.length > 0) {
             // User successfully logged in
-            req.session.user = { username: username };
-            console.log(`"${username}" user logged in!`);
-            res.json({ success: true, message: 'User can login!' });
-            return;
+            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: '1h' });
+            res.json({ success: true, message: 'User can login!', token });
         } else {
             res.status(400).json({ message: "Incorrect username or password." });
-            return;
         }
+    });
+});
+
+const revokedTokens = [];
+
+function verifyToken(req, res, next) {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token) {
+        if (revokedTokens.includes(token)) {
+            return res.status(403).json({ message: 'Token has been revoked' });
+        }
+
+        jwt.verify(token, jwtSecretKey, (err, decoded) => {
+            if (err) {
+                console.error('Error verifying token:', err);
+                return res.status(403).json({ message: 'Invalid token' });
+            }
+            req.user = decoded;
+            next();
+        });
+    } else {
+        return res.status(403).json({ message: 'Token not provided' });
+    }
+}
+
+app.get('/api/checkLoggedIn', verifyToken, (req, res) => {
+    // Check if the user is logged in
+    if (req.user) {
+        // User is logged in
+        res.json({ loggedIn: true, username: req.user.username });
+    } else {
+        // User is not logged in
+        res.json({ loggedIn: false });
+    }
+});
+
+app.post('/api/refresh-token', (req, res) => {
+    const { accessToken, refreshToken } = req.body;
+
+    // Verify that the refresh token is valid
+    jwt.verify(refreshToken, jwtSecretKey, (err, decoded) => {
+        if (err) {
+            console.error('Error verifying refresh token:', err);
+            return res.status(403).json({ message: 'Invalid refresh token' });
+        }
+
+        // Generate a new access token
+        const newAccessToken = jwt.sign({ username: decoded.username }, jwtSecretKey, { expiresIn: '1h' });
+
+        // Send the new access token to the client
+        res.json({ success: true, message: 'New access token generated', accessToken: newAccessToken });
     });
 });
 
 app.post('/api/logout', (req, res) => {
-    req.session.destroy((err) => {
-        if (err) {
-            console.error('Error destroying session:', err);
-            res.status(500).json({ success: false, message: 'Error logging out.' });
-        } else {
-            res.json({ success: true, message: 'User logged out successfully.' });
-        }
-    });
-});
-
-app.get('/api/checkLoggedIn', (req, res) => {
-    if (!req.session.user) {
-        // User is not logged in, redirect to the login page
-        res.redirect('/login.html');
-        return; // Important: Add return to prevent further execution
-    }
-
-    // User is logged in
-    res.json({ loggedIn: true, username: req.session.user.username });
-});
-
-app.get('/index.html', (req, res) => {
-    if (req.session.user) {
-        // User is logged in, render index.html with user data
-        const username = req.session.user.username;
-        const html = `
-            <!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>JChat</title>
-            </head>
-            <body>
-                <p>Hello ${username}</p>
-                <a href="/api/logout">Logout</a>
-            </body>
-            </html>
-        `;
-        res.send(html);
+    const token = req.headers.authorization?.split(' ')[1];
+    if (token && !revokedTokens.includes(token)) {
+        revokedTokens.push(token);
+        res.json({ success: true, message: 'Token revoked successfully' });
     } else {
-        // User is not logged in, redirect to the login page
-        res.redirect('/login.html');
+        res.status(400).json({ message: 'Invalid token' });
     }
 });
 

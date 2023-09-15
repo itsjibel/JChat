@@ -10,48 +10,41 @@
         <!-- This is where the user information will be displayed -->
     </div>
     
-<!-- Add a script tag to include your JavaScript code -->
-<script>
-    // Your JavaScript code for checking login status and logout here
-    fetch('/api/checkLoggedIn')
-        .then((response) => {
-            if (response.redirected) {
-                // If the response is a redirect, navigate to the new URL
-                window.location.href = response.url;
-                return; // Exit the function
-            }
-            return response.json(); // Parse JSON if not redirected
-        })
-        .then((data) => {
-            if (data && data.loggedIn) {
-                // User is logged in, display user information
-                const userInfoDiv = document.getElementById('user-info');
-                userInfoDiv.innerHTML = `Hello ${data.username} <button id="logout-button">Logout</button>`;
+    <!-- Add a script tag to include your JavaScript code -->
+    <script>
+        // Your JavaScript code for checking login status and logout here
+        const token = localStorage.getItem('token'); // Get JWT token from localStorage
 
-                // Add an event listener to the logout button
-                const logoutButton = document.getElementById('logout-button');
-                logoutButton.addEventListener('click', () => {
-                    // Perform logout (send a request to the server to log out the user)
-                    fetch('/api/logout', {
-                        method: 'POST'
-                    })
-                    .then((response) => response.json())
-                    .then((logoutData) => {
-                        if (logoutData.success) {
-                            // Redirect to the login page after logout
-                            window.location.href = '/login.html';
-                        }
-                    })
-                    .catch((error) => {
-                        console.error('Error logging out:', error);
+        if (token) {
+            fetch('/api/checkLoggedIn', {
+                headers: {
+                    'Authorization': 'Bearer ' + token // Include JWT token in the headers
+                }
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data && data.loggedIn) {
+                    // User is logged in, display user information
+                    const userInfoDiv = document.getElementById('user-info');
+                    userInfoDiv.innerHTML = `Hello ${data.username} <a id="logout-link" href="#">Logout</a>`;
+
+                    // Add an event listener to the logout link
+                    const logoutLink = document.getElementById('logout-link');
+                    logoutLink.addEventListener('click', () => {
+                        // Perform logout (remove token from localStorage)
+                        localStorage.removeItem('token');
+                        // Redirect to the login page after logout
+                        window.location.href = '/login.html';
                     });
-                });
-            }
-        })
-        .catch((error) => {
-            console.error('Error checking login status:', error);
-        });
-</script>
-
+                }
+            })
+            .catch((error) => {
+                console.error('Error checking login status:', error);
+            });
+        } else {
+            // User is not logged in, redirect to the login page
+            window.location.href = '/login.html';
+        }
+    </script>
 </body>
 </html>

@@ -43,11 +43,14 @@ function addUser(e) {
     .then((response) => response.json())
     .then((data) => {
         if (data.success) {
+            const token = data.token; // Get JWT token from response
+            localStorage.setItem('token', token); // Store token in localStorage
+            // Redirect to the index page after successful sign-up
             window.location.href = "/index.html";
         } else if (data.message) {
             errorMessage.textContent = data.message;
             errorMessage.style.display = "flex";
-            adjustMainHeightForSigenUp();
+            adjustMainHeightForSignUp();
         }
     })
     .catch((error) => {
@@ -76,6 +79,9 @@ function loginUser(e) {
     .then((response) => response.json())
     .then((data) => {
         if (data.success) {
+            const token = data.token; // Get JWT token from response
+            localStorage.setItem('token', token); // Store token in localStorage
+            // Redirect to the index page after successful login
             window.location.href = "/index.html";
         } else if (data.message) {
             errorMessage.textContent = data.message;
@@ -88,7 +94,7 @@ function loginUser(e) {
 }
 
 // Function to adjust .main height based on error message height
-function adjustMainHeightForSigenUp() {
+function adjustMainHeightForSignUp() {
     const main = document.querySelector(".main");
     const errorMessage = document.getElementById("sign-up-error-message");
     main.style.height = 475 + errorMessage.clientHeight + "px";
