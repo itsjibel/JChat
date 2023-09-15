@@ -116,9 +116,10 @@ input {
 
 .error-message {
 	justify-content: center;
-	display: flex;
-	color: rgb(195, 49, 49);
-	background-color: #ffffffd4;
-	border-radius: 5px;
-	font-size: 13px;
+    color: rgb(255, 0, 0);
+    background-color: rgb(215, 215, 215);
+    border-radius: 5px;
+    font-size: 13px;
+    padding: 5px;
+    display: none;
 }
