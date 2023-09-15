@@ -18,6 +18,20 @@ toggleLoginPassword.addEventListener('click', () => {
     toggleLoginPassword.classList.toggle('bi-eye-slash');
 });
 
+// Function to validate the password
+function isValidPassword(password) {
+    // Define a regular expression to match valid characters
+    const validCharactersRegex = /^[a-zA-Z0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]+$/;
+
+    // Check if the password length is within the specified limits
+    if (password.length < 5 || password.length > 100) {
+        return false;
+    }
+
+    // Check if the password contains only valid characters
+    return validCharactersRegex.test(password);
+}
+
 function addUser(e) {
     e.preventDefault(); // Prevent the default form submission
 
@@ -25,6 +39,12 @@ function addUser(e) {
     const signUpUsername = document.getElementById("sign-up-username").value;
     const signUpEmail = document.getElementById("sign-up-email").value;
     const signUpPassword = document.getElementById("sign-up-password").value;
+
+    // Check if the password is valid
+    if (!isValidPassword(signUpPassword)) {
+        document.getElementById("err-message").textContent = "Invalid password. Only use valid characters and lengths between 5-100.";
+        return;
+    }
 
     // Create a FormData object
     const formData = new FormData();
