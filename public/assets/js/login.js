@@ -1,3 +1,4 @@
+// Process of eye button of login password
 const toggleSignUpPassword = document.querySelector('#toggleSignUpPassword');
 const signUpPassword = document.querySelector('#sign-up-password');
 
@@ -8,6 +9,7 @@ toggleSignUpPassword.addEventListener('click', () => {
     toggleSignUpPassword.classList.toggle('bi-eye-slash');
 });
 
+// Process of eye button of sign-up password
 const toggleLoginPassword = document.querySelector('#toggleLoginPassword');
 const loginPassword = document.querySelector('#login-password');
 
@@ -18,17 +20,18 @@ toggleLoginPassword.addEventListener('click', () => {
     toggleLoginPassword.classList.toggle('bi-eye-slash');
 });
 
-// Function to validate the password
+function isValidUsername(username) {
+    const validUsernameRegex = /^[a-zA-Z][a-zA-Z0-9._]{2,19}$/;
+
+    return validUsernameRegex.test(username);
+}
+
 function isValidPassword(password) {
-    // Define a regular expression to match valid characters
-    const validCharactersRegex = /^[a-zA-Z0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]+$/;
-
-    // Check if the password length is within the specified limits
-    if (password.length < 5 || password.length > 100) {
+    if (password.length < 5 || password.length > 100)
         return false;
-    }
 
-    // Check if the password contains only valid characters
+    const validCharactersRegex = /^[a-zA-Z0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]+$/;
+    
     return validCharactersRegex.test(password);
 }
 
@@ -39,12 +42,28 @@ function addUser(e) {
     const signUpUsername = document.getElementById("sign-up-username").value;
     const signUpEmail = document.getElementById("sign-up-email").value;
     const signUpPassword = document.getElementById("sign-up-password").value;
+    const errorMessage = document.getElementById("error-message");
+
+    // Check if the username is valid
+    if (!isValidUsername(signUpUsername)) {
+        errorMessage.textContent = "Invalid username. A username must start with a letter, be between 3 and 20 characters long, and can contain letters, numbers, '.', '_', and no spaces.";
+        errorMessage.style.display = "flex"; // Show the error message
+        // Adjust .main height based on error message height
+        adjustMainHeight();
+        return;
+    }
 
     // Check if the password is valid
     if (!isValidPassword(signUpPassword)) {
-        document.getElementById("error-message").textContent = "Invalid password. Only use valid characters and lengths between 5-100.";
+        errorMessage.textContent = "Invalid password. Only use valid characters and lengths between 5-100.";
+        errorMessage.style.display = "flex";
+        // Adjust .main height based on error message height
+        adjustMainHeight();
         return;
     }
+
+    // If there are no errors, hide the error message
+    errorMessage.style.display = "none";
 
     // Create a FormData object
     const formData = new FormData();
@@ -62,12 +81,9 @@ function addUser(e) {
         if (data.success) {
             window.location.href = "/index.html";
         } else if (data.message) {
-            if (data.message.code === "ER_DUP_ENTRY") {
-                // Handle the "Duplicate entry" error
-                document.getElementById("error-message").textContent = "This username or email is already in use.";
-            } else {
-                document.getElementById("error-message").textContent = "An error occurred.";
-            }
+            errorMessage.textContent = data.message;
+            errorMessage.style.display = "flex";
+            adjustMainHeight();
         }
     })
     .catch((error) => {
@@ -75,5 +91,11 @@ function addUser(e) {
     });
 }
 
-// Attach the addUser function to the form's submit event
+// Function to adjust .main height based on error message height
+function adjustMainHeight() {
+    const main = document.querySelector(".main");
+    const errorMessage = document.getElementById("error-message");
+    main.style.height = 475 + errorMessage.clientHeight + "px";
+}
+
 document.getElementById("signUpForm").addEventListener("submit", addUser);
