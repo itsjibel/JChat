@@ -27,7 +27,7 @@ function addUser(e) {
     const signUpUsername = document.getElementById("sign-up-username").value;
     const signUpEmail = document.getElementById("sign-up-email").value;
     const signUpPassword = document.getElementById("sign-up-password").value;
-    const errorMessage = document.getElementById("error-message");
+    const errorMessage = document.getElementById("sign-up-error-message");
 
     // Create a FormData object
     const formData = new FormData();
@@ -47,7 +47,39 @@ function addUser(e) {
         } else if (data.message) {
             errorMessage.textContent = data.message;
             errorMessage.style.display = "flex";
-            adjustMainHeight();
+            adjustMainHeightForSigenUp();
+        }
+    })
+    .catch((error) => {
+        console.log(error);
+    });
+}
+
+function loginUser(e) {
+    e.preventDefault();
+
+    // Get input values
+    const loginUsername = document.getElementById("login-username").value;
+    const loginPassword = document.getElementById("login-password").value;
+    const errorMessage = document.getElementById("login-error-message");
+
+    // Create a FormData object
+    const formData = new FormData();
+    formData.append("username", loginUsername);
+    formData.append("password", loginPassword);
+
+    // Make an HTTP POST request to the server
+    fetch('/api/loginUser', {
+        method: 'POST',
+        body: new URLSearchParams(formData),
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        if (data.success) {
+            window.location.href = "/index.html";
+        } else if (data.message) {
+            errorMessage.textContent = data.message;
+            errorMessage.style.display = "flex";
         }
     })
     .catch((error) => {
@@ -56,10 +88,11 @@ function addUser(e) {
 }
 
 // Function to adjust .main height based on error message height
-function adjustMainHeight() {
+function adjustMainHeightForSigenUp() {
     const main = document.querySelector(".main");
-    const errorMessage = document.getElementById("error-message");
+    const errorMessage = document.getElementById("sign-up-error-message");
     main.style.height = 475 + errorMessage.clientHeight + "px";
 }
 
 document.getElementById("signUpForm").addEventListener("submit", addUser);
+document.getElementById("loginForm").addEventListener("submit", loginUser);

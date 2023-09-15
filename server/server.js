@@ -80,12 +80,12 @@ app.post('/api/addUser', (req, res) => {
     });
 });
 
-app.get('/api/loginUser', (req, res) => {
-    let { username, password, email } = req.body;
+app.post('/api/loginUser', (req, res) => {
+    let { username, password } = req.body;
     password = crypto.createHash('sha256').update(password).digest('hex');
 
     const checkSql = 'SELECT * FROM Users WHERE (username = ? OR email = ?) AND password = ?';
-    const checkValues = [username, email, password];
+    const checkValues = [username, username, password];
 
     connection.execute(checkSql, checkValues, (error, results) => {
         if (error) {
@@ -95,6 +95,7 @@ app.get('/api/loginUser', (req, res) => {
         }
 
         if (results.length > 0) {
+            console.log(`"${username}" user logged in!`);
             res.json({ success: true, message: 'User can login!' });
             return;
         } else {
