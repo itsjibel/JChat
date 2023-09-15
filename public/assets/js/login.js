@@ -41,8 +41,13 @@ function addUser(e) {
     .then((data) => {
         if (data.success) {
             window.location.href = "/index.html";
-        } else {
-            console.log("Error adding user. Please try again.");
+        } else if (data.message) {
+            if (data.message.code === "ER_DUP_ENTRY") {
+                // Handle the "Duplicate entry" error
+                document.getElementById("err-message").textContent = "This username or email is already in use.";
+            } else {
+                document.getElementById("err-message").textContent = "An error occurred.";
+            }
         }
     })
     .catch((error) => {

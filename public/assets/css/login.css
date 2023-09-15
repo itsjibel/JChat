@@ -113,3 +113,12 @@ input {
     transform: translateY(-50%);
     cursor: pointer;
 }
+
+.error-message {
+	justify-content: center;
+	display: flex;
+	color: rgb(195, 49, 49);
+	background-color: #ffffffd4;
+	border-radius: 5px;
+	font-size: 16px;
+}
