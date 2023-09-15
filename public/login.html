@@ -27,10 +27,10 @@
             <div class="signup">
                 <form id="signUpForm">
                     <label for="chk" aria-hidden="true" class="user-select-none">Sign up</label>
-                    <input type="text" id="sign-up-username" placeholder="User name" required>
-                    <input type="email" id="sign-up-email" placeholder="Email" required>
+                    <input type="text" id="sign-up-username" placeholder="User name" required autocomplete="new-username">
+                    <input type="email" id="sign-up-email" placeholder="Email" required="" autocomplete="new-email">
                     <div class="password-input">
-                        <input type="password" id="sign-up-password" placeholder="Password" required>
+                        <input type="password" id="sign-up-password" placeholder="Password" required autocomplete="new-password">
                         <i class="bi bi-eye-slash" id="toggleSignUpPassword"></i>
                     </div>
                     <input class="button" type="submit" value="Sign Up">
@@ -40,9 +40,9 @@
             <div class="login">
                 <form>
                     <label for="chk" aria-hidden="true" class="user-select-none">Login</label>
-                    <input type="text" id="username" placeholder="User name" required>
+                    <input type="text" id="username" placeholder="User name" required autocomplete="new-username">
                     <div class="password-input">
-                        <input type="password" id="login-password" placeholder="Password" required>
+                        <input type="password" id="login-password" placeholder="Password" required autocomplete="new-password">
                         <i class="bi bi-eye-slash" id="toggleLoginPassword"></i>
                     </div>
                     <input class="button" type="submit" value="Login">
