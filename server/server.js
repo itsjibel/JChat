@@ -18,8 +18,32 @@ app.use(express.static('../public'));
 // Middleware to parse JSON requests
 app.use(express.urlencoded({ extended: true }));
 
+function isValidUsername(username) {
+    const validUsernameRegex = /^[a-zA-Z][a-zA-Z0-9._]{2,19}$/;
+    return validUsernameRegex.test(username);
+}
+
+function isValidPassword(password) {
+    if (password.length < 5 || password.length > 100)
+        return false;
+
+    const validCharactersRegex = /^[a-zA-Z0-9!@#$%^&*()_+{}\[\]:;<>,.?~\\/-]+$/;
+    
+    return validCharactersRegex.test(password);
+}
+
 app.post('/api/addUser', (req, res) => {
     let { username, password, email } = req.body;
+
+    if (!isValidUsername(username)) {
+        res.status(400).json({ message: "Invalid username. A username must start with a letter, be between 3 and 20 characters long, and can contain letters, numbers, '.', '_', and no spaces." });
+        return;
+    }
+
+    if (!isValidPassword(password)) {
+        res.status(400).json({ message: "Invalid password. Only use valid characters and lengths between 5-100." });
+        return;
+    }
 
     // Check if the username or email already exists
     const checkSql = 'SELECT * FROM Users WHERE username = ? OR email = ?';
