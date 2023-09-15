@@ -1,6 +1,9 @@
 const express = require('express');
 const mysql = require('mysql2');
 const crypto = require('crypto');
+const cors = require('cors');
+const session = require('express-session');
+
 const app = express();
 const port = 8000;
 
@@ -14,9 +17,18 @@ const connection = mysql.createConnection({
 
 // Serve static files from the 'public' directory
 app.use(express.static('../public'));
+app.use(express.json()); // To parse JSON requests
+app.use(express.urlencoded({ extended: true })); // To parse form data
+app.use(cors());
 
 // Middleware to parse JSON requests
-app.use(express.urlencoded({ extended: true }));
+const secretKey = crypto.randomBytes(32).toString('hex');
+console.log('Generated Secret Key:', secretKey);
+app.use(session({
+    secret: secretKey,
+    resave: false,
+    saveUninitialized: true,
+}));
 
 function isValidUsername(username) {
     const validUsernameRegex = /^[a-zA-Z][a-zA-Z0-9._]{2,19}$/;
@@ -95,6 +107,8 @@ app.post('/api/loginUser', (req, res) => {
         }
 
         if (results.length > 0) {
+            // User successfully logged in
+            req.session.user = { username: username };
             console.log(`"${username}" user logged in!`);
             res.json({ success: true, message: 'User can login!' });
             return;
@@ -103,6 +117,53 @@ app.post('/api/loginUser', (req, res) => {
             return;
         }
     });
+});
+
+app.post('/api/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Error destroying session:', err);
+            res.status(500).json({ success: false, message: 'Error logging out.' });
+        } else {
+            res.json({ success: true, message: 'User logged out successfully.' });
+        }
+    });
+});
+
+app.get('/api/checkLoggedIn', (req, res) => {
+    if (!req.session.user) {
+        // User is not logged in, redirect to the login page
+        res.redirect('/login.html');
+        return; // Important: Add return to prevent further execution
+    }
+
+    // User is logged in
+    res.json({ loggedIn: true, username: req.session.user.username });
+});
+
+app.get('/index.html', (req, res) => {
+    if (req.session.user) {
+        // User is logged in, render index.html with user data
+        const username = req.session.user.username;
+        const html = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>JChat</title>
+            </head>
+            <body>
+                <p>Hello ${username}</p>
+                <a href="/api/logout">Logout</a>
+            </body>
+            </html>
+        `;
+        res.send(html);
+    } else {
+        // User is not logged in, redirect to the login page
+        res.redirect('/login.html');
+    }
 });
 
 // Start the server
