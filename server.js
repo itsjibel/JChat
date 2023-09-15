@@ -16,7 +16,7 @@ const connection = mysql.createConnection({
 });
 
 // Serve static files from the 'public' directory
-app.use(express.static('../public'));
+app.use(express.static('public'));
 app.use(express.json()); // To parse JSON requests
 app.use(express.urlencoded({ extended: true })); // To parse form data
 app.use(cors());
