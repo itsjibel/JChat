@@ -1,3 +1,6 @@
+if (localStorage.getItem('token'))
+    window.location.href = '/index.html';
+
 // Process of eye button of login password
 const toggleSignUpPassword = document.querySelector('#toggleSignUpPassword');
 const signUpPassword = document.querySelector('#sign-up-password');

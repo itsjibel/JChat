@@ -6,7 +6,6 @@ const fs = require('fs');
 const https = require('https');
 
 const app = express();
-const port = 443;
 
 // Database connection configuration
 const connection = mysql.createConnection({
@@ -177,7 +176,6 @@ app.post('/api/logout', (req, res) => {
     }
 });
 
-
 // Load SSL certificate and private key
 const privateKey = fs.readFileSync('key.pem', 'utf8');
 const certificate = fs.readFileSync('cert.pem', 'utf8');
@@ -188,10 +186,10 @@ const credentials = {
     passphrase: 'Arman@511!'
 };
 
-
 const httpsServer = https.createServer(credentials, app);
+const port = 443;
 
 // Start the server
 httpsServer.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
+    console.log(`Server is running on port https://127.0.0.1`);
 });
