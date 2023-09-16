@@ -2,9 +2,11 @@ const express = require('express');
 const mysql = require('mysql2');
 const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
+const fs = require('fs');
+const https = require('https');
 
 const app = express();
-const port = 8000;
+const port = 443;
 
 // Database connection configuration
 const connection = mysql.createConnection({
@@ -175,7 +177,21 @@ app.post('/api/logout', (req, res) => {
     }
 });
 
+
+// Load SSL certificate and private key
+const privateKey = fs.readFileSync('key.pem', 'utf8');
+const certificate = fs.readFileSync('cert.pem', 'utf8');
+
+const credentials = { 
+    key: privateKey, 
+    cert: certificate,
+    passphrase: 'Arman@511!'
+};
+
+
+const httpsServer = https.createServer(credentials, app);
+
 // Start the server
-app.listen(port, () => {
+httpsServer.listen(port, () => {
     console.log(`Server is running on port ${port}`);
 });
