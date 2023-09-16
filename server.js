@@ -81,7 +81,8 @@ app.post('/api/addUser', (req, res) => {
             console.log(`"${username}" user with email of "${email}" was added successfully to the database.`);
             // Generate JWT token and send it in the response
             const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: '1h' });
-            res.json({ success: true, message: 'User added successfully!', token });
+            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '7d' });
+            res.json({ success: true, message: 'User added successfully!', token, refreshToken });
         });
     });
 });
@@ -103,7 +104,9 @@ app.post('/api/loginUser', (req, res) => {
         if (results.length > 0) {
             // User successfully logged in
             const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: '1h' });
-            res.json({ success: true, message: 'User can login!', token });
+            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '7d' }); // Set an appropriate expiration time
+
+            res.json({ success: true, message: 'User can login!', token, refreshToken });
         } else {
             res.status(400).json({ message: "Incorrect username or password." });
         }
@@ -136,7 +139,8 @@ app.get('/api/checkLoggedIn', verifyToken, (req, res) => {
     // Check if the user is logged in
     if (req.user) {
         // User is logged in
-        res.json({ loggedIn: true, username: req.user.username });
+        const token = jwt.sign({ username: req.user.username }, jwtSecretKey, { expiresIn: '1h' });
+        res.json({ loggedIn: true, username: req.user.username, accessToken: token });
     } else {
         // User is not logged in
         res.json({ loggedIn: false });
@@ -144,7 +148,7 @@ app.get('/api/checkLoggedIn', verifyToken, (req, res) => {
 });
 
 app.post('/api/refresh-token', (req, res) => {
-    const { accessToken, refreshToken } = req.body;
+    const { refreshToken } = req.body;
 
     // Verify that the refresh token is valid
     jwt.verify(refreshToken, jwtSecretKey, (err, decoded) => {

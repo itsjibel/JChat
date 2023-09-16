@@ -44,7 +44,11 @@ function addUser(e) {
     .then((data) => {
         if (data.success) {
             const token = data.token; // Get JWT token from response
-            localStorage.setItem('token', token); // Store token in localStorage
+            const refreshToken = data.refreshToken; // Get refresh token from response
+
+            localStorage.setItem('token', token); // Store access token in localStorage
+            localStorage.setItem('refreshToken', refreshToken); // Store refresh token in localStorage
+
             // Redirect to the index page after successful sign-up
             window.location.href = "/index.html";
         } else if (data.message) {
@@ -80,7 +84,11 @@ function loginUser(e) {
     .then((data) => {
         if (data.success) {
             const token = data.token; // Get JWT token from response
-            localStorage.setItem('token', token); // Store token in localStorage
+            const refreshToken = data.refreshToken; // Get refresh token from response
+
+            localStorage.setItem('token', token);
+            localStorage.setItem('refreshToken', refreshToken); // Store refresh token in localStorage
+
             // Redirect to the index page after successful login
             window.location.href = "/index.html";
         } else if (data.message) {
