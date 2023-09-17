@@ -18,7 +18,7 @@ if (token) {
         const tokenExpirationTime = new Date(tokenData.exp * 1000);
         const refreshTokenExpirationTime = new Date(refreshTokenData.exp * 1000);
     
-        if (tokenExpirationTime <= new Date() && refreshTokenExpirationTime > new Date()) {
+        if (refreshTokenExpirationTime > new Date()) {
             // Access token has expired, but refresh token is still valid
             fetch('/api/refresh-token', {
                 method: 'POST',
