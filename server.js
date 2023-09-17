@@ -15,6 +15,8 @@ const connection = mysql.createConnection({
     database: 'JChat',
 });
 
+const revokedTokens = [];
+
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 app.use(express.json()); // To parse JSON requests
@@ -79,10 +81,10 @@ app.post('/api/addUser', (req, res) => {
                 return;
             }
 
-            console.log(`"${username}" user with email of "${email}" was added successfully to the database.`);
+            console.log(`'${username}' successfully signed up!`)
             // Generate JWT token and send it in the response
-            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: '1h' });
-            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '7d' });
+            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: '5m' });
+            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '30d' });
             res.json({ success: true, message: 'User added successfully!', token, refreshToken });
         });
     });
@@ -104,9 +106,9 @@ app.post('/api/loginUser', (req, res) => {
 
         if (results.length > 0) {
             // User successfully logged in
-            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: '1h' });
-            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '7d' }); // Set an appropriate expiration time
-
+            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: '5m' });
+            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '30d' }); // Set an appropriate expiration time
+            console.log(`'${username}' successfully logged in!`)
             res.json({ success: true, message: 'User can login!', token, refreshToken });
         } else {
             res.status(400).json({ message: "Incorrect username or password." });
@@ -114,33 +116,28 @@ app.post('/api/loginUser', (req, res) => {
     });
 });
 
-const revokedTokens = [];
-
-function verifyToken(req, res, next) {
-    const token = req.headers.authorization?.split(' ')[1];
-    if (token) {
-        if (revokedTokens.includes(token)) {
-            return res.status(403).json({ message: 'Token has been revoked' });
-        }
-
-        jwt.verify(token, jwtSecretKey, (err, decoded) => {
+function verifyTokenForCheckLoggedIn(req, res, next) {
+    const refreshToken = req.headers.authorization?.split(' ')[1];
+    if (refreshToken) {
+        jwt.verify(refreshToken, jwtSecretKey, (err, decoded) => {
             if (err) {
-                console.error('Error verifying token:', err);
-                return res.status(403).json({ message: 'Invalid token' });
+                console.error('Error verifying refresh token:', err);
+                return res.status(403).json({ message: 'Invalid refresh token' });
             }
             req.user = decoded;
             next();
         });
     } else {
-        return res.status(403).json({ message: 'Token not provided' });
+        return res.status(403).json({ message: 'Refresh token not provided' });
     }
 }
 
-app.get('/api/checkLoggedIn', verifyToken, (req, res) => {
+app.get('/api/checkLoggedIn', verifyTokenForCheckLoggedIn, (req, res) => {
     // Check if the user is logged in
     if (req.user) {
         // User is logged in
-        const token = jwt.sign({ username: req.user.username }, jwtSecretKey, { expiresIn: '1h' });
+        // You can generate a new access token here if needed
+        const token = jwt.sign({ username: req.user.username }, jwtSecretKey, { expiresIn: '5m' });
         res.json({ loggedIn: true, username: req.user.username, accessToken: token });
     } else {
         // User is not logged in
@@ -151,17 +148,17 @@ app.get('/api/checkLoggedIn', verifyToken, (req, res) => {
 app.post('/api/refresh-token', (req, res) => {
     const { refreshToken } = req.body;
 
-    // Verify that the refresh token is valid
+    // Verify the refresh token
     jwt.verify(refreshToken, jwtSecretKey, (err, decoded) => {
         if (err) {
             console.error('Error verifying refresh token:', err);
             return res.status(403).json({ message: 'Invalid refresh token' });
         }
 
-        // Generate a new access token
-        const newAccessToken = jwt.sign({ username: decoded.username }, jwtSecretKey, { expiresIn: '1h' });
+        // Generate a new access token with the updated expiration time
+        const newAccessToken = jwt.sign({ username: decoded.username }, jwtSecretKey, { expiresIn: '5m' });
 
-        // Send the new access token to the client
+        // Send only the new access token to the client
         res.json({ success: true, message: 'New access token generated', accessToken: newAccessToken });
     });
 });
@@ -170,6 +167,8 @@ app.post('/api/logout', (req, res) => {
     const token = req.headers.authorization?.split(' ')[1];
     if (token && !revokedTokens.includes(token)) {
         revokedTokens.push(token);
+        const username = jwt.decode(token).username; // Decode the token to get the username
+        console.log(`'${username}' successfully logged out!`);
         res.json({ success: true, message: 'Token revoked successfully' });
     } else {
         res.status(400).json({ message: 'Invalid token' });
