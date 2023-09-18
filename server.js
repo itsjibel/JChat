@@ -83,8 +83,8 @@ app.post('/api/addUser', (req, res) => {
 
             console.log(`'${username}' successfully signed up!`)
             // Generate JWT token and send it in the response
-            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: 10 });
-            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '1m' });
+            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: '5m' });
+            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '15d' });
             res.json({ success: true, message: 'User added successfully!', token, refreshToken });
         });
     });
@@ -106,8 +106,8 @@ app.post('/api/loginUser', (req, res) => {
 
         if (results.length > 0) {
             // User successfully logged in
-            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: 10 });
-            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '1m' }); // Set an appropriate expiration time
+            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: '5m' });
+            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '15d' }); // Set an appropriate expiration time
             console.log(`'${username}' successfully logged in!`)
             res.json({ success: true, message: 'User can login!', token, refreshToken });
         } else {
@@ -136,7 +136,7 @@ app.get('/api/checkLoggedIn', verifyTokenForCheckLoggedIn, (req, res) => {
     if (req.user) {
         // User is logged in
         // You can generate a new access token here if needed
-        const token = jwt.sign({ username: req.user.username }, jwtSecretKey, { expiresIn: 10 });
+        const token = jwt.sign({ username: req.user.username }, jwtSecretKey, { expiresIn: '5m' });
         res.json({ loggedIn: true, username: req.user.username, accessToken: token });
     } else {
         // User is not logged in
