@@ -1,5 +1,38 @@
-if (localStorage.getItem('token'))
-    window.location.href = '/index.html';
+function getCookie(name) {
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+        const [cookieName, cookieValue] = cookie.trim().split('=');
+        if (cookieName === name) {
+            return decodeURIComponent(cookieValue);
+        }
+    }
+    return null;
+}
+
+const token = getCookie('token');
+const refreshToken = getCookie('refreshToken');
+
+if (refreshToken && token) {
+    fetch('/api/checkLoggedIn', {
+        headers: {
+            'Authorization': 'Bearer ' + refreshToken
+        }
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        if (data && data.loggedIn) {
+            window.location.href = '/index.html';
+        }
+    })
+}
+
+// Function to set a cookie
+function setCookie(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = "expires=" + date.toUTCString();
+    document.cookie = name + "=" + value + "; " + expires + "; path=/; domain=jchat.com; secure; samesite=None";
+}
 
 // Process of eye button of login password
 const toggleSignUpPassword = document.querySelector('#toggleSignUpPassword');
@@ -49,8 +82,9 @@ function addUser(e) {
             const token = data.token; // Get JWT token from response
             const refreshToken = data.refreshToken; // Get refresh token from response
 
-            localStorage.setItem('token', token); // Store access token in localStorage
-            localStorage.setItem('refreshToken', refreshToken); // Store refresh token in localStorage
+            // Set tokens as cookies
+            setCookie('token', token, 0.0035); // 5 minutes expiration (adjust as needed)
+            setCookie('refreshToken', refreshToken, 15); // 15 days expiration (adjust as needed)
 
             // Redirect to the index page after successful sign-up
             window.location.href = "/index.html";
@@ -61,7 +95,7 @@ function addUser(e) {
         }
     })
     .catch((error) => {
-        console.log(error);
+        console.error(error);
     });
 }
 
@@ -89,8 +123,9 @@ function loginUser(e) {
             const token = data.token; // Get JWT token from response
             const refreshToken = data.refreshToken; // Get refresh token from response
 
-            localStorage.setItem('token', token);
-            localStorage.setItem('refreshToken', refreshToken); // Store refresh token in localStorage
+            // Set tokens as cookies
+            setCookie('token', token, 0.0035); // 5 minutes expiration (adjust as needed)
+            setCookie('refreshToken', refreshToken, 15); // 15 days expiration (adjust as needed)
 
             // Redirect to the index page after successful login
             window.location.href = "/index.html";
@@ -100,7 +135,7 @@ function loginUser(e) {
         }
     })
     .catch((error) => {
-        console.log(error);
+        console.error(error);
     });
 }
 

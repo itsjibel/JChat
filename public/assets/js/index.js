@@ -1,21 +1,34 @@
-const token = localStorage.getItem('token');
-const refreshToken = localStorage.getItem('refreshToken');
+function getCookie(name) {
+    const cookies = document.cookie.split(';');
+    for (const cookie of cookies) {
+        const [cookieName, cookieValue] = cookie.trim().split('=');
+        if (cookieName === name) {
+            return decodeURIComponent(cookieValue);
+        }
+    }
+    return null;
+}
+
+function setCookie(name, value, days) {
+    const date = new Date();
+    date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+    const expires = "expires=" + date.toUTCString();
+    document.cookie = name + "=" + value + "; " + expires + "; path=/; domain=jchat.com; secure; samesite=None";
+}
+
+const token = getCookie('token');
+const refreshToken = getCookie('refreshToken');
 
 if (token) {
     // Function to refresh the token
     function refreshAccessToken() {
-        const token = localStorage.getItem('token');
-        const refreshToken = localStorage.getItem('refreshToken');
-        
         if (!token || !refreshToken) {
             // Tokens are missing, redirect to login
             window.location.href = '/login.html';
             return;
         }
-    
-        const tokenData = parseJwt(token);
+
         const refreshTokenData = parseJwt(refreshToken);
-        const tokenExpirationTime = new Date(tokenData.exp * 1000);
         const refreshTokenExpirationTime = new Date(refreshTokenData.exp * 1000);
     
         if (refreshTokenExpirationTime > new Date()) {
@@ -32,13 +45,11 @@ if (token) {
             .then((data) => {
                 if (data.success) {
                     const newToken = data.accessToken;
-                    localStorage.setItem('token', newToken); // Store the new access token
+                    setCookie('token', newToken, 0.0035); // Store the new access token in a cookie
                     setTimeout(refreshAccessToken, 50000); // Schedule the next token refresh
                 } else {
                     // Handle refresh token failure
                     console.error('Failed to refresh access token:', data.message);
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('refreshToken');
                     window.location.href = '/login.html'; // Redirect to the login page on failure
                 }
             })
@@ -47,8 +58,6 @@ if (token) {
             });
         } else {
             // Both access and refresh tokens are expired, redirect to login
-            localStorage.removeItem('token');
-            localStorage.removeItem('refreshToken');
             window.location.href = '/login.html';
         }
     }
@@ -76,9 +85,29 @@ if (token) {
             // Add an event listener to the logout link
             const logoutLink = document.getElementById('logout-link');
             logoutLink.addEventListener('click', () => {
-                localStorage.removeItem('token');
-                localStorage.removeItem('refreshToken');
-                window.location.href = '/login.html';
+                // Call the logout API here
+                fetch('/api/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + token
+                    }
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=jchat.com;';
+                        document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=jchat.com;';
+                        // Redirect to the login page or perform other actions as needed
+                        window.location.href = '/login.html';
+                    } else {
+                        // Handle logout failure
+                        console.error('Failed to log out:', data.message);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error logging out:', error);
+                });
             });
 
             // Schedule the first token refresh

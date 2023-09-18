@@ -4,26 +4,27 @@ const crypto = require('crypto');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const https = require('https');
+const cookieParser = require('cookie-parser');
 
 const app = express();
-
-// Database connection configuration
-const connection = mysql.createConnection({
-    host: 'localhost',
-    user: 'jibel',
-    password: 'Arman@511!',
-    database: 'JChat',
-});
-
-const revokedTokens = [];
 
 // Serve static files from the 'public' directory
 app.use(express.static('public'));
 app.use(express.json()); // To parse JSON requests
 app.use(express.urlencoded({ extended: true })); // To parse form data
+app.use(cookieParser());
 
 // Middleware to parse JSON requests
 const jwtSecretKey = '8f2f5c3d113379d9247386841bb17b8cdbd302f272723beacb0fd4ad13080959'
+const accessTokenExpiry = '15m';
+const refreshTokenExpiry = '15d';
+
+const connection = mysql.createConnection({
+    host: 'jchat.com',
+    user: 'jibel',
+    password: 'Arman@511!',
+    database: 'JChat',
+});
 
 function isValidUsername(username) {
     const validUsernameRegex = /^[a-zA-Z][a-zA-Z0-9._]{2,19}$/;
@@ -83,8 +84,9 @@ app.post('/api/addUser', (req, res) => {
 
             console.log(`'${username}' successfully signed up!`)
             // Generate JWT token and send it in the response
-            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: '5m' });
-            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '15d' });
+            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
+            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: refreshTokenExpiry });
+
             res.json({ success: true, message: 'User added successfully!', token, refreshToken });
         });
     });
@@ -106,9 +108,11 @@ app.post('/api/loginUser', (req, res) => {
 
         if (results.length > 0) {
             // User successfully logged in
-            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: '5m' });
-            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '15d' }); // Set an appropriate expiration time
+            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
+            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: refreshTokenExpiry });
+
             console.log(`'${username}' successfully logged in!`)
+
             res.json({ success: true, message: 'User can login!', token, refreshToken });
         } else {
             res.status(400).json({ message: "Incorrect username or password." });
@@ -135,7 +139,6 @@ app.get('/api/checkLoggedIn', verifyTokenForCheckLoggedIn, (req, res) => {
     // Check if the user is logged in
     if (req.user) {
         // User is logged in
-        // You can generate a new access token here if needed
         const token = jwt.sign({ username: req.user.username }, jwtSecretKey, { expiresIn: '5m' });
         res.json({ loggedIn: true, username: req.user.username, accessToken: token });
     } else {
@@ -154,19 +157,22 @@ app.post('/api/refresh-token', (req, res) => {
         }
 
         // Generate a new access token with the updated expiration time
-        const newAccessToken = jwt.sign({ username: decoded.username }, jwtSecretKey, { expiresIn: 10 });
+        const newAccessToken = jwt.sign({ username: decoded.username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
 
         // Send only the new access token to the client
         res.json({ success: true, message: 'New access token generated', accessToken: newAccessToken });
     });
 });
 
+const revokedTokens = [];
+
 app.post('/api/logout', (req, res) => {
-    const token = req.headers.authorization?.split(' ')[1];
+    const token = req.cookies.token; // Retrieve access token from cookies
     if (token && !revokedTokens.includes(token)) {
         revokedTokens.push(token);
         const username = jwt.decode(token).username; // Decode the token to get the username
         console.log(`'${username}' successfully logged out!`);
+        res.clearCookie('token'); // Clear the access token cookie
         res.json({ success: true, message: 'Token revoked successfully' });
     } else {
         res.status(400).json({ message: 'Invalid token' });
@@ -188,5 +194,5 @@ const port = 443;
 
 // Start the server
 httpsServer.listen(port, () => {
-    console.log(`Server is running on port https://127.0.0.1`);
+    console.log(`Server is running on port https://jchat.com`);
 });
