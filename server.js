@@ -83,8 +83,8 @@ app.post('/api/addUser', (req, res) => {
 
             console.log(`'${username}' successfully signed up!`)
             // Generate JWT token and send it in the response
-            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: '5m' });
-            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '30d' });
+            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: 10 });
+            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '1m' });
             res.json({ success: true, message: 'User added successfully!', token, refreshToken });
         });
     });
@@ -106,8 +106,8 @@ app.post('/api/loginUser', (req, res) => {
 
         if (results.length > 0) {
             // User successfully logged in
-            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: '5m' });
-            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '30d' }); // Set an appropriate expiration time
+            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: 10 });
+            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: '1m' }); // Set an appropriate expiration time
             console.log(`'${username}' successfully logged in!`)
             res.json({ success: true, message: 'User can login!', token, refreshToken });
         } else {
@@ -121,7 +121,6 @@ function verifyTokenForCheckLoggedIn(req, res, next) {
     if (refreshToken) {
         jwt.verify(refreshToken, jwtSecretKey, (err, decoded) => {
             if (err) {
-                console.error('Error verifying refresh token:', err);
                 return res.status(403).json({ message: 'Invalid refresh token' });
             }
             req.user = decoded;
@@ -137,7 +136,7 @@ app.get('/api/checkLoggedIn', verifyTokenForCheckLoggedIn, (req, res) => {
     if (req.user) {
         // User is logged in
         // You can generate a new access token here if needed
-        const token = jwt.sign({ username: req.user.username }, jwtSecretKey, { expiresIn: '5m' });
+        const token = jwt.sign({ username: req.user.username }, jwtSecretKey, { expiresIn: 10 });
         res.json({ loggedIn: true, username: req.user.username, accessToken: token });
     } else {
         // User is not logged in
@@ -151,12 +150,11 @@ app.post('/api/refresh-token', (req, res) => {
     // Verify the refresh token
     jwt.verify(refreshToken, jwtSecretKey, (err, decoded) => {
         if (err) {
-            console.error('Error verifying refresh token:', err);
             return res.status(403).json({ message: 'Invalid refresh token' });
         }
 
         // Generate a new access token with the updated expiration time
-        const newAccessToken = jwt.sign({ username: decoded.username }, jwtSecretKey, { expiresIn: '5m' });
+        const newAccessToken = jwt.sign({ username: decoded.username }, jwtSecretKey, { expiresIn: 10 });
 
         // Send only the new access token to the client
         res.json({ success: true, message: 'New access token generated', accessToken: newAccessToken });
