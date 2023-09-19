@@ -139,7 +139,7 @@ app.get('/api/checkLoggedIn', verifyTokenForCheckLoggedIn, (req, res) => {
     // Check if the user is logged in
     if (req.user) {
         // User is logged in
-        const token = jwt.sign({ username: req.user.username }, jwtSecretKey, { expiresIn: '5m' });
+        const token = jwt.sign({ username: req.user.username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
         res.json({ loggedIn: true, username: req.user.username, accessToken: token });
     } else {
         // User is not logged in
