@@ -1,9 +1,47 @@
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    display: flex;
+}
+
+.row {
+    flex: 1;
+}
+
 .chats {
-    background-color: rgb(179, 192, 210);
-    height: 100px;
+    background-color: rgb(200, 200, 200);
+    height: 100%;
 }
 
 .chat-texts {
     background-color: rgb(128, 170, 186);
-    height: 100px;
+    height: 100%;
+}
+
+.user-profile {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    background-color: rgb(38, 180, 202);
+    border-radius: 10px;
+    margin: 10px;
+    width: 40%;
+    justify-content: space-between;
+}
+
+.profile-picture {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #fff;
+}
+
+.user-name {
+    font-size: 18px;
+    font-weight: bold;
+    margin-right: 20px;
 }

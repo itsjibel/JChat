@@ -1,9 +1,7 @@
 function getCookie(name) {
-    console.log(name);
     const cookies = document.cookie.split(';');
     for (const cookie of cookies) {
         const [cookieName, cookieValue] = cookie.trim().split('=');
-        console.log(`${cookieName}:`, cookieValue);
         if (cookieName === name) {
             return decodeURIComponent(cookieValue);
         }
@@ -81,22 +79,22 @@ if (token) {
         if (data && data.loggedIn) {
             // User is logged in, continue as before
             const userProfileData = {
-                profilePictureUrl: 'new_user.jpg',
+                profilePictureUrl: '',
                 userName: data.username,
             };
 
             const profilePictureElement = document.querySelector('.profile-picture');
             const userNameElement = document.querySelector('.user-name');
-            
+
             // Set the profile picture and username
             if (userProfileData.profilePictureUrl) {
                 profilePictureElement.style.backgroundImage = `url(${userProfileData.profilePictureUrl})`;
             }
             userNameElement.textContent = userProfileData.userName;
             
-            // Add an event listener to the logout link
-            const logoutLink = document.getElementById('logout-link');
-            logoutLink.addEventListener('click', () => {
+            // Add an event listener to the logout button
+            const logoutButton = document.getElementById('logout-btn');
+            logoutButton.addEventListener('click', () => {
                 // Call the logout API here
                 fetch('/api/logout', {
                     method: 'POST',
@@ -108,6 +106,7 @@ if (token) {
                 .then((response) => response.json())
                 .then((data) => {
                     if (data.success) {
+                        // Clear the access token and refresh token cookies
                         document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=jchat.com;';
                         document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=jchat.com;';
                         // Redirect to the login page or perform other actions as needed

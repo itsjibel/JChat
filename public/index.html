@@ -5,22 +5,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="assets/images/favicon.ico">
-	<title>JChat</title>
-	<link rel="icon" href="assets/images/JChat-Title-Logo.png" type="image/png">
-	<meta name="description" content="Online chat">
-	<meta name="keywords" content="online chat, chat">
-	<meta name="author" content="Jibel">
-	<link rel="stylesheet" type="text/css" href="assets/css/index.css">
-	<link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+    <title>JChat</title>
+    <link rel="icon" href="assets/images/JChat-Title-Logo.png" type="image/png">
+    <meta name="description" content="Online chat">
+    <meta name="keywords" content="online chat, chat">
+    <meta name="author" content="Jibel">
+    <link rel="stylesheet" type="text/css" href="assets/css/index.css">
+    <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
 </head>
 
 <body>
     <div class="row justify-content-evenly">
         <div class="chats col-4">
-            <div id="user-info">
-                <!-- This is where the user information will be displayed -->
+            <div class="user-profile">
+                <div class="profile-picture">
+                    <!-- Profile picture goes here -->
+                </div>
+                <div class="user-name">
+                    <!-- User name goes here -->
+                </div>
+                <div id="logout-button">
+                    <button class="btn btn-primary" id="logout-btn">Logout</button>
+                </div>                
             </div>
+            <!-- Rest of your content goes here -->
         </div>
+        
         <div class="chat-texts col-8">
         </div>
     </div>
