@@ -71,23 +71,34 @@ app.post('/api/addUser', (req, res) => {
         }
 
         // If no user with the same username or email exists, proceed with insertion
-        const sql = 'INSERT INTO Users (username, password, email) VALUES (?, ?, ?)';
+        const sql = 'INSERT INTO Users (username, password, email, pfp) VALUES (?, ?, ?, ?)';
         password = crypto.createHash('sha256').update(password).digest('hex');
-        const values = [username, password, email];
+        const defaultProfilePicturePath = 'public/assets/images/new_user_pfp.jpg'; // Adjust the path as needed
 
-        connection.execute(sql, values, (insertError) => {
-            if (insertError) {
-                console.error('Error in adding user!');
+        // Read the default profile picture file as binary data
+        fs.readFile(defaultProfilePicturePath, (readError, imageBinaryData) => {
+            if (readError) {
+                console.error('Error reading default profile picture:', readError);
                 res.status(500).json({ message: 'An error occurred.' });
                 return;
             }
 
-            console.log(`'${username}' successfully signed up!`)
-            // Generate JWT token and send it in the response
-            const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
-            const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: refreshTokenExpiry });
+            const values = [username, password, email, imageBinaryData]; // Include the image binary data in values
 
-            res.json({ success: true, message: 'User added successfully!', token, refreshToken });
+            connection.execute(sql, values, (insertError) => {
+                if (insertError) {
+                    console.error('Error in adding user!');
+                    res.status(500).json({ message: 'An error occurred.' });
+                    return;
+                }
+
+                console.log(`'${username}' successfully signed up!`)
+                // Generate JWT token and send it in the response
+                const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
+                const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: refreshTokenExpiry });
+
+                res.json({ success: true, message: 'User added successfully!', token, refreshToken });
+            });
         });
     });
 });
@@ -135,6 +146,23 @@ function verifyTokenForCheckLoggedIn(req, res, next) {
     }
 }
 
+function verifyToken(req, res, next) {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+        return res.status(403).json({ message: 'Access token not provided' });
+    }
+
+    jwt.verify(token, jwtSecretKey, (err, decoded) => {
+        if (err) {
+            return res.status(403).json({ message: 'Invalid access token' });
+        }
+
+        req.user = decoded; // Attach the user information to the request object
+        next(); // Continue to the next middleware or route handler
+    });
+}
+
 app.get('/api/checkLoggedIn', verifyTokenForCheckLoggedIn, (req, res) => {
     // Check if the user is logged in
     if (req.user) {
@@ -178,6 +206,32 @@ app.post('/api/logout', (req, res) => {
         res.status(400).json({ message: 'Invalid token' });
     }
 });
+
+app.get('/api/getUserProfile/:username', verifyToken, (req, res) => {
+    const requestedUsername = req.params.username;
+    const sql = 'SELECT username, pfp FROM Users WHERE username = ?';
+
+    connection.execute(sql, [requestedUsername], (error, results) => {
+        if (error) {
+            console.error('Error fetching user profile:', error);
+            res.status(500).json({ message: 'An error occurred.' });
+            return;
+        }
+
+        if (results.length === 0) {
+            res.status(404).json({ message: 'User not found.' });
+            return;
+        }
+
+        const userData = results[0];
+
+        res.json({
+            success: true,
+            username: userData.username,
+            profilePicture: userData.pfp,
+        });
+    });
+}); 
 
 // Load SSL certificate and private key
 const privateKey = fs.readFileSync('key.pem', 'utf8');

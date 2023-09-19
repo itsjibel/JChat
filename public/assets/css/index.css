@@ -28,20 +28,33 @@ body {
     padding: 10px;
     background-color: rgb(38, 180, 202);
     border-radius: 10px;
-    margin: 10px;
-    width: 40%;
-    justify-content: space-between;
+    margin: 5px;
+    width: 60%;
 }
 
-.profile-picture {
+.profile-picture-template {
     width: 50px;
     height: 50px;
     border-radius: 50%;
     background-color: #fff;
+    position: relative;
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically */
+}
+
+.pfp {
+    max-width: 100%;
+    max-height: 100%;
+    border-radius: 50%;
 }
 
 .user-name {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
-    margin-right: 20px;
+    margin-left: 10px; /* Add a left margin of 10px */
+    flex-grow: 1; /* Allow the username to grow and take up remaining space */
+    white-space: nowrap; /* Prevent the username from wrapping to the next line */
+    overflow: hidden; /* Hide any overflow text */
+    text-overflow: ellipsis; /* Show ellipsis (...) for long usernames */
 }

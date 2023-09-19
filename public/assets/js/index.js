@@ -83,15 +83,40 @@ if (token) {
                 userName: data.username,
             };
 
-            const profilePictureElement = document.querySelector('.profile-picture');
-            const userNameElement = document.querySelector('.user-name');
+            // Function to fetch user data
+            function fetchUserData() {
+                fetch('/api/getUserProfile/' + tokenData.username, {
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    }
+                })
+                .then((response) => response.json())
+                .then((userData) => {
+                    if (userData) {
+                        userProfileData.profilePicture = userData.profilePicture;
+                        userProfileData.userName = userData.username;
 
-            // Set the profile picture and username
-            if (userProfileData.profilePictureUrl) {
-                profilePictureElement.style.backgroundImage = `url(${userProfileData.profilePictureUrl})`;
+                        const userNameElement = document.querySelector('.user-name');
+                
+                        if (userData.profilePicture) {
+                            const arrayBufferView = new Uint8Array(userData.profilePicture.data);
+                            const blob = new Blob([arrayBufferView], { type: userData.profilePicture.type });
+                            const imageUrl = URL.createObjectURL(blob);
+                            
+                            const profilePictureElement = document.querySelector('.profile-picture-template img');
+                            profilePictureElement.src = imageUrl;
+                        }
+                        userNameElement.textContent = userProfileData.userName;
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error fetching user data:', error);
+                });
             }
-            userNameElement.textContent = userProfileData.userName;
-            
+
+            // Call the function to fetch user data
+            fetchUserData();
+
             // Add an event listener to the logout button
             const logoutButton = document.getElementById('logout-btn');
             logoutButton.addEventListener('click', () => {
