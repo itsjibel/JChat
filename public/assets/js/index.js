@@ -1,7 +1,9 @@
 function getCookie(name) {
+    console.log(name);
     const cookies = document.cookie.split(';');
     for (const cookie of cookies) {
         const [cookieName, cookieValue] = cookie.trim().split('=');
+        console.log(`${cookieName}:`, cookieValue);
         if (cookieName === name) {
             return decodeURIComponent(cookieValue);
         }
@@ -45,11 +47,10 @@ if (token) {
             .then((data) => {
                 if (data.success) {
                     const newToken = data.accessToken;
-                    setCookie('token', newToken, 0.0035); // Store the new access token in a cookie
+                    setCookie('token', newToken, 7); // Store the new access token in a cookie
                     setTimeout(refreshAccessToken, 50000); // Schedule the next token refresh
                 } else {
                     // Handle refresh token failure
-                    console.error('Failed to refresh access token:', data.message);
                     window.location.href = '/login.html'; // Redirect to the login page on failure
                 }
             })
@@ -79,8 +80,19 @@ if (token) {
     .then((data) => {
         if (data && data.loggedIn) {
             // User is logged in, continue as before
-            const userInfoDiv = document.getElementById('user-info');
-            userInfoDiv.innerHTML = `Hello ${data.username} <a id="logout-link" href="#">Logout</a>`;
+            const userProfileData = {
+                profilePictureUrl: 'new_user.jpg',
+                userName: data.username,
+            };
+
+            const profilePictureElement = document.querySelector('.profile-picture');
+            const userNameElement = document.querySelector('.user-name');
+            
+            // Set the profile picture and username
+            if (userProfileData.profilePictureUrl) {
+                profilePictureElement.style.backgroundImage = `url(${userProfileData.profilePictureUrl})`;
+            }
+            userNameElement.textContent = userProfileData.userName;
             
             // Add an event listener to the logout link
             const logoutLink = document.getElementById('logout-link');
@@ -118,7 +130,7 @@ if (token) {
         console.error('Error checking login status:', error);
     });
 } else {
-    // User is not logged in, redirect to the login page
+    // Token does not exist
     window.location.href = '/login.html';
 }
 
