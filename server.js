@@ -72,8 +72,8 @@ app.post('/api/addUser', (req, res) => {
 
         // If no user with the same username or email exists, proceed with insertion
         const sql = 'INSERT INTO Users (username, password, email, pfp) VALUES (?, ?, ?, ?)';
-        password = crypto.createHash('sha256').update(password).digest('hex');
-        const defaultProfilePicturePath = 'public/assets/images/new_user_pfp.jpg'; // Adjust the path as needed
+        password = crypto.createHash('sha256').update(password).digest('hex'); // Hash the password with the sha256 algorithm
+        const defaultProfilePicturePath = 'public/assets/images/new_user_pfp.jpg';
 
         // Read the default profile picture file as binary data
         fs.readFile(defaultProfilePicturePath, (readError, imageBinaryData) => {
@@ -85,14 +85,15 @@ app.post('/api/addUser', (req, res) => {
 
             const values = [username, password, email, imageBinaryData]; // Include the image binary data in values
 
-            connection.execute(sql, values, (insertError) => {
-                if (insertError) {
+            connection.execute(sql, values, (error) => {
+                if (error) {
                     console.error('Error in adding user!');
                     res.status(500).json({ message: 'An error occurred.' });
                     return;
                 }
 
                 console.log(`'${username}' successfully signed up!`)
+
                 // Generate JWT token and send it in the response
                 const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
                 const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: refreshTokenExpiry });
@@ -105,8 +106,10 @@ app.post('/api/addUser', (req, res) => {
 
 app.post('/api/loginUser', (req, res) => {
     let { username, password } = req.body;
+    // Hash the password with the sha256 algorithm to check it with the hashed password
     password = crypto.createHash('sha256').update(password).digest('hex');
 
+    // Check if any user exists with the given username or email address and password
     const checkSql = 'SELECT * FROM Users WHERE (username = ? OR email = ?) AND password = ?';
     const checkValues = [username, username, password];
 
@@ -118,11 +121,12 @@ app.post('/api/loginUser', (req, res) => {
         }
 
         if (results.length > 0) {
-            // User successfully logged in
+            // So SQL query worked and found the user, so the user successfully logged in
+            // Generate JWT token and send it in the response
+            console.log(`'${username}' successfully logged in!`)
+
             const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
             const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: refreshTokenExpiry });
-
-            console.log(`'${username}' successfully logged in!`)
 
             res.json({ success: true, message: 'User can login!', token, refreshToken });
         } else {
@@ -146,6 +150,18 @@ function verifyTokenForCheckLoggedIn(req, res, next) {
     }
 }
 
+app.get('/api/checkLoggedIn', verifyTokenForCheckLoggedIn, (req, res) => {
+    // Check if the user is logged in
+    if (req.user) {
+        // User is logged in
+        const token = jwt.sign({ username: req.user.username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
+        res.json({ loggedIn: true, username: req.user.username, accessToken: token });
+    } else {
+        // User is not logged in
+        res.json({ loggedIn: false });
+    }
+});
+
 function verifyToken(req, res, next) {
     const token = req.headers.authorization?.split(' ')[1];
 
@@ -163,16 +179,30 @@ function verifyToken(req, res, next) {
     });
 }
 
-app.get('/api/checkLoggedIn', verifyTokenForCheckLoggedIn, (req, res) => {
-    // Check if the user is logged in
-    if (req.user) {
-        // User is logged in
-        const token = jwt.sign({ username: req.user.username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
-        res.json({ loggedIn: true, username: req.user.username, accessToken: token });
-    } else {
-        // User is not logged in
-        res.json({ loggedIn: false });
-    }
+app.get('/api/getUserProfile/:username', verifyToken, (req, res) => {
+    const requestedUsername = req.params.username;
+    const sql = 'SELECT username, pfp FROM Users WHERE username = ?';
+
+    connection.execute(sql, [requestedUsername], (error, results) => {
+        if (error) {
+            console.error('Error fetching user profile:', error);
+            res.status(500).json({ message: 'An error occurred.' });
+            return;
+        }
+
+        if (results.length === 0) {
+            res.status(404).json({ message: 'User not found.' });
+            return;
+        }
+
+        const userData = results[0];
+
+        res.json({
+            success: true,
+            username: userData.username,
+            profilePicture: userData.pfp,
+        });
+    });
 });
 
 app.post('/api/refresh-token', (req, res) => {
@@ -206,32 +236,6 @@ app.post('/api/logout', (req, res) => {
         res.status(400).json({ message: 'Invalid token' });
     }
 });
-
-app.get('/api/getUserProfile/:username', verifyToken, (req, res) => {
-    const requestedUsername = req.params.username;
-    const sql = 'SELECT username, pfp FROM Users WHERE username = ?';
-
-    connection.execute(sql, [requestedUsername], (error, results) => {
-        if (error) {
-            console.error('Error fetching user profile:', error);
-            res.status(500).json({ message: 'An error occurred.' });
-            return;
-        }
-
-        if (results.length === 0) {
-            res.status(404).json({ message: 'User not found.' });
-            return;
-        }
-
-        const userData = results[0];
-
-        res.json({
-            success: true,
-            username: userData.username,
-            profilePicture: userData.pfp,
-        });
-    });
-}); 
 
 // Load SSL certificate and private key
 const privateKey = fs.readFileSync('key.pem', 'utf8');
