@@ -116,7 +116,7 @@ function fetchUserData() {
             fetchUserData();
 
             // Schedule the first token refresh
-            setTimeout(refreshAccessToken, 50000);
+            refreshAccessToken();
         }
     })
     .catch((error) => {
@@ -159,6 +159,39 @@ function parseJwt(token) {
     const base64Url = token.split('.')[1];
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     return JSON.parse(window.atob(base64));
+}
+
+function showMessage(message, isError = false) {
+    const messageBox = document.getElementById('message-box');
+    const messageText = document.getElementById('message-text');
+    const messageProgress = document.getElementById('message-progress');
+
+    // Set the message text
+    messageText.textContent = message;
+
+    // Show the message box
+    messageBox.style.display = 'inline-block';
+
+    // Center the message box
+    messageBox.style.top = '0';
+    messageBox.style.left = '50%';
+    messageBox.style.transform = 'translateX(-50%)';
+
+    // Hide the message box after 3 seconds
+    setTimeout(() => {
+        messageBox.style.display = 'none';
+    }, 4000);
+
+    // Update the progress bar (optional)
+    let width = 0;
+    const interval = setInterval(() => {
+        if (width >= 100) {
+            clearInterval(interval);
+        } else {
+            width++;
+            messageProgress.style.width = width + '%';
+        }
+    }, 40);
 }
 
 // Add an event listener to the logout button
@@ -206,17 +239,17 @@ applyChangesButton.addEventListener('click', (e) => {
     
                 setCookie('token', token, 7);
                 setCookie('refreshToken', refreshToken, 15);
-    
-                console.log('Profile updated successfully');
-                passwordModal.hide();
+
+                showMessage('Profile updated successfully');
             } else {
                 // Handle edit failure, display an error message or take appropriate action
-                console.error('Failed to update profile:', data.message);
+                showMessage(data.message, true);
             }
         })
         .catch((error) => {
             console.error('Error updating profile:', error);
         });
+        passwordModal.hide();
     });
 });
 
