@@ -242,7 +242,8 @@ app.post('/api/logout', (req, res) => {
 });
 
 app.post('/api/editUser/:username', verifyToken, upload.single('pfp'), (req, res) => {
-    let { old_username, username, password, email } = req.body;
+    let { old_password, old_username, username, password, email } = req.body;
+    password = password != '' ? password : old_password;
 
     if (!isValidUsername(username)) {
         res.status(400).json({ message: "Invalid username. A username must start with a letter, be between 3 and 20 characters long, and can contain letters, numbers, '.', '_', and no spaces." });
@@ -255,8 +256,9 @@ app.post('/api/editUser/:username', verifyToken, upload.single('pfp'), (req, res
     }
 
     // Check if the username or email already exists
-    const checkSql = 'SELECT * FROM Users WHERE username = ?';
-    const checkValues = [old_username];
+    const checkSql = 'SELECT * FROM Users WHERE username = ? AND password = ?';
+    old_password = crypto.createHash('sha256').update(old_password).digest('hex');
+    const checkValues = [old_username, old_password];
 
     connection.execute(checkSql, checkValues, (error, results) => {
         if (error) {
@@ -273,20 +275,11 @@ app.post('/api/editUser/:username', verifyToken, upload.single('pfp'), (req, res
             password = crypto.createHash('sha256').update(password).digest('hex'); // Hash the password with the sha256 algorithm
 
             // Check if a new profile picture is provided
-            const defaultProfilePicturePath = 'public/assets/images/new_user_pfp.jpg';
-            let pfp;
-            try {
-                // Read the default profile picture file as binary data synchronously
-                pfp = fs.readFileSync(defaultProfilePicturePath);
-            } catch (error) {
-                console.error('Error reading default profile picture:', error);
-                // Handle the error here, e.g., by sending an error response
-                res.status(500).json({ message: 'An error occurred.' });
-                return;
-            }
-
+            let pfp = null;
             if (req.file) {
                 pfp = req.file.buffer; // Set pfp to the binary data of the uploaded file
+            } else {
+                pfp = existingUser.pfp;
             }
             
             const values = [username, password, email, pfp, existingUser.user_id]; // Include the user's ID for updating
@@ -305,7 +298,7 @@ app.post('/api/editUser/:username', verifyToken, upload.single('pfp'), (req, res
                 res.json({ success: true, message: 'User profile updated successfully!', token, refreshToken });
             });
         } else {
-            res.status(500).json({ message: 'An error occurred while updating user data.' });
+            res.status(400).json({ message: 'The password is incorrect.' });
         }
     });
 });
