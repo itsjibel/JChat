@@ -26,7 +26,7 @@ body {
     display: flex;
     align-items: center;
     padding: 10px;
-    background-color: rgb(38, 180, 202);
+	background: linear-gradient(to bottom right, #27cdcd, #169ea3, #12918d);
     border-radius: 10px;
     margin: 5px;
     max-width: 100%;
