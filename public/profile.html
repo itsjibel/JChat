@@ -21,11 +21,24 @@
             <i class="fas fa-arrow-left"></i> Back
         </a>
         <div class="profile-picture-template">
-            <img class="pfp" src="" alt="Profile Picture"> <!-- Add an img tag here -->
+            <img class="pfp" src="" alt="Profile Picture">
+            <input type="file" id="profile-picture-input" accept="image/*" style="display: none;" />
+            <label for="profile-picture-input" class="edit-icon">
+                <i class="fas fa-edit"></i> Edit
+            </label>
         </div>
-        <div class="user-name">
-            <!-- User name goes here -->
-        </div>
+        <form class="edit-profile-form">
+            <label class="form-label" for="username">Username:</label>
+            <input class="form-control" type="text" id="username" name="username" />
+
+            <label class="form-label" for="email">Email:</label>
+            <input class="form-control" type="email" id="email" name="email" />
+
+            <label class="form-label" for="password">Password:</label>
+            <input class="form-control" type="password" id="password" name="password" autocomplete="new-password"/>
+
+            <button type="submit" class="btn btn-primary apply-changes-btn" id="apply-changes-btn">Apply Changes</button>
+        </form>
         <div class="logout-button" id="logout-button">
             <button class="btn btn-primary" id="logout-btn">Logout</button>
         </div>

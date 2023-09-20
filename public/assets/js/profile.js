@@ -59,8 +59,8 @@ function refreshAccessToken() {
     }
 }
 
+const tokenData = parseJwt(token);
 function fetchUserData() {
-    const tokenData = parseJwt(token);
     const expirationTime = new Date(tokenData.exp * 1000);
 
     if (expirationTime <= new Date()) {
@@ -76,12 +76,6 @@ function fetchUserData() {
     .then((response) => response.json())
     .then((data) => {
         if (data && data.loggedIn) {
-            // User is logged in, continue as before
-            const userProfileData = {
-                profilePictureUrl: '',
-                userName: data.username,
-            };
-
             // Function to fetch user data
             function fetchUserData() {
                 fetch('/api/getUserProfile/' + tokenData.username, {
@@ -92,10 +86,14 @@ function fetchUserData() {
                 .then((response) => response.json())
                 .then((userData) => {
                     if (userData) {
-                        userProfileData.profilePicture = userData.profilePicture;
-                        userProfileData.userName = userData.username;
+                        const userProfileData = {
+                            profilePicture: userData.profilePicture,
+                            userName: userData.username,
+                            email: userData.email,
+                        };
 
-                        const userNameElement = document.querySelector('.user-name');
+                        const userNameElement = document.getElementById('username');
+                        const emailElement = document.getElementById('email');
                 
                         if (userData.profilePicture) {
                             const arrayBufferView = new Uint8Array(userData.profilePicture.data);
@@ -105,7 +103,8 @@ function fetchUserData() {
                             const profilePictureElement = document.querySelector('.profile-picture-template img');
                             profilePictureElement.src = imageUrl;
                         }
-                        userNameElement.textContent = userProfileData.userName;
+                        userNameElement.value = userProfileData.userName;
+                        emailElement.value = userProfileData.email;
                     }
                 })
                 .catch((error) => {
@@ -161,3 +160,65 @@ function parseJwt(token) {
     const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
     return JSON.parse(window.atob(base64));
 }
+
+// Add an event listener to the logout button
+const applyChangesButton = document.getElementById('apply-changes-btn');
+applyChangesButton.addEventListener('click', (e) => {
+    e.preventDefault(); // Prevent the default form submission behavior
+
+    const usernameElement = document.getElementById('username');
+    const emailElement = document.getElementById('email');
+    const passwordElement = document.getElementById('password');
+    const profilePictureInput = document.getElementById('profile-picture-input');
+
+    const newUsername = usernameElement.value;
+    const newEmail = emailElement.value;
+    const newPassword = passwordElement.value;
+    const newProfilePicture = profilePictureInput.files[0]; // Get the selected image file
+
+    // Create a FormData object to send the data as a multipart/form-data request
+    const formData = new FormData();
+    formData.append('old_username', tokenData.username);
+    formData.append('username', newUsername);
+    formData.append('email', newEmail);
+    formData.append('password', newPassword);
+    formData.append('pfp', newProfilePicture);
+
+    // Send the data to the server using a fetch POST request
+    fetch('/api/editUser/' + tokenData.username, {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        },
+        body: formData // Use the FormData object as the request body
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        if (data.success) {
+            // Handle successful profile edit, such as displaying a success message or redirecting
+            const token = data.token; // Get JWT token from response
+            const refreshToken = data.refreshToken; // Get refresh token from response
+
+            setCookie('token', token, 7);
+            setCookie('refreshToken', refreshToken, 15);
+
+            console.log('Profile updated successfully');
+        } else {
+            // Handle edit failure, display an error message or take appropriate action
+            console.error('Failed to update profile:', data.message);
+        }
+    })
+    .catch((error) => {
+        console.error('Error updating profile:', error);
+    });
+});
+
+document.getElementById('profile-picture-input').addEventListener('change', function (event) {
+    const profilePictureElement = document.querySelector('.profile-picture-template img');
+    const selectedImage = event.target.files[0];
+
+    if (selectedImage) {
+        const imageUrl = URL.createObjectURL(selectedImage);
+        profilePictureElement.src = imageUrl;
+    }
+});

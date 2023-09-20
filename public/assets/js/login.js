@@ -83,8 +83,8 @@ function addUser(e) {
             const refreshToken = data.refreshToken; // Get refresh token from response
 
             // Set tokens as cookies
-            setCookie('token', token, 7); // 5 minutes expiration (adjust as needed)
-            setCookie('refreshToken', refreshToken, 15); // 15 days expiration (adjust as needed)
+            setCookie('token', token, 7);
+            setCookie('refreshToken', refreshToken, 15);
 
             // Redirect to the index page after successful sign-up
             window.location.href = "/index.html";
@@ -124,8 +124,8 @@ function loginUser(e) {
             const refreshToken = data.refreshToken; // Get refresh token from response
 
             // Set tokens as cookies
-            setCookie('token', token, 7); // 5 minutes expiration (adjust as needed)
-            setCookie('refreshToken', refreshToken, 15); // 15 days expiration (adjust as needed)
+            setCookie('token', token, 7);
+            setCookie('refreshToken', refreshToken, 15);
 
             // Redirect to the index page after successful login
             window.location.href = "/index.html";

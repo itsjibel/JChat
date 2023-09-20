@@ -21,13 +21,21 @@ body {
 
 .profile-picture-template {
     margin: auto;
-    margin-top: 30vh;
+    margin-top: 20vh;
     width: 200px !important;
     height: 200px !important;
     border-radius: 50%;
     background-color: #fff;
     justify-content: center; /* Center horizontally */
     align-items: center; /* Center vertically */
+    position: relative;
+}
+
+.edit-icon {
+    bottom: 15px;
+    right: -40px;
+    position: absolute;
+    font-size: 18px;
 }
 
 .pfp {
@@ -37,13 +45,28 @@ body {
     border-radius: 50%;
 }
 
-.user-name {
+.edit-profile-form {
+    margin: 0 auto; 
     font-size: 20px;
     font-weight: bold;
     margin-top: 20px;
+    width: 300px;
+    align-items: center;
 }
 
-.btn {
+.form-label {
+    margin-top: 15px;
+}
+
+.apply-changes-btn {
+    margin: 20px !important;
+    font-size: 18px !important;
+    font-weight: bold !important;
+    width: 200px;
+    height: 50px;
+}
+
+.logout-button .btn {
     position: absolute; /* Position relative to the container */
     top: 20px;
     right: 20px;
@@ -51,6 +74,10 @@ body {
     height: 50px;
     font-size: 18px !important;
     font-weight: bold !important;
+}
+
+.form-control {
+    font-size: 18px !important;
 }
 
 .back-button {

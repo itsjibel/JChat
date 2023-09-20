@@ -33,7 +33,7 @@ body {
 }
 
 .profile-picture-template {
-    min-width: 50px !important;
+    width: 50px !important;
     height: 50px;
     border-radius: 50%;
     background-color: #fff;

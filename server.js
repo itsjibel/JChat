@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const https = require('https');
 const cookieParser = require('cookie-parser');
+const multer = require('multer');
 
 const app = express();
 
@@ -13,6 +14,8 @@ app.use(express.static('public'));
 app.use(express.json()); // To parse JSON requests
 app.use(express.urlencoded({ extended: true })); // To parse form data
 app.use(cookieParser());
+const storage = multer.memoryStorage(); // Store the uploaded file in memory as binary data
+const upload = multer({ storage: storage });
 
 // Middleware to parse JSON requests
 const jwtSecretKey = '8f2f5c3d113379d9247386841bb17b8cdbd302f272723beacb0fd4ad13080959'
@@ -181,7 +184,7 @@ function verifyToken(req, res, next) {
 
 app.get('/api/getUserProfile/:username', verifyToken, (req, res) => {
     const requestedUsername = req.params.username;
-    const sql = 'SELECT username, pfp FROM Users WHERE username = ?';
+    const sql = 'SELECT username, email, pfp FROM Users WHERE username = ?';
 
     connection.execute(sql, [requestedUsername], (error, results) => {
         if (error) {
@@ -201,6 +204,7 @@ app.get('/api/getUserProfile/:username', verifyToken, (req, res) => {
             success: true,
             username: userData.username,
             profilePicture: userData.pfp,
+            email: userData.email,
         });
     });
 });
@@ -235,6 +239,75 @@ app.post('/api/logout', (req, res) => {
     } else {
         res.status(400).json({ message: 'Invalid token' });
     }
+});
+
+app.post('/api/editUser/:username', verifyToken, upload.single('pfp'), (req, res) => {
+    let { old_username, username, password, email } = req.body;
+
+    if (!isValidUsername(username)) {
+        res.status(400).json({ message: "Invalid username. A username must start with a letter, be between 3 and 20 characters long, and can contain letters, numbers, '.', '_', and no spaces." });
+        return;
+    }
+
+    if (!isValidPassword(password)) {
+        res.status(400).json({ message: "Invalid password. Only use valid characters and lengths between 5-100." });
+        return;
+    }
+
+    // Check if the username or email already exists
+    const checkSql = 'SELECT * FROM Users WHERE username = ?';
+    const checkValues = [old_username];
+
+    connection.execute(checkSql, checkValues, (error, results) => {
+        if (error) {
+            console.error('Error checking for an existing user:', error);
+            res.status(500).json({ message: 'An error occurred.' });
+            return;
+        }
+
+        if (results.length > 0) {
+            // User with the same username or email already exists
+            // Update the existing user's data
+            const existingUser = results[0];
+            const updateSql = 'UPDATE Users SET username = ?, password = ?, email = ?, pfp = ? WHERE user_id = ?';
+            password = crypto.createHash('sha256').update(password).digest('hex'); // Hash the password with the sha256 algorithm
+
+            // Check if a new profile picture is provided
+            const defaultProfilePicturePath = 'public/assets/images/new_user_pfp.jpg';
+            let pfp;
+            try {
+                // Read the default profile picture file as binary data synchronously
+                pfp = fs.readFileSync(defaultProfilePicturePath);
+            } catch (error) {
+                console.error('Error reading default profile picture:', error);
+                // Handle the error here, e.g., by sending an error response
+                res.status(500).json({ message: 'An error occurred.' });
+                return;
+            }
+
+            if (req.file) {
+                pfp = req.file.buffer; // Set pfp to the binary data of the uploaded file
+            }
+            
+            const values = [username, password, email, pfp, existingUser.user_id]; // Include the user's ID for updating
+
+            connection.execute(updateSql, values, (updateError) => {
+                if (updateError) {
+                    console.error('Error updating user data:', updateError);
+                    res.status(500).json({ message: 'An error occurred while updating user data.' });
+                    return;
+                }
+
+                // Generate JWT token and send it in the response
+                const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
+                const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: refreshTokenExpiry });
+
+                res.json({ success: true, message: 'User profile updated successfully!', token, refreshToken });
+            });
+        } else {
+            res.status(500).json({ message: 'An error occurred while updating user data.' });
+        }
+    });
 });
 
 // Load SSL certificate and private key
