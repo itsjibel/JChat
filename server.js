@@ -186,7 +186,7 @@ function verifyToken(req, res, next) {
 
 app.get('/api/getUserProfile/:username', verifyToken, (req, res) => {
     const requestedUsername = req.params.username;
-    const sql = 'SELECT username, email, pfp FROM Users WHERE username = ?';
+    const sql = 'SELECT username, email, is_email_verified, pfp FROM Users WHERE username = ?';
 
     connection.execute(sql, [requestedUsername], (error, results) => {
         if (error) {
@@ -207,6 +207,7 @@ app.get('/api/getUserProfile/:username', verifyToken, (req, res) => {
             username: userData.username,
             profilePicture: userData.pfp,
             email: userData.email,
+            isEmailVerified: userData.is_email_verified,
         });
     });
 });
@@ -305,10 +306,10 @@ app.post('/api/editUser/:username', verifyToken, upload.single('pfp'), (req, res
     });
 });
 
-app.post('/api/sendVerificationEmail', (req, res) => {
+app.post('/api/sendVerificationEmail', verifyToken, (req, res) => {
     let { email, username } = req.body;
 
-    const sql = 'SELECT user_id FROM Users WHERE email = ? AND username = ?';
+    const sql = 'SELECT password FROM Users WHERE email = ? AND username = ?';
     const checkValues = [email, username];
 
     connection.execute(sql, checkValues, (error, results) => {
@@ -331,11 +332,15 @@ app.post('/api/sendVerificationEmail', (req, res) => {
             }
         });
 
+        const verificationToken = crypto.createHash('sha256').update(username + email + results[0].password).digest('hex');
+
         let mailoption = {
             from: process.env.JCHAT_EMAIL_ADDR,
             to: email,
             subject: "Please verify your JChat account email address",
-            html: `<body style="height:100%;margin:0;padding:0;display:flex;"><div style="width:450px;height:600px;background:linear-gradient(to bottom left,#78e5e5,#3dc6cb,#169a95);margin:auto;text-align:center;border-radius:10px;padding:20px;font-family:sans-serif;"><a href="https://imageupload.io/6Nq3FH5HcSYhRcF"><img src="https://imageupload.io/ib/QDbvQI5KsU7QLr8_1695304766.png"alt="JChat-Logo.png"style="height:60px;width:auto;"></a><h2>Please verify your JChat account email address.</h2><h5 style="color:rgb(242,242,242);">When you verify your email, you can change your password</h5><div style="background-color:#006aff;border-radius:5px;height:50px;width:160px;margin:auto;display:flex;"><a href="https://jchat.com"style="color:white;text-decoration:none;font-size:20px;margin:auto;font-weight:bold;">Verify</a></div><h4>Thank you,<br/>The JChat Team</h4></div></body>`,
+            html: `<body style="height:100%;margin:0;padding:0;display:flex;"><div style="width:450px;height:600px;background:linear-gradient(to bottom left,#78e5e5,#3dc6cb,#169a95);margin:auto;text-align:center;border-radius:10px;padding:20px;font-family:sans-serif;"><a href="https://imageupload.io/6Nq3FH5HcSYhRcF"><img src="https://imageupload.io/ib/QDbvQI5KsU7QLr8_1695304766.png"alt="JChat-Logo.png"style="height:60px;width:auto;"></a><h2>Please verify your JChat account email address.</h2><h5 style="color:rgb(242,242,242);">When you verify your email, you can change your password</h5><div style="background-color:#006aff;border-radius:5px;height:50px;width:160px;margin:auto;display:flex;"><a href="` +
+            'https://jchat.com/api/verifyUser?token=' + verificationToken + '&username=' + username
+            + `"style="color:white;text-decoration:none;font-size:20px;margin:auto;font-weight:bold;">Verify</a></div><h4>Thank you,<br/>The JChat Team</h4></div></body>`,
         }
 
         smtpProtocol.sendMail(mailoption, (err) => {
@@ -348,6 +353,33 @@ app.post('/api/sendVerificationEmail', (req, res) => {
                 smtpProtocol.close();
             }
         });
+    });
+});
+
+app.get('/api/verifyUser', (req, res) => {
+    const { token, username } = req.query;
+    const sql = 'SELECT password, email FROM Users WHERE username = ?';
+    const checkValue = [username];
+
+    connection.execute(sql, checkValue, (error, results) => {
+        if (error || results.length === 0) {
+            res.redirect("https://jchat.com/emailVerification.html?success=false");
+            return;
+        }
+
+        const chackToken = crypto.createHash('sha256').update(username + results[0].email + results[0].password).digest('hex');
+        if (token === chackToken) {
+            const updateSql = 'UPDATE Users SET is_email_verified = 1 WHERE username = ?';
+            connection.execute(updateSql, checkValue, (updateError) => {
+                if (updateError) {
+                    res.redirect("https://jchat.com/emailVerification.html?success=false");
+                    return;
+                }
+            });
+            res.redirect("https://jchat.com/emailVerification.html?success=true");
+        } else {
+            res.redirect("https://jchat.com/emailVerification.html?success=false");
+        }
     });
 });
 

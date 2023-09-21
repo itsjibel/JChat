@@ -89,6 +89,7 @@ function fetchUserData() {
                             profilePicture: userData.profilePicture,
                             userName: userData.username,
                             email: userData.email,
+                            isEmailVerified: userData.isEmailVerified,
                         };
 
                         const userNameElement = document.getElementById('username');
@@ -104,6 +105,9 @@ function fetchUserData() {
                         }
                         userNameElement.value = userProfileData.userName;
                         emailElement.value = userProfileData.email;
+                        if (userProfileData.isEmailVerified === 1) {
+                            document.getElementById('verify-email-button').style.display = 'none';
+                        }
                     }
                 })
                 .catch((error) => {
@@ -159,7 +163,7 @@ function parseJwt(token) {
     return JSON.parse(window.atob(base64));
 }
 
-function showMessage(message, isError = false) {
+function showMessage(message) {
     const messageBox = document.getElementById('message-box');
     const messageText = document.getElementById('message-text');
     const messageProgress = document.getElementById('message-progress');
@@ -244,7 +248,7 @@ applyChangesButton.addEventListener('click', (e) => {
                 showMessage('Profile updated successfully');
             } else {
                 // Handle edit failure, display an error message or take appropriate action
-                showMessage(data.message, true);
+                showMessage(data.message);
             }
         })
         .catch((error) => {
@@ -279,7 +283,7 @@ verifyEmailButton.addEventListener('click', (e) => {
         if (data.success) {
             showMessage('The verification email was sent successfully');
         } else {
-            showMessage(data.message, true);
+            showMessage(data.message);
         }
     })
     .catch((error) => {

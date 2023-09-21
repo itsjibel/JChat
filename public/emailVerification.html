@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="shortcut icon" href="assets/images/favicon.ico">
+        <title>JChat - Email Verification</title>
+        <link rel="icon" href="assets/images/JChat-Title-Logo.png" type="image/png">
+        <meta name="description" content="Online chat">
+        <meta name="keywords" content="online chat, chat">
+        <meta name="author" content="Jibel">
+        <link rel="stylesheet" type="text/css" href="assets/css/emailVerification.css">
+        <link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
+    </head>
+<body>
+    <div class="container text-center">
+        <div id="success-message" class="success-message">
+            <h1 class="success-message-text">Congratulations!!</h1>
+            <p>You verified your email successfully; you can continue chatting at the home page by clicking on the button below:</p>
+            <button type="submit" class="btn btn-primary home-btn" id="home-btn">Home</button>
+        </div>
+        <div id="failure-message" class="failure-message">
+            <h1 class="failure-message-text">We're sorry :(</h1>
+            <p>Something went wrong while verifying your email, please try again.</p>
+        </div>
+    </div>
+
+    <script src="assets/js/emailVerification.js"></script>
+    <script src="assets/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

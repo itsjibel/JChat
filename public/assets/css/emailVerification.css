@@ -1,0 +1,53 @@
+.container {
+	background: linear-gradient(to bottom, #27cdcd, #118e92, #097571);
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    position: relative;
+    transition: all 0.5s;
+    align-items: center; /* Center horizontally */
+    justify-content: center; /* Center vertically */
+}
+
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    background-image: url("../images/backgroud-image.jpg");
+}
+
+body {
+    display: flex;
+    align-items: center; /* Center horizontally */
+    justify-content: center; /* Center vertically */
+}
+
+.success-message {
+    display: none;
+}
+
+.failure-message {
+    display: none;
+}
+
+p {
+    width: 50%;
+    margin: auto;
+    color: white;
+    font-size: 20px;
+}
+
+.success-message-text {
+    color: rgb(4, 255, 0) !important;
+}
+
+.failure-message-text {
+    color: rgb(190, 24, 24) !important;
+}
+
+.btn {
+    font-size: 18px !important;
+    font-weight: bold !important;
+    width: 200px;
+    height: 50px;
+}
