@@ -6,6 +6,7 @@ const fs = require('fs');
 const https = require('https');
 const cookieParser = require('cookie-parser');
 const multer = require('multer');
+require('dotenv').config();
 
 const app = express();
 
@@ -18,15 +19,15 @@ const storage = multer.memoryStorage(); // Store the uploaded file in memory as 
 const upload = multer({ storage: storage });
 
 // Middleware to parse JSON requests
-const jwtSecretKey = '8f2f5c3d113379d9247386841bb17b8cdbd302f272723beacb0fd4ad13080959'
+const jwtSecretKey = process.env.JWT_SECRET;
 const accessTokenExpiry = '15m';
 const refreshTokenExpiry = '15d';
 
 const connection = mysql.createConnection({
-    host: 'jchat.com',
-    user: 'jibel',
-    password: 'Arman@511!',
-    database: 'JChat',
+    host: process.env.DB_HOST,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
 });
 
 function isValidUsername(username) {
@@ -307,7 +308,7 @@ app.post('/api/sendVerificationEmail', (req, res) => {
     let { email, username } = req.body;
 
     const data = {
-        from: 'jchat.co.official@gmail.com',
+        from: process.env.JCHAT_EMAIL,
         to: email,
         subject: 'Verification email',
         text: 'This is a test email.'
@@ -343,7 +344,7 @@ const certificate = fs.readFileSync('cert.pem', 'utf8');
 const credentials = { 
     key: privateKey, 
     cert: certificate,
-    passphrase: 'Arman@511!'
+    passphrase: process.env.CREDENTIALS_PASSPHRASE,
 };
 
 const httpsServer = https.createServer(credentials, app);
