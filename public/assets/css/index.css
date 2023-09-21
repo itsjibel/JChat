@@ -13,13 +13,11 @@ body {
 }
 
 .chats {
-    background-color: rgb(200, 200, 200);
+	background: linear-gradient(to bottom, #a2dcdc, #84b4b6, #72a4a2);
     height: 100%;
 }
 
 .chat-texts {
-    background-color: rgb(128, 170, 186);
-    height: 100%;
     background-image: url("../images/backgroud-image.jpg");
 }
 
@@ -27,7 +25,7 @@ body {
     display: flex;
     align-items: center;
     padding: 10px;
-	background: linear-gradient(to bottom right, #27cdcd, #169ea3, #12918d);
+	background: linear-gradient(to bottom left, #34e2e2, #23bfc4, #169a95);
     border-radius: 10px;
     margin: 5px;
     max-width: 100%;
