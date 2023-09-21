@@ -303,6 +303,39 @@ app.post('/api/editUser/:username', verifyToken, upload.single('pfp'), (req, res
     });
 });
 
+app.post('/api/sendVerificationEmail', (req, res) => {
+    let { email, username } = req.body;
+
+    const data = {
+        from: 'jchat.co.official@gmail.com',
+        to: email,
+        subject: 'Verification email',
+        text: 'This is a test email.'
+    };
+
+    const sql = 'SELECT user_id FROM Users WHERE email = ? AND username = ?';
+    const checkValues = [email, username];
+
+    connection.execute(sql, checkValues, (error, results) => {
+        if (error) {
+            console.error('Error checking for existing email:', error);
+            res.status(500).json({ message: 'An error occurred.' });
+            return;
+        }
+
+        if (results.length === 0) {
+            res.status(400).json({ message: "This email is not for your user or does not exist" });
+            return;
+        }
+
+        if (true) {
+            res.json({ success: true, message: "The verification email was sent successfully" });
+        } else {
+            res.status(400).json({ message: "An error occurred while sending the verification email" });
+        }
+    });
+});
+
 // Load SSL certificate and private key
 const privateKey = fs.readFileSync('key.pem', 'utf8');
 const certificate = fs.readFileSync('cert.pem', 'utf8');

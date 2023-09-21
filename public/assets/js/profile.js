@@ -16,8 +16,8 @@ function setCookie(name, value, days) {
     document.cookie = name + "=" + value + "; " + expires + "; path=/; domain=jchat.com; secure; samesite=None";
 }
 
-const token = getCookie('token');
-const refreshToken = getCookie('refreshToken');
+let token = getCookie('token');
+let refreshToken = getCookie('refreshToken');
 
 function refreshAccessToken() {
     if (!token || !refreshToken) {
@@ -44,7 +44,6 @@ function refreshAccessToken() {
             if (data.success) {
                 const newToken = data.accessToken;
                 setCookie('token', newToken, 7); // Store the new access token in a cookie
-                setTimeout(refreshAccessToken, 50000); // Schedule the next token refresh
             } else {
                 // Handle refresh token failure
                 window.location.href = '/login.html'; // Redirect to the login page on failure
@@ -59,15 +58,13 @@ function refreshAccessToken() {
     }
 }
 
-const tokenData = parseJwt(token);
+refreshAccessToken();
+
 function fetchUserData() {
-    const expirationTime = new Date(tokenData.exp * 1000);
-
-    if (expirationTime <= new Date()) {
-        // Token has expired, refresh it
-        refreshAccessToken();
-    }
-
+    refreshAccessToken();
+    token = getCookie('token');
+    refreshToken = getCookie('refreshToken');
+    const tokenData = parseJwt(token);
     fetch('/api/checkLoggedIn', {
         headers: {
             'Authorization': 'Bearer ' + refreshToken
@@ -78,6 +75,8 @@ function fetchUserData() {
         if (data && data.loggedIn) {
             // Function to fetch user data
             function fetchUserData() {
+                refreshAccessToken();
+                token = getCookie('token');
                 fetch('/api/getUserProfile/' + tokenData.username, {
                     headers: {
                         'Authorization': 'Bearer ' + token
@@ -127,6 +126,8 @@ fetchUserData();
 const logoutButton = document.getElementById('logout-btn');
 logoutButton.addEventListener('click', () => {
     // Call the logout API here
+    refreshAccessToken();
+    token = getCookie('token');
     fetch('/api/logout', {
         method: 'POST',
         headers: {
@@ -199,6 +200,9 @@ applyChangesButton.addEventListener('click', (e) => {
     const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
     passwordModal.show();
     document.getElementById('confirmPasswordBtn').addEventListener('click', () => {
+        refreshAccessToken();
+        token = getCookie('token');
+        const tokenData = parseJwt(token);
         const currentPassword = document.getElementById('currentPassword').value;
         const usernameElement = document.getElementById('username');
         const emailElement = document.getElementById('email');
@@ -247,6 +251,39 @@ applyChangesButton.addEventListener('click', (e) => {
             console.error('Error updating profile:', error);
         });
         passwordModal.hide();
+    });
+});
+
+const verifyEmailButton = document.getElementById('verify-email-btn');
+verifyEmailButton.addEventListener('click', (e) => {
+    e.preventDefault(); // Prevent the default form submission behavior
+
+    refreshAccessToken();
+    token = getCookie('token');
+    const tokenData = parseJwt(token);
+
+    const formData = new FormData();
+    const email = document.getElementById('email').value;
+    formData.append('email', email);
+    formData.append('username', tokenData.username);
+
+    fetch('/api/sendVerificationEmail', {
+        method: 'POST',
+        headers: {
+            'Authorization': 'Bearer ' + token
+        },
+        body: new URLSearchParams(formData)
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        if (data.success) {
+            showMessage('The verification email was sent successfully');
+        } else {
+            showMessage(data.message, true);
+        }
+    })
+    .catch((error) => {
+        showMessage(error);
     });
 });
 
