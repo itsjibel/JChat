@@ -118,7 +118,7 @@ if (token) {
             fetchUserData();
 
             // Schedule the first token refresh
-            setTimeout(refreshAccessToken, 50000);
+            refreshAccessToken();
         }
     })
     .catch((error) => {

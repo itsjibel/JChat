@@ -114,9 +114,6 @@ function fetchUserData() {
 
             // Call the function to fetch user data
             fetchUserData();
-
-            // Schedule the first token refresh
-            refreshAccessToken();
         }
     })
     .catch((error) => {
