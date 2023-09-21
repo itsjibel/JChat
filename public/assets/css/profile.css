@@ -32,11 +32,19 @@ body {
     position: relative;
 }
 
-.edit-icon {
-    bottom: 15px;
-    right: -40px;
+.edit-icon-div {
+    bottom: 20px;
+    right: 0px;
     position: absolute;
-    font-size: 18px;
+    padding: auto;
+    background-color: white;
+    border-radius: 50%;
+    width: 35px;
+    height: 35px;
+}
+
+.edit-icon {
+    font-size: 21px;
 }
 
 .pfp {
