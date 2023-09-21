@@ -274,7 +274,6 @@ app.post('/api/editUser/:username', verifyToken, upload.single('pfp'), (req, res
             // User with the same username or email already exists
             // Update the existing user's data
             const existingUser = results[0];
-            const updateSql = 'UPDATE Users SET username = ?, password = ?, email = ?, pfp = ? WHERE user_id = ?';
             password = crypto.createHash('sha256').update(password).digest('hex'); // Hash the password with the sha256 algorithm
 
             // Check if a new profile picture is provided
@@ -285,7 +284,14 @@ app.post('/api/editUser/:username', verifyToken, upload.single('pfp'), (req, res
                 pfp = existingUser.pfp;
             }
             
-            const values = [username, password, email, pfp, existingUser.user_id]; // Include the user's ID for updating
+            let is_email_verified = results[0].is_email_verified;
+
+            if (email != results[0].email) {
+                is_email_verified = 0;
+            }
+
+            const values = [username, password, email, pfp, is_email_verified, existingUser.user_id]; // Include the user's ID for updating
+            const updateSql = 'UPDATE Users SET username = ?, password = ?, email = ?, pfp = ?, is_email_verified = ? WHERE user_id = ?';
 
             connection.execute(updateSql, values, (updateError) => {
                 if (updateError) {

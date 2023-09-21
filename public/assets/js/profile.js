@@ -105,8 +105,8 @@ function fetchUserData() {
                         }
                         userNameElement.value = userProfileData.userName;
                         emailElement.value = userProfileData.email;
-                        if (userProfileData.isEmailVerified === 1) {
-                            document.getElementById('verify-email-button').style.display = 'none';
+                        if (userProfileData.isEmailVerified === 0) {
+                            document.getElementById('verify-email-button').style.display = 'inline';
                         }
                     }
                 })
