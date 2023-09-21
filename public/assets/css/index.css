@@ -20,6 +20,7 @@ body {
 .chat-texts {
     background-color: rgb(128, 170, 186);
     height: 100%;
+    background-image: url("../images/backgroud-image.jpg");
 }
 
 .user-profile {
