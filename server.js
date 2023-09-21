@@ -6,6 +6,7 @@ const fs = require('fs');
 const https = require('https');
 const cookieParser = require('cookie-parser');
 const multer = require('multer');
+const mailer = require('nodemailer');
 require('dotenv').config();
 
 const app = express();
@@ -307,13 +308,6 @@ app.post('/api/editUser/:username', verifyToken, upload.single('pfp'), (req, res
 app.post('/api/sendVerificationEmail', (req, res) => {
     let { email, username } = req.body;
 
-    const data = {
-        from: process.env.JCHAT_EMAIL,
-        to: email,
-        subject: 'Verification email',
-        text: 'This is a test email.'
-    };
-
     const sql = 'SELECT user_id FROM Users WHERE email = ? AND username = ?';
     const checkValues = [email, username];
 
@@ -329,11 +323,31 @@ app.post('/api/sendVerificationEmail', (req, res) => {
             return;
         }
 
-        if (true) {
-            res.json({ success: true, message: "The verification email was sent successfully" });
-        } else {
-            res.status(400).json({ message: "An error occurred while sending the verification email" });
+        smtpProtocol = mailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.JCHAT_EMAIL_ADDR,
+                pass: process.env.JCHAT_APP_PASS,
+            }
+        });
+
+        let mailoption = {
+            from: process.env.JCHAT_EMAIL_ADDR,
+            to: email,
+            subject: "Please verify your JChat account email address",
+            html: `<body style="height:100%;margin:0;padding:0;display:flex;"><div style="width:450px;height:600px;background:linear-gradient(to bottom left,#78e5e5,#3dc6cb,#169a95);margin:auto;text-align:center;border-radius:10px;padding:20px;font-family:sans-serif;"><a href="https://imageupload.io/6Nq3FH5HcSYhRcF"><img src="https://imageupload.io/ib/QDbvQI5KsU7QLr8_1695304766.png"alt="JChat-Logo.png"style="height:60px;width:auto;"></a><h2>Please verify your JChat account email address.</h2><h5 style="color:rgb(242,242,242);">When you verify your email, you can change your password</h5><div style="background-color:#006aff;border-radius:5px;height:50px;width:160px;margin:auto;display:flex;"><a href="https://jchat.com"style="color:white;text-decoration:none;font-size:20px;margin:auto;font-weight:bold;">Verify</a></div><h4>Thank you,<br/>The JChat Team</h4></div></body>`,
         }
+
+        smtpProtocol.sendMail(mailoption, (err) => {
+            if (err) {
+                console.log(err);
+                res.status(400).json({ message: "An error occurred while sending the verification email" });
+            } else {
+                console.log("The verification email was sent for '" + username + "'");
+                res.json({ success: true, message: "The verification email was sent successfully" });
+                smtpProtocol.close();
+            }
+        });
     });
 });
 
