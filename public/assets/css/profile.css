@@ -149,3 +149,19 @@ body {
     font-size: 17px !important;
     font-weight: bold !important;
 }
+
+.password-input {
+    position: relative;
+}
+
+#password {
+    padding-right: 32px;
+}
+
+.password-input i {
+    position: absolute;
+    top: 77%;
+    right: 6px;
+    transform: translateY(-50%);
+    cursor: pointer;
+}

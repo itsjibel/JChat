@@ -300,3 +300,12 @@ document.getElementById('profile-picture-input').addEventListener('change', func
         profilePictureElement.src = imageUrl;
     }
 });
+
+const toggleLoginPassword = document.getElementById('togglePassword');
+const newPassword = document.getElementById('password');
+toggleLoginPassword.addEventListener('click', () => {
+    const type = newPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+    newPassword.setAttribute('type', type);
+    toggleLoginPassword.classList.toggle('bi-eye');
+    toggleLoginPassword.classList.toggle('bi-eye-slash');
+});

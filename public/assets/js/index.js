@@ -16,7 +16,7 @@ function setCookie(name, value, days) {
     document.cookie = name + "=" + value + "; " + expires + "; path=/; domain=jchat.com; secure; samesite=None";
 }
 
-const token = getCookie('token');
+let token = getCookie('token');
 const refreshToken = getCookie('refreshToken');
 
 if (token) {
@@ -61,14 +61,6 @@ if (token) {
         }
     }
 
-    const tokenData = parseJwt(token);
-    const expirationTime = new Date(tokenData.exp * 1000);
-
-    if (expirationTime <= new Date()) {
-        // Token has expired, refresh it
-        refreshAccessToken();
-    }
-
     fetch('/api/checkLoggedIn', {
         headers: {
             'Authorization': 'Bearer ' + refreshToken
@@ -85,6 +77,10 @@ if (token) {
 
             // Function to fetch user data
             function fetchUserData() {
+                refreshAccessToken();
+                token = getCookie('token');
+                const tokenData = parseJwt(token);
+
                 fetch('/api/getUserProfile/' + tokenData.username, {
                     headers: {
                         'Authorization': 'Bearer ' + token
