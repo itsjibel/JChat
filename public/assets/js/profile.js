@@ -23,7 +23,7 @@ function refreshAccessToken() {
     if (!token || !refreshToken) {
         // Tokens are missing, redirect to login
         window.location.href = '/login.html';
-        return;
+        return Promise.reject("Tokens missing");
     }
 
     const refreshTokenData = parseJwt(refreshToken);
@@ -31,7 +31,7 @@ function refreshAccessToken() {
 
     if (refreshTokenExpirationTime > new Date()) {
         // Access token has expired, but refresh token is still valid
-        fetch('/api/refresh-token', {
+        return fetch('/api/refresh-token', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -55,15 +55,13 @@ function refreshAccessToken() {
     } else {
         // Both access and refresh tokens are expired, redirect to login
         window.location.href = '/login.html';
+        return Promise.reject("Tokens expired");
     }
 }
-
-refreshAccessToken();
 
 function fetchUserData() {
     refreshAccessToken();
     token = getCookie('token');
-    refreshToken = getCookie('refreshToken');
     const tokenData = parseJwt(token);
     fetch('/api/checkLoggedIn', {
         headers: {
@@ -75,7 +73,6 @@ function fetchUserData() {
         if (data && data.loggedIn) {
             // Function to fetch user data
             function fetchUserData() {
-                refreshAccessToken();
                 token = getCookie('token');
                 fetch('/api/getUserProfile/' + tokenData.username, {
                     headers: {
@@ -124,36 +121,41 @@ function fetchUserData() {
     });
 }
 
-fetchUserData();
+refreshAccessToken()
+.then(() => {
+    fetchUserData();
+});
 
 // Add an event listener to the logout button
 const logoutButton = document.getElementById('logout-btn');
 logoutButton.addEventListener('click', () => {
     // Call the logout API here
-    refreshAccessToken();
-    token = getCookie('token');
-    fetch('/api/logout', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer ' + token
-        }
-    })
-    .then((response) => response.json())
-    .then((data) => {
-        if (data.success) {
-            // Clear the access token and refresh token cookies
-            document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=jchat.com;';
-            document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=jchat.com;';
-            // Redirect to the login page or perform other actions as needed
-            window.location.href = '/login.html';
-        } else {
-            // Handle logout failure
-            console.error('Failed to log out:', data.message);
-        }
-    })
-    .catch((error) => {
-        console.error('Error logging out:', error);
+    refreshAccessToken()
+    .then(() => {
+        token = getCookie('token');
+        fetch('/api/logout', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                // Clear the access token and refresh token cookies
+                document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=jchat.com;';
+                document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=jchat.com;';
+                // Redirect to the login page or perform other actions as needed
+                window.location.href = '/login.html';
+            } else {
+                // Handle logout failure
+                console.error('Failed to log out:', data.message);
+            }
+        })
+        .catch((error) => {
+            console.error('Error logging out:', error);
+        });
     });
 });
 
@@ -204,57 +206,59 @@ applyChangesButton.addEventListener('click', (e) => {
     const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
     passwordModal.show();
     document.getElementById('confirmPasswordBtn').addEventListener('click', () => {
-        refreshAccessToken();
-        token = getCookie('token');
-        const tokenData = parseJwt(token);
-        const currentPassword = document.getElementById('currentPassword').value;
-        const usernameElement = document.getElementById('username');
-        const emailElement = document.getElementById('email');
-        const passwordElement = document.getElementById('password');
-        const profilePictureInput = document.getElementById('profile-picture-input');
-    
-        const newUsername = usernameElement.value;
-        const newEmail = emailElement.value;
-        const newPassword = passwordElement.value;
-        const newProfilePicture = profilePictureInput.files[0]; // Get the selected image file
-    
-        // Create a FormData object to send the data as a multipart/form-data request
-        const formData = new FormData();
-        formData.append('old_username', tokenData.username);
-        formData.append('old_password', currentPassword);
-        formData.append('username', newUsername);
-        formData.append('email', newEmail);
-        formData.append('password', newPassword);
-        formData.append('pfp', newProfilePicture);
-    
-        // Send the data to the server using a fetch POST request
-        fetch('/api/editUser/' + tokenData.username, {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + token
-            },
-            body: formData // Use the FormData object as the request body
-        })
-        .then((response) => response.json())
-        .then((data) => {
-            if (data.success) {
-                // Handle successful profile edit, such as displaying a success message or redirecting
-                const token = data.token; // Get JWT token from response
-                const refreshToken = data.refreshToken; // Get refresh token from response
-    
-                setCookie('token', token, 7);
-                setCookie('refreshToken', refreshToken, 15);
+        refreshAccessToken()
+            .then(() => {
+            token = getCookie('token');
+            const tokenData = parseJwt(token);
+            const currentPassword = document.getElementById('currentPassword').value;
+            const usernameElement = document.getElementById('username');
+            const emailElement = document.getElementById('email');
+            const passwordElement = document.getElementById('password');
+            const profilePictureInput = document.getElementById('profile-picture-input');
+        
+            const newUsername = usernameElement.value;
+            const newEmail = emailElement.value;
+            const newPassword = passwordElement.value;
+            const newProfilePicture = profilePictureInput.files[0]; // Get the selected image file
+        
+            // Create a FormData object to send the data as a multipart/form-data request
+            const formData = new FormData();
+            formData.append('old_username', tokenData.username);
+            formData.append('old_password', currentPassword);
+            formData.append('username', newUsername);
+            formData.append('email', newEmail);
+            formData.append('password', newPassword);
+            formData.append('pfp', newProfilePicture);
+        
+            // Send the data to the server using a fetch POST request
+            fetch('/api/editUser/' + tokenData.username, {
+                method: 'POST',
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                body: formData // Use the FormData object as the request body
+            })
+            .then((response) => response.json())
+            .then((data) => {
+                if (data.success) {
+                    // Handle successful profile edit, such as displaying a success message or redirecting
+                    const token = data.token; // Get JWT token from response
+                    const refreshToken = data.refreshToken; // Get refresh token from response
+        
+                    setCookie('token', token, 7);
+                    setCookie('refreshToken', refreshToken, 15);
 
-                showMessage('Profile updated successfully');
-            } else {
-                // Handle edit failure, display an error message or take appropriate action
-                showMessage(data.message);
-            }
-        })
-        .catch((error) => {
-            console.error('Error updating profile:', error);
+                    showMessage('Profile updated successfully');
+                } else {
+                    // Handle edit failure, display an error message or take appropriate action
+                    showMessage(data.message);
+                }
+            })
+            .catch((error) => {
+                console.error('Error updating profile:', error);
+            });
+            passwordModal.hide();
         });
-        passwordModal.hide();
     });
 });
 
@@ -262,32 +266,34 @@ const verifyEmailButton = document.getElementById('verify-email-btn');
 verifyEmailButton.addEventListener('click', (e) => {
     e.preventDefault(); // Prevent the default form submission behavior
 
-    refreshAccessToken();
-    token = getCookie('token');
-    const tokenData = parseJwt(token);
+    refreshAccessToken()
+    .then(() => {
+        token = getCookie('token');
+        const tokenData = parseJwt(token);
 
-    const formData = new FormData();
-    const email = document.getElementById('email').value;
-    formData.append('email', email);
-    formData.append('username', tokenData.username);
+        const formData = new FormData();
+        const email = document.getElementById('email').value;
+        formData.append('email', email);
+        formData.append('username', tokenData.username);
 
-    fetch('/api/sendVerificationEmail', {
-        method: 'POST',
-        headers: {
-            'Authorization': 'Bearer ' + token
-        },
-        body: new URLSearchParams(formData)
-    })
-    .then((response) => response.json())
-    .then((data) => {
-        if (data.success) {
-            showMessage('The verification email was sent successfully');
-        } else {
-            showMessage(data.message);
-        }
-    })
-    .catch((error) => {
-        showMessage(error);
+        fetch('/api/sendVerificationEmail', {
+            method: 'POST',
+            headers: {
+                'Authorization': 'Bearer ' + token
+            },
+            body: new URLSearchParams(formData)
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data.success) {
+                showMessage('The verification email was sent successfully');
+            } else {
+                showMessage(data.message);
+            }
+        })
+        .catch((error) => {
+            showMessage(error);
+        });
     });
 });
 

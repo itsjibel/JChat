@@ -38,7 +38,7 @@
                 </form>
             </div>
 
-            <div class="login">
+            <div class="login text-center">
                 <form id="loginForm">
                     <label for="chk" aria-hidden="true" class="user-select-none">Login</label>
                     <input type="text" id="login-username" placeholder="User name" required autocomplete="new-username">
@@ -46,9 +46,17 @@
                         <input type="password" id="login-password" placeholder="Password" required autocomplete="new-password">
                         <i class="bi bi-eye-slash" id="toggleLoginPassword"></i>
                     </div>
+                    <a href="" id="forgot-password">Forgot password?</a>
                     <p class="error-message text-center" id="login-error-message"></p>
                     <input class="button" type="submit" value="Login">
                 </form>
+            </div>
+
+            <div id="message-box" class="message-box">
+                <div class="message-content">
+                    <p id="message-text"></p>
+                    <div id="message-progress"></div>
+                </div>
             </div>
         </div>
     </div>

@@ -176,7 +176,7 @@ function verifyToken(req, res, next) {
 
     jwt.verify(token, jwtSecretKey, (err, decoded) => {
         if (err) {
-            return res.status(403).json({ message: 'Invalid access token' });
+            return res.status(403).json({ message: 'Invalid access token' + token });
         }
 
         req.user = decoded; // Attach the user information to the request object
@@ -258,64 +258,80 @@ app.post('/api/editUser/:username', verifyToken, upload.single('pfp'), (req, res
         return;
     }
 
-    // Check if the username or email already exists
-    const checkSql = 'SELECT * FROM Users WHERE username = ? AND password = ?';
-    old_password = crypto.createHash('sha256').update(old_password).digest('hex');
-    const checkValues = [old_username, old_password];
+    const checkSqlDuplicate = 'SELECT * FROM Users WHERE username = ? OR email = ?';
+    const checkValuesDuplicate = [username, email];
 
-    connection.execute(checkSql, checkValues, (error, results) => {
+    connection.execute(checkSqlDuplicate, checkValuesDuplicate, (error, results) => {
         if (error) {
             console.error('Error checking for an existing user:', error);
             res.status(500).json({ message: 'An error occurred.' });
             return;
         }
 
-        if (results.length > 0) {
-            // User with the same username or email already exists
-            // Update the existing user's data
-            const existingUser = results[0];
-            password = crypto.createHash('sha256').update(password).digest('hex'); // Hash the password with the sha256 algorithm
+        if (results.length === 2 || (results.length === 1 && results[0].username != old_username)) {
+            res.status(400).json({ message: 'This email or username is already in use.' });
+            return;
+        }
 
-            // Check if a new profile picture is provided
-            let pfp = null;
-            if (req.file) {
-                pfp = req.file.buffer; // Set pfp to the binary data of the uploaded file
-            } else {
-                pfp = existingUser.pfp;
-            }
-            
-            let is_email_verified = results[0].is_email_verified;
+        // Check if the username or email already exists
+        const checkSql = 'SELECT * FROM Users WHERE username = ? AND password = ?';
+        old_password = crypto.createHash('sha256').update(old_password).digest('hex');
+        const checkValues = [old_username, old_password];
 
-            if (email != results[0].email) {
-                is_email_verified = 0;
+        connection.execute(checkSql, checkValues, (error, results) => {
+            if (error) {
+                console.error('Error checking for an existing user:', error);
+                res.status(500).json({ message: 'An error occurred.' });
+                return;
             }
 
-            const values = [username, password, email, pfp, is_email_verified, existingUser.user_id]; // Include the user's ID for updating
-            const updateSql = 'UPDATE Users SET username = ?, password = ?, email = ?, pfp = ?, is_email_verified = ? WHERE user_id = ?';
+            if (results.length > 0) {
+                // User with the same username or email already exists
+                // Update the existing user's data
+                const existingUser = results[0];
+                password = crypto.createHash('sha256').update(password).digest('hex'); // Hash the password with the sha256 algorithm
 
-            connection.execute(updateSql, values, (updateError) => {
-                if (updateError) {
-                    console.error('Error updating user data:', updateError);
-                    res.status(500).json({ message: 'An error occurred while updating user data.' });
-                    return;
+                // Check if a new profile picture is provided
+                let pfp = null;
+                if (req.file) {
+                    pfp = req.file.buffer; // Set pfp to the binary data of the uploaded file
+                } else {
+                    pfp = existingUser.pfp;
+                }
+                
+                let is_email_verified = results[0].is_email_verified;
+
+                if (email != results[0].email) {
+                    is_email_verified = 0;
                 }
 
-                // Generate JWT token and send it in the response
-                const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
-                const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: refreshTokenExpiry });
+                const values = [username, password, email, pfp, is_email_verified, existingUser.user_id]; // Include the user's ID for updating
+                const updateSql = 'UPDATE Users SET username = ?, password = ?, email = ?, pfp = ?, is_email_verified = ? WHERE user_id = ?';
 
-                res.json({ success: true, message: 'User profile updated successfully!', token, refreshToken });
-            });
-        } else {
-            res.status(400).json({ message: 'The password is incorrect.' });
-        }
+                connection.execute(updateSql, values, (updateError) => {
+                    if (updateError) {
+                        console.error('Error updating user data:', updateError);
+                        res.status(500).json({ message: 'An error occurred while updating user data.' });
+                        return;
+                    }
+
+                    // Generate JWT token and send it in the response
+                    const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
+                    const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: refreshTokenExpiry });
+
+                    res.json({ success: true, message: 'User profile updated successfully!', token, refreshToken });
+                });
+            } else {
+                res.status(400).json({ message: 'The password is incorrect.' });
+            }
+        });
     });
 });
 
 app.post('/api/sendVerificationEmail', verifyToken, (req, res) => {
     let { email, username } = req.body;
 
-    const sql = 'SELECT password FROM Users WHERE email = ? AND username = ?';
+    const sql = 'SELECT user_id FROM Users WHERE email = ? AND username = ?';
     const checkValues = [email, username];
 
     connection.execute(sql, checkValues, (error, results) => {
@@ -338,14 +354,14 @@ app.post('/api/sendVerificationEmail', verifyToken, (req, res) => {
             }
         });
 
-        const verificationToken = crypto.createHash('sha256').update(username + email + results[0].password).digest('hex');
+        let token = crypto.randomBytes(64).toString('hex');
 
         let mailoption = {
             from: process.env.JCHAT_EMAIL_ADDR,
             to: email,
             subject: "Please verify your JChat account email address",
             html: `<body style="height:100%;margin:0;padding:0;display:flex;"><div style="width:450px;height:600px;background:linear-gradient(to bottom left,#78e5e5,#3dc6cb,#169a95);margin:auto;text-align:center;border-radius:10px;padding:20px;font-family:sans-serif;"><a href="https://imageupload.io/6Nq3FH5HcSYhRcF"><img src="https://imageupload.io/ib/QDbvQI5KsU7QLr8_1695304766.png"alt="JChat-Logo.png"style="height:60px;width:auto;"></a><h2>Please verify your JChat account email address.</h2><h5 style="color:rgb(242,242,242);">When you verify your email, you can change your password</h5><div style="background-color:#006aff;border-radius:5px;height:50px;width:160px;margin:auto;display:flex;"><a href="` +
-            'https://jchat.com/api/verifyUser?token=' + verificationToken + '&username=' + username
+            'https://jchat.com/api/verifyUserEmail?token=' + token + '&username=' + username
             + `"style="color:white;text-decoration:none;font-size:20px;margin:auto;font-weight:bold;">Verify</a></div><h4>Thank you,<br/>The JChat Team</h4></div></body>`,
         }
 
@@ -354,7 +370,17 @@ app.post('/api/sendVerificationEmail', verifyToken, (req, res) => {
                 console.log(err);
                 res.status(400).json({ message: "An error occurred while sending the verification email" });
             } else {
-                console.log("The verification email was sent for '" + username + "'");
+                const updateSql = 'UPDATE Users SET verify_email_token = ? WHERE username = ?';
+                const updateValues = [token, username];
+                connection.execute(updateSql, updateValues, (error) => {
+                    if (error) {
+                        console.error('Error while setting verify_email_token column:', error);
+                        res.status(500).json({ message: 'An error occurred.' });
+                        return;
+                    }
+                });
+
+                console.log("The verification email was sent for '" + email + "'");
                 res.json({ success: true, message: "The verification email was sent successfully" });
                 smtpProtocol.close();
             }
@@ -362,29 +388,154 @@ app.post('/api/sendVerificationEmail', verifyToken, (req, res) => {
     });
 });
 
-app.get('/api/verifyUser', (req, res) => {
+app.get('/api/verifyUserEmail', (req, res) => {
     const { token, username } = req.query;
-    const sql = 'SELECT password, email FROM Users WHERE username = ?';
+    const sql = 'SELECT verify_email_token FROM Users WHERE username = ?';
     const checkValue = [username];
 
     connection.execute(sql, checkValue, (error, results) => {
         if (error || results.length === 0) {
-            res.redirect("https://jchat.com/emailVerification.html?success=false");
+            res.redirect("https://jchat.com/emailVerification.html?success=bgf");
             return;
         }
 
-        const chackToken = crypto.createHash('sha256').update(username + results[0].email + results[0].password).digest('hex');
-        if (token === chackToken) {
-            const updateSql = 'UPDATE Users SET is_email_verified = 1 WHERE username = ?';
+        if (token === results[0].verify_email_token) {
+            const updateSql = 'UPDATE Users SET is_email_verified = 1, verify_email_token = NULL WHERE username = ?';
             connection.execute(updateSql, checkValue, (updateError) => {
                 if (updateError) {
-                    res.redirect("https://jchat.com/emailVerification.html?success=false");
+                    res.redirect("https://jchat.com/emailVerification.html?success=njh");
                     return;
                 }
             });
+            console.log("'" + username + "' verified his/her email")
             res.redirect("https://jchat.com/emailVerification.html?success=true");
         } else {
-            res.redirect("https://jchat.com/emailVerification.html?success=false");
+            res.redirect("https://jchat.com/emailVerification.html?success=falsdse");
+        }
+    });
+});
+
+app.post('/api/sendPasswordRecoveryEmail', (req, res) => {
+    let { username, } = req.body;
+
+    const sql = 'SELECT password, email, username FROM Users WHERE username = ? AND is_email_verified = 1';
+    const checkValues = [username];
+
+    connection.execute(sql, checkValues, (error, results) => {
+        if (error) {
+            console.error('Error checking for existing user:', error);
+            res.status(500).json({ message: 'An error occurred.' });
+            return;
+        }
+
+        if (results.length === 0) {
+            res.status(400).json({ message: "This user email is not verified or this user does not exist" });
+            return;
+        }
+
+
+        const updateSql = 'UPDATE Users SET recover_password_token = ? WHERE username = ?';
+        let token = crypto.randomBytes(64).toString('hex');
+        const updateValues = [token, username];
+        connection.execute(updateSql, updateValues, (error) => {
+            if (error) {
+                console.error('Error while setting recover_password_token column:', error);
+                res.status(500).json({ message: 'An error occurred.' });
+                return;
+            }
+        });
+
+        smtpProtocol = mailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: process.env.JCHAT_EMAIL_ADDR,
+                pass: process.env.JCHAT_APP_PASS,
+            }
+        });
+
+        let mailoption = {
+            from: process.env.JCHAT_EMAIL_ADDR,
+            to: results[0].email,
+            subject: "Recover your JChat account password",
+            html:
+            `<body style="height: 100%; margin: 0; padding: 0; display: flex;">
+                <div style="width: 450px; height: 600px; background: linear-gradient(to bottom left, #78e5e5, #3dc6cb, #169a95); margin: auto; text-align: center; border-radius: 10px; padding: 20px; font-family: sans-serif;">
+                    <a href="https://imageupload.io/6Nq3FH5HcSYhRcF"><img src="https://imageupload.io/ib/QDbvQI5KsU7QLr8_1695304766.png"alt="JChat-Logo.png"style="height:60px;width:auto;"></a>
+                    <h1>Hello ` + results[0].username + `</h1>
+                    <h2>To recover your user password, please click on the button below:</h2>
+                    <div style="background-color: #006aff; border-radius: 5px; height: 50px; width: 160px; margin: auto; display: flex;">
+                        <a href="https://jchat.com/recoverPassword.html?token=` + token + '&username=' + username + `" style="color: white; text-decoration: none; font-size: 20px; margin: auto; font-weight: bold;">Verify</a>
+                    </div>
+                    <h4>Thank you,<br/>The JChat Team</h4>
+                </div>
+            </body>`
+        }
+
+        smtpProtocol.sendMail(mailoption, (err) => {
+            if (err) {
+                console.log(err);
+                res.status(400).json({ message: "An error occurred while sending the verification email" });
+            } else {
+                console.log("The password recovery email was sent for '" + results[0].email + "'");
+                res.json({ success: true, message: "The password recovery email was sent successfully" });
+                smtpProtocol.close();
+            }
+        });
+    });
+});
+
+app.get('/api/isValidRecoverPasswordToken', (req, res) => {
+    const { token, username } = req.query;
+    const sql = 'SELECT recover_password_token FROM Users WHERE username = ?';
+    const checkValue = [username];
+
+    connection.execute(sql, checkValue, (error, results) => {
+        if (error || results.length === 0) {
+            res.status(500).json({ message: "An error occurred" });
+            return;
+        }
+
+        if (token === results[0].recover_password_token && results[0].recover_password_token != null) {
+            res.json({ success: true, message: "The password recovery token is valid" });
+        } else {
+            res.status(400).json({ message: "Invalid password recovery token" });
+        }
+    });
+});
+
+app.get('/api/recoverUserPassword', (req, res) => {
+    let { token, password, username } = req.query;
+
+    const sql = 'SELECT recover_password_token FROM Users WHERE username = ?';
+    const checkValue = [username];
+
+    connection.execute(sql, checkValue, (error, results) => {
+        if (error || results.length === 0) {
+            res.status(500).json({ message: "An error occurred" });
+            return;
+        }
+
+        if (token === results[0].recover_password_token && results[0].recover_password_token != null) {
+            if (!isValidPassword(password)) {
+                res.status(400).json({ message: "Invalid password. Only use valid characters and lengths between 5-100." });
+                return;
+            }
+
+            const updateSql = 'UPDATE Users SET password = ?, recover_password_token = NULL WHERE username = ?';
+            password = crypto.createHash('sha256').update(password).digest('hex');
+            const updateValues = [password, username];
+        
+            connection.execute(updateSql, updateValues, (error, results) => {
+                if (error) {
+                    res.status(500).json({ message: "An error occurred" });
+                    return;
+                }
+        
+                res.json({ success: true, message: "The password is updated successfully" });
+                console.log("'" + username + "' updated the password successfully");
+            });
+        } else {
+            res.status(400).json({ message: "Invalid password recovery token" });
         }
     });
 });

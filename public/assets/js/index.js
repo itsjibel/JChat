@@ -18,6 +18,7 @@ function setCookie(name, value, days) {
 
 let token = getCookie('token');
 const refreshToken = getCookie('refreshToken');
+let tokenData;
 
 if (token) {
     // Function to refresh the token
@@ -25,15 +26,15 @@ if (token) {
         if (!token || !refreshToken) {
             // Tokens are missing, redirect to login
             window.location.href = '/login.html';
-            return;
+            return Promise.reject("Tokens missing");
         }
-
+    
         const refreshTokenData = parseJwt(refreshToken);
         const refreshTokenExpirationTime = new Date(refreshTokenData.exp * 1000);
     
         if (refreshTokenExpirationTime > new Date()) {
             // Access token has expired, but refresh token is still valid
-            fetch('/api/refresh-token', {
+            return fetch('/api/refresh-token', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -46,7 +47,6 @@ if (token) {
                 if (data.success) {
                     const newToken = data.accessToken;
                     setCookie('token', newToken, 7); // Store the new access token in a cookie
-                    setTimeout(refreshAccessToken, 50000); // Schedule the next token refresh
                 } else {
                     // Handle refresh token failure
                     window.location.href = '/login.html'; // Redirect to the login page on failure
@@ -58,6 +58,7 @@ if (token) {
         } else {
             // Both access and refresh tokens are expired, redirect to login
             window.location.href = '/login.html';
+            return Promise.reject("Tokens expired");
         }
     }
 
@@ -77,10 +78,6 @@ if (token) {
 
             // Function to fetch user data
             function fetchUserData() {
-                refreshAccessToken();
-                token = getCookie('token');
-                const tokenData = parseJwt(token);
-
                 fetch('/api/getUserProfile/' + tokenData.username, {
                     headers: {
                         'Authorization': 'Bearer ' + token
@@ -109,12 +106,13 @@ if (token) {
                     console.error('Error fetching user data:', error);
                 });
             }
-
             // Call the function to fetch user data
-            fetchUserData();
-
-            // Schedule the first token refresh
-            refreshAccessToken();
+            refreshAccessToken()
+            .then(() => {
+                token = getCookie('token');
+                tokenData = parseJwt(token);
+                fetchUserData();
+            });
         }
     })
     .catch((error) => {

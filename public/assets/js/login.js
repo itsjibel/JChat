@@ -146,5 +146,68 @@ function adjustMainHeightForSignUp() {
     main.style.height = 475 + errorMessage.clientHeight + "px";
 }
 
+function showMessage(message) {
+    const messageBox = document.getElementById('message-box');
+    const messageText = document.getElementById('message-text');
+    const messageProgress = document.getElementById('message-progress');
+
+    // Set the message text
+    messageText.textContent = message;
+
+    // Show the message box
+    messageBox.style.display = 'inline-block';
+
+    // Center the message box
+    messageBox.style.top = '0';
+    messageBox.style.left = '50%';
+    messageBox.style.transform = 'translateX(-50%)';
+
+    // Hide the message box after 3 seconds
+    setTimeout(() => {
+        messageBox.style.display = 'none';
+    }, 4000);
+
+    // Update the progress bar (optional)
+    let width = 0;
+    const interval = setInterval(() => {
+        if (width >= 100) {
+            clearInterval(interval);
+        } else {
+            width++;
+            messageProgress.style.width = width + '%';
+        }
+    }, 40);
+}
+
+const forgotPasswordLink = document.getElementById('forgot-password');
+forgotPasswordLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    const formData = new FormData();
+    const username = document.getElementById('login-username').value;
+    formData.append('username', username);
+    
+    if (username === '')
+    {
+        showMessage('Enter your username to recover your password');
+        return;
+    }
+
+    fetch('/api/sendPasswordRecoveryEmail', {
+        method: 'POST',
+        body: new URLSearchParams(formData)
+    })
+    .then((response) => response.json())
+    .then((data) => {
+        if (data.success) {
+            showMessage('The verification email was sent successfully');
+        } else {
+            showMessage(data.message);
+        }
+    })
+    .catch((error) => {
+        showMessage(error);
+    });
+});
+
 document.getElementById("signUpForm").addEventListener("submit", addUser);
 document.getElementById("loginForm").addEventListener("submit", loginUser);
