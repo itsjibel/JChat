@@ -60,34 +60,48 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 function showMessage(message) {
-    const messageBox = document.getElementById('message-box');
-    const messageText = document.getElementById('message-text');
-    const messageProgress = document.getElementById('message-progress');
+    messageQueue.push(message); // Add the message to the queue
 
-    // Set the message text
-    messageText.textContent = message;
+    // If there is no message currently displayed, show the next one
+    if (messageQueue.length === 1) {
+        showNextMessage();
+    }
+}
 
-    // Show the message box
-    messageBox.style.display = 'inline-block';
+function showNextMessage() {
+    if (messageQueue.length > 0) {
+        const message = messageQueue[0];
+        const messageBox = document.getElementById('message-box');
+        const messageText = document.getElementById('message-text');
+        const messageProgress = document.getElementById('message-progress');
 
-    // Center the message box
-    messageBox.style.top = '0';
-    messageBox.style.left = '50%';
-    messageBox.style.transform = 'translateX(-50%)';
+        // Set the message text
+        messageText.textContent = message;
 
-    // Hide the message box after 3 seconds
-    setTimeout(() => {
-        messageBox.style.display = 'none';
-    }, 4000);
+        // Show the message box
+        messageBox.style.display = 'inline-block';
 
-    // Update the progress bar (optional)
-    let width = 0;
-    const interval = setInterval(() => {
-        if (width >= 100) {
-            clearInterval(interval);
-        } else {
-            width++;
-            messageProgress.style.width = width + '%';
-        }
-    }, 40);
+        // Center the message box
+        messageBox.style.top = '0';
+        messageBox.style.left = '50%';
+        messageBox.style.transform = 'translateX(-50%)';
+
+        // Hide the message box after 3 seconds
+        setTimeout(() => {
+            messageBox.style.display = 'none';
+            messageQueue.shift(); // Remove the displayed message from the queue
+            showNextMessage(); // Show the next message, if any
+        }, 4000);
+
+        // Update the progress bar (optional)
+        let width = 0;
+        const interval = setInterval(() => {
+            if (width >= 100) {
+                clearInterval(interval);
+            } else {
+                width++;
+                messageProgress.style.width = width + '%';
+            }
+        }, 40);
+    }
 }

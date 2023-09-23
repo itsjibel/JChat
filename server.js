@@ -404,7 +404,7 @@ app.get('/api/verifyUserEmail', (req, res) => {
 
     connection.execute(sql, checkValue, (error, results) => {
         if (error || results.length === 0) {
-            res.redirect("https://jchat.com/emailVerification.html?success=bgf");
+            res.redirect("https://jchat.com/emailVerification.html?success=false");
             return;
         }
 
@@ -412,14 +412,14 @@ app.get('/api/verifyUserEmail', (req, res) => {
             const updateSql = 'UPDATE Users SET is_email_verified = 1, verify_email_token = NULL WHERE username = ?';
             connection.execute(updateSql, checkValue, (updateError) => {
                 if (updateError) {
-                    res.redirect("https://jchat.com/emailVerification.html?success=njh");
+                    res.redirect("https://jchat.com/emailVerification.html?success=false");
                     return;
                 }
             });
             console.log("'" + username + "' verified his/her email")
             res.redirect("https://jchat.com/emailVerification.html?success=true");
         } else {
-            res.redirect("https://jchat.com/emailVerification.html?success=falsdse");
+            res.redirect("https://jchat.com/emailVerification.html?success=false");
         }
     });
 });

@@ -31,7 +31,7 @@ function setCookie(name, value, days) {
     const date = new Date();
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
     const expires = "expires=" + date.toUTCString();
-    document.cookie = name + "=" + value + "; " + expires + "; path=/; domain=jchat.com; secure; samesite=None";
+    document.cookie = name + "=" + value + "; " + expires + "; path=/; secure; samesite=None";
 }
 
 // Process of eye button of login password
@@ -215,7 +215,7 @@ forgotPasswordLink.addEventListener('click', (e) => {
     .then((response) => response.json())
     .then((data) => {
         if (data.success) {
-            showMessage('The verification email was sent successfully');
+            showMessage('The password recovery email was sent successfully');
         } else {
             showMessage(data.message);
         }

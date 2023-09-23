@@ -13,7 +13,7 @@ function setCookie(name, value, days) {
     const date = new Date();
     date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
     const expires = "expires=" + date.toUTCString();
-    document.cookie = name + "=" + value + "; " + expires + "; path=/; domain=jchat.com; secure; samesite=None";
+    document.cookie = name + "=" + value + "; " + expires + "; path=/; secure; samesite=None";
 }
 
 let token = getCookie('token');
@@ -144,8 +144,8 @@ logoutButton.addEventListener('click', () => {
         .then((data) => {
             if (data.success) {
                 // Clear the access token and refresh token cookies
-                document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=jchat.com;';
-                document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=jchat.com;';
+                document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
                 // Redirect to the login page or perform other actions as needed
                 window.location.href = '/login.html';
             } else {
@@ -235,59 +235,64 @@ applyChangesButton.addEventListener('click', (e) => {
                 const newEmail = emailElement.value;
                 const newPassword = passwordElement.value;
 
+                // Create a FormData object to send the data as a multipart/form-data request
+                const formData = new FormData();
+                formData.append('old_username', tokenData.username);
+                formData.append('old_password', currentPassword);
+                formData.append('username', newUsername);
+                formData.append('email', newEmail);
+                formData.append('password', newPassword);
+
                 // Check if the Cropper instance exists and is not null
                 if (cropper) {
                     // Disable the crop button while cropping is in progress
                     document.getElementById('cropImageBtn').disabled = true;
-                    
+
                     // Get the cropped image as a blob
                     cropper.getCroppedCanvas().toBlob((blob) => {
                         if (blob) {
-                            // Create a FormData object to send the data as a multipart/form-data request
-                            const formData = new FormData();
-                            formData.append('old_username', tokenData.username);
-                            formData.append('old_password', currentPassword);
-                            formData.append('username', newUsername);
-                            formData.append('email', newEmail);
-                            formData.append('password', newPassword);
                             formData.append('pfp', blob, 'profile_picture.jpg'); // Append the blob as 'pfp'
-
-                            // Send the data to the server using a fetch POST request
-                            fetch('/api/editProfile/' + tokenData.username, {
-                                method: 'POST',
-                                headers: {
-                                    'Authorization': 'Bearer ' + token
-                                },
-                                body: formData // Use the FormData object as the request body
-                            })
-                            .then((response) => response.json())
-                            .then((data) => {
-                                if (data.success) {
-                                    // Handle successful profile edit, such as displaying a success message or redirecting
-                                    const token = data.token; // Get JWT token from response
-                                    const refreshToken = data.refreshToken; // Get refresh token from response
-                
-                                    setCookie('token', token, 7);
-                                    setCookie('refreshToken', refreshToken, 15);
-                
-                                    showMessage('Profile updated successfully');
-                                } else {
-                                    // Handle edit failure, display an error message or take appropriate action
-                                    showMessage(data.message);
-                                }
-                            })
-                            .catch((error) => {
-                                console.error('Error updating profile:', error);
-                            })
-                            .finally(() => {
-                                // Re-enable the crop button and destroy the Cropper instance
-                                document.getElementById('cropImageBtn').disabled = false;
-                                cropper.destroy();
-                                passwordModal.hide();
-                            });
                         }
                     }, 'image/jpeg'); // Specify the desired image format
+                } else {
+                    const profilePictureInput = document.getElementById('profile-picture-input');
+                    const newProfilePicture = profilePictureInput.files[0];
+                    formData.append('pfp', newProfilePicture);
                 }
+
+                fetch('/api/editProfile/' + tokenData.username, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + token
+                    },
+                    body: formData // Use the FormData object as the request body
+                })
+                .then((response) => response.json())
+                .then((data) => {
+                    if (data.success) {
+                        // Handle successful profile edit, such as displaying a success message or redirecting
+                        const token = data.token; // Get JWT token from response
+                        const refreshToken = data.refreshToken; // Get refresh token from response
+    
+                        setCookie('token', token, 7);
+                        setCookie('refreshToken', refreshToken, 15);
+    
+                        showMessage('Profile updated successfully');
+                    } else {
+                        // Handle edit failure, display an error message or take appropriate action
+                        showMessage(data.message);
+                    }
+                })
+                .catch((error) => {
+                    console.error('Error updating profile:', error);
+                })
+
+                if (cropper) {
+                    document.getElementById('cropImageBtn').disabled = false;
+                    cropper.destroy();
+                }
+
+                passwordModal.hide();
             });
     });
 });
