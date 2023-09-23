@@ -113,7 +113,7 @@ app.post('/api/signup', (req, res) => {
                 let mailoption = {
                     from: process.env.JCHAT_EMAIL_ADDR,
                     to: email,
-                    subject: "Recover your JChat account password",
+                    subject: "Welcome to the JChat community",
                     html:
                     `<body style="height: 100%; margin: 0; padding: 0; display: flex;">
                         <div style="width: 450px; height: 600px; background: linear-gradient(to bottom left, #78e5e5, #3dc6cb, #169a95); margin: auto; text-align: center; border-radius: 10px; padding: 20px; font-family: sans-serif;">
@@ -433,7 +433,7 @@ app.post('/api/sendVerificationEmail', verifyAccessToken, (req, res) => {
 
 app.get('/api/verifyUserEmail', (req, res) => {
     const { token, username } = req.query;
-    const sql = 'SELECT verify_email_token FROM Users WHERE BINARY username = ?';
+    const sql = 'SELECT email, verify_email_token FROM Users WHERE BINARY username = ?';
     const checkValue = [username];
 
     connection.execute(sql, checkValue, (error, results) => {
@@ -450,6 +450,40 @@ app.get('/api/verifyUserEmail', (req, res) => {
                     return;
                 }
             });
+
+            smtpProtocol = mailer.createTransport({
+                service: "gmail",
+                auth: {
+                    user: process.env.JCHAT_EMAIL_ADDR,
+                    pass: process.env.JCHAT_APP_PASS,
+                }
+            });
+
+            let mailoption = {
+                from: process.env.JCHAT_EMAIL_ADDR,
+                to: results[0].email,
+                subject: "Your email is verified successfully",
+                html:
+                `<body style="height: 100%; margin: 0; padding: 0; display: flex;">
+                    <div style="width: 450px; height: 600px; background: linear-gradient(to bottom left, #78e5e5, #3dc6cb, #169a95); margin: auto; text-align: center; border-radius: 10px; padding: 20px; font-family: sans-serif;">
+                        <a href="https://imageupload.io/6Nq3FH5HcSYhRcF"><img src="https://imageupload.io/ib/QDbvQI5KsU7QLr8_1695304766.png"alt="JChat-Logo.png"style="height:60px;width:auto;"></a>
+                        <h1>Hello ` + username + `</h1>
+                        <h2>You verified your JChat account email successfully!</h2>
+                        <h4>Thank you,<br/>The JChat Team</h4>
+                    </div>
+                </body>`
+            }
+    
+            smtpProtocol.sendMail(mailoption, (err) => {
+                if (err) {
+                    console.log(err);
+                    res.status(400).json({ message: "An error occurred while sending the successful email verification email" });
+                } else {
+                    res.json({ success: true, message: "The successful email verification email was sent successfully" });
+                    smtpProtocol.close();
+                }
+            });
+
             console.log("'" + username + "' verified his/her email")
             res.redirect("https://jchat.com/emailVerification.html?success=true");
         } else {
@@ -461,7 +495,7 @@ app.get('/api/verifyUserEmail', (req, res) => {
 app.post('/api/sendPasswordRecoveryEmail', (req, res) => {
     let { username, } = req.body;
 
-    const sql = 'SELECT password, email, username FROM Users WHERE BINARY username = ? AND is_email_verified = 1';
+    const sql = 'SELECT email FROM Users WHERE BINARY username = ? AND is_email_verified = 1';
     const checkValues = [username];
 
     connection.execute(sql, checkValues, (error, results) => {
@@ -504,16 +538,17 @@ app.post('/api/sendPasswordRecoveryEmail', (req, res) => {
             `<body style="height: 100%; margin: 0; padding: 0; display: flex;">
                 <div style="width: 450px; height: 600px; background: linear-gradient(to bottom left, #78e5e5, #3dc6cb, #169a95); margin: auto; text-align: center; border-radius: 10px; padding: 20px; font-family: sans-serif;">
                     <a href="https://imageupload.io/6Nq3FH5HcSYhRcF"><img src="https://imageupload.io/ib/QDbvQI5KsU7QLr8_1695304766.png"alt="JChat-Logo.png"style="height:60px;width:auto;"></a>
-                    <h1>Hello ` + results[0].username + `</h1>
+                    <h1>Hello ` + username + `</h1>
                     <h2>To recover your user password, please click on the button below:</h2>
-                    <div style="background-color: #006aff; border-radius: 5px; height: 50px; width: 160px; margin: auto; display: flex;">
-                        <a href="https://jchat.com/recoverPassword.html?token=` + token + '&username=' + username + `" style="color: white; text-decoration: none; font-size: 20px; margin: auto; font-weight: bold;">Verify</a>
+                    <div style="background-color: #006aff; border-radius: 5px; height: 50px; width: 240px; margin: auto; display: flex;">
+                        <a href="https://jchat.com/recoverPassword.html?token=` + token + '&username=' + username + `" style="color: white; text-decoration: none; font-size: 20px; margin: auto; font-weight: bold;">Recover Password</a>
                     </div>
                     <h4>Thank you,<br/>The JChat Team</h4>
                 </div>
             </body>`
         }
 
+        
         smtpProtocol.sendMail(mailoption, (err) => {
             if (err) {
                 console.log(err);
@@ -549,7 +584,7 @@ app.get('/api/isValidRecoverPasswordToken', (req, res) => {
 app.get('/api/recoverUserPassword', (req, res) => {
     let { token, password, username } = req.query;
 
-    const sql = 'SELECT recover_password_token FROM Users WHERE BINARY username = ?';
+    const sql = 'SELECT email, recover_password_token FROM Users WHERE BINARY username = ?';
     const checkValue = [username];
 
     connection.execute(sql, checkValue, (error, results) => {
@@ -567,13 +602,47 @@ app.get('/api/recoverUserPassword', (req, res) => {
             const updateSql = 'UPDATE Users SET password = ?, recover_password_token = NULL WHERE BINARY username = ?';
             password = crypto.createHash('sha256').update(password).digest('hex');
             const updateValues = [password, username];
-        
+            const email = results[0].email;
+
             connection.execute(updateSql, updateValues, (error, results) => {
                 if (error) {
                     res.status(500).json({ message: "An error occurred" });
                     return;
                 }
+                
+                smtpProtocol = mailer.createTransport({
+                    service: "gmail",
+                    auth: {
+                        user: process.env.JCHAT_EMAIL_ADDR,
+                        pass: process.env.JCHAT_APP_PASS,
+                    }
+                });
+
+                let mailoption = {
+                    from: process.env.JCHAT_EMAIL_ADDR,
+                    to: email,
+                    subject: "Your password is updated successfully",
+                    html:
+                    `<body style="height: 100%; margin: 0; padding: 0; display: flex;">
+                        <div style="width: 450px; height: 600px; background: linear-gradient(to bottom left, #78e5e5, #3dc6cb, #169a95); margin: auto; text-align: center; border-radius: 10px; padding: 20px; font-family: sans-serif;">
+                            <a href="https://imageupload.io/6Nq3FH5HcSYhRcF"><img src="https://imageupload.io/ib/QDbvQI5KsU7QLr8_1695304766.png"alt="JChat-Logo.png"style="height:60px;width:auto;"></a>
+                            <h1>Hello ` + username + `</h1>
+                            <h2>You changed your JChat account password successfully.</h2>
+                            <h4>Thank you,<br/>The JChat Team</h4>
+                        </div>
+                    </body>`
+                }
         
+                smtpProtocol.sendMail(mailoption, (err) => {
+                    if (err) {
+                        console.log(err);
+                        res.status(400).json({ message: "An error occurred while sending the password recovery email" });
+                    } else {
+                        res.json({ success: true, message: "The password recovery email was sent successfully" });
+                        smtpProtocol.close();
+                    }
+                });
+
                 res.json({ success: true, message: "The password is updated successfully" });
                 console.log("'" + username + "' updated the password successfully");
             });

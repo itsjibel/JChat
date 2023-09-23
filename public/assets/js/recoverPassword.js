@@ -59,6 +59,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
+const messageQueue = []; // Queue to store messages
+
 function showMessage(message) {
     messageQueue.push(message); // Add the message to the queue
 
