@@ -548,7 +548,6 @@ app.post('/api/sendPasswordRecoveryEmail', (req, res) => {
             </body>`
         }
 
-        
         smtpProtocol.sendMail(mailoption, (err) => {
             if (err) {
                 console.log(err);
