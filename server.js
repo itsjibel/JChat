@@ -59,7 +59,7 @@ app.post('/api/signup', (req, res) => {
     }
 
     // Check if the username or email already exists
-    const checkSql = 'SELECT * FROM Users WHERE username = ? OR email = ?';
+    const checkSql = 'SELECT * FROM Users WHERE BINARY username = ? OR email = ?';
     const checkValues = [username, email];
 
     connection.execute(checkSql, checkValues, (error, results) => {
@@ -89,10 +89,9 @@ app.post('/api/signup', (req, res) => {
             }
 
             const values = [username, password, email, imageBinaryData]; // Include the image binary data in values
-
             connection.execute(sql, values, (error) => {
                 if (error) {
-                    console.error('Error in adding user!');
+                    console.error(error);
                     res.status(500).json({ message: 'An error occurred.' });
                     return;
                 }
@@ -102,6 +101,41 @@ app.post('/api/signup', (req, res) => {
                 // Generate JWT token and send it in the response
                 const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
                 const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: refreshTokenExpiry });
+
+                smtpProtocol = mailer.createTransport({
+                    service: "gmail",
+                    auth: {
+                        user: process.env.JCHAT_EMAIL_ADDR,
+                        pass: process.env.JCHAT_APP_PASS,
+                    }
+                });
+        
+                let mailoption = {
+                    from: process.env.JCHAT_EMAIL_ADDR,
+                    to: email,
+                    subject: "Recover your JChat account password",
+                    html:
+                    `<body style="height: 100%; margin: 0; padding: 0; display: flex;">
+                        <div style="width: 450px; height: 600px; background: linear-gradient(to bottom left, #78e5e5, #3dc6cb, #169a95); margin: auto; text-align: center; border-radius: 10px; padding: 20px; font-family: sans-serif;">
+                            <a href="https://imageupload.io/6Nq3FH5HcSYhRcF"><img src="https://imageupload.io/ib/QDbvQI5KsU7QLr8_1695304766.png"alt="JChat-Logo.png"style="height:60px;width:auto;"></a>
+                            <h1>Hello ` + username + `</h1>
+                            <h2>You signed up for the JChat successfully!</h2>
+                            <h3>A warm welcome to you from the JChat team.</h3>
+                            <h4>Thank you,<br/>The JChat Team</h4>
+                        </div>
+                    </body>`
+                }
+        
+                smtpProtocol.sendMail(mailoption, (err) => {
+                    if (err) {
+                        console.log(err);
+                        res.status(400).json({ message: "An error occurred while sending the welcome email" });
+                    } else {
+                        console.log("The welcome email was sent for '" + results[0].email + "'");
+                        res.json({ success: true, message: "The welcome email was sent successfully" });
+                        smtpProtocol.close();
+                    }
+                });
 
                 res.json({ success: true, message: 'User added successfully!', token, refreshToken });
             });
@@ -186,7 +220,7 @@ function verifyAccessToken(req, res, next) {
 
 app.get('/api/profile/:username', verifyAccessToken, (req, res) => {
     const requestedUsername = req.params.username;
-    const sql = 'SELECT username, email, is_email_verified, pfp FROM Users WHERE username = ?';
+    const sql = 'SELECT username, email, is_email_verified, pfp FROM Users WHERE BINARY username = ?';
 
     connection.execute(sql, [requestedUsername], (error, results) => {
         if (error) {
@@ -258,7 +292,7 @@ app.post('/api/editProfile/:username', verifyAccessToken, upload.single('pfp'), 
         return;
     }
 
-    const checkSqlDuplicate = 'SELECT * FROM Users WHERE username = ? OR email = ?';
+    const checkSqlDuplicate = 'SELECT * FROM Users WHERE BINARY username = ? OR email = ?';
     const checkValuesDuplicate = [username, email];
 
     connection.execute(checkSqlDuplicate, checkValuesDuplicate, (error, results) => {
@@ -274,7 +308,7 @@ app.post('/api/editProfile/:username', verifyAccessToken, upload.single('pfp'), 
         }
 
         // Check if the username or email already exists
-        const checkSql = 'SELECT * FROM Users WHERE username = ? AND password = ?';
+        const checkSql = 'SELECT * FROM Users WHERE BINARY username = ? AND password = ?';
         old_password = crypto.createHash('sha256').update(old_password).digest('hex');
         const checkValues = [old_username, old_password];
 
@@ -379,7 +413,7 @@ app.post('/api/sendVerificationEmail', verifyAccessToken, (req, res) => {
                 console.log(err);
                 res.status(400).json({ message: "An error occurred while sending the verification email" });
             } else {
-                const updateSql = 'UPDATE Users SET verify_email_token = ? WHERE username = ?';
+                const updateSql = 'UPDATE Users SET verify_email_token = ? WHERE BINARY username = ?';
                 const updateValues = [token, username];
                 connection.execute(updateSql, updateValues, (error) => {
                     if (error) {
@@ -399,7 +433,7 @@ app.post('/api/sendVerificationEmail', verifyAccessToken, (req, res) => {
 
 app.get('/api/verifyUserEmail', (req, res) => {
     const { token, username } = req.query;
-    const sql = 'SELECT verify_email_token FROM Users WHERE username = ?';
+    const sql = 'SELECT verify_email_token FROM Users WHERE BINARY username = ?';
     const checkValue = [username];
 
     connection.execute(sql, checkValue, (error, results) => {
@@ -409,7 +443,7 @@ app.get('/api/verifyUserEmail', (req, res) => {
         }
 
         if (token === results[0].verify_email_token) {
-            const updateSql = 'UPDATE Users SET is_email_verified = 1, verify_email_token = NULL WHERE username = ?';
+            const updateSql = 'UPDATE Users SET is_email_verified = 1, verify_email_token = NULL WHERE BINARY username = ?';
             connection.execute(updateSql, checkValue, (updateError) => {
                 if (updateError) {
                     res.redirect("https://jchat.com/emailVerification.html?success=false");
@@ -427,7 +461,7 @@ app.get('/api/verifyUserEmail', (req, res) => {
 app.post('/api/sendPasswordRecoveryEmail', (req, res) => {
     let { username, } = req.body;
 
-    const sql = 'SELECT password, email, username FROM Users WHERE username = ? AND is_email_verified = 1';
+    const sql = 'SELECT password, email, username FROM Users WHERE BINARY username = ? AND is_email_verified = 1';
     const checkValues = [username];
 
     connection.execute(sql, checkValues, (error, results) => {
@@ -443,7 +477,7 @@ app.post('/api/sendPasswordRecoveryEmail', (req, res) => {
         }
 
 
-        const updateSql = 'UPDATE Users SET recover_password_token = ? WHERE username = ?';
+        const updateSql = 'UPDATE Users SET recover_password_token = ? WHERE BINARY username = ?';
         let token = crypto.randomBytes(64).toString('hex');
         const updateValues = [token, username];
         connection.execute(updateSql, updateValues, (error) => {
@@ -483,7 +517,7 @@ app.post('/api/sendPasswordRecoveryEmail', (req, res) => {
         smtpProtocol.sendMail(mailoption, (err) => {
             if (err) {
                 console.log(err);
-                res.status(400).json({ message: "An error occurred while sending the verification email" });
+                res.status(400).json({ message: "An error occurred while sending the password recovery email" });
             } else {
                 console.log("The password recovery email was sent for '" + results[0].email + "'");
                 res.json({ success: true, message: "The password recovery email was sent successfully" });
@@ -495,7 +529,7 @@ app.post('/api/sendPasswordRecoveryEmail', (req, res) => {
 
 app.get('/api/isValidRecoverPasswordToken', (req, res) => {
     const { token, username } = req.query;
-    const sql = 'SELECT recover_password_token FROM Users WHERE username = ?';
+    const sql = 'SELECT recover_password_token FROM Users WHERE BINARY username = ?';
     const checkValue = [username];
 
     connection.execute(sql, checkValue, (error, results) => {
@@ -515,7 +549,7 @@ app.get('/api/isValidRecoverPasswordToken', (req, res) => {
 app.get('/api/recoverUserPassword', (req, res) => {
     let { token, password, username } = req.query;
 
-    const sql = 'SELECT recover_password_token FROM Users WHERE username = ?';
+    const sql = 'SELECT recover_password_token FROM Users WHERE BINARY username = ?';
     const checkValue = [username];
 
     connection.execute(sql, checkValue, (error, results) => {
@@ -530,7 +564,7 @@ app.get('/api/recoverUserPassword', (req, res) => {
                 return;
             }
 
-            const updateSql = 'UPDATE Users SET password = ?, recover_password_token = NULL WHERE username = ?';
+            const updateSql = 'UPDATE Users SET password = ?, recover_password_token = NULL WHERE BINARY username = ?';
             password = crypto.createHash('sha256').update(password).digest('hex');
             const updateValues = [password, username];
         
