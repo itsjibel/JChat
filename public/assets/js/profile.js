@@ -31,7 +31,7 @@ function refreshAccessToken() {
 
     if (refreshTokenExpirationTime > new Date()) {
         // Access token has expired, but refresh token is still valid
-        return fetch('/api/refresh-token', {
+        return fetch('/api/refreshAccessToken', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -74,7 +74,7 @@ function fetchUserData() {
             // Function to fetch user data
             function fetchUserData() {
                 token = getCookie('token');
-                fetch('/api/getUserProfile/' + tokenData.username, {
+                fetch('/api/profile/' + tokenData.username, {
                     headers: {
                         'Authorization': 'Bearer ' + token
                     }
@@ -231,7 +231,7 @@ applyChangesButton.addEventListener('click', (e) => {
             formData.append('pfp', newProfilePicture);
         
             // Send the data to the server using a fetch POST request
-            fetch('/api/editUser/' + tokenData.username, {
+            fetch('/api/editProfile/' + tokenData.username, {
                 method: 'POST',
                 headers: {
                     'Authorization': 'Bearer ' + token

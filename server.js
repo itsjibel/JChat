@@ -45,7 +45,7 @@ function isValidPassword(password) {
     return validCharactersRegex.test(password);
 }
 
-app.post('/api/addUser', (req, res) => {
+app.post('/api/signup', (req, res) => {
     let { username, password, email } = req.body;
 
     if (!isValidUsername(username)) {
@@ -109,7 +109,7 @@ app.post('/api/addUser', (req, res) => {
     });
 });
 
-app.post('/api/loginUser', (req, res) => {
+app.post('/api/login', (req, res) => {
     let { username, password } = req.body;
     // Hash the password with the sha256 algorithm to check it with the hashed password
     password = crypto.createHash('sha256').update(password).digest('hex');
@@ -140,7 +140,7 @@ app.post('/api/loginUser', (req, res) => {
     });
 });
 
-function verifyTokenForCheckLoggedIn(req, res, next) {
+function verifyRefreshToken(req, res, next) {
     const refreshToken = req.headers.authorization?.split(' ')[1];
     if (refreshToken) {
         jwt.verify(refreshToken, jwtSecretKey, (err, decoded) => {
@@ -155,7 +155,7 @@ function verifyTokenForCheckLoggedIn(req, res, next) {
     }
 }
 
-app.get('/api/checkLoggedIn', verifyTokenForCheckLoggedIn, (req, res) => {
+app.get('/api/checkLoggedIn', verifyRefreshToken, (req, res) => {
     // Check if the user is logged in
     if (req.user) {
         // User is logged in
@@ -167,7 +167,7 @@ app.get('/api/checkLoggedIn', verifyTokenForCheckLoggedIn, (req, res) => {
     }
 });
 
-function verifyToken(req, res, next) {
+function verifyAccessToken(req, res, next) {
     const token = req.headers.authorization?.split(' ')[1];
 
     if (!token) {
@@ -184,7 +184,7 @@ function verifyToken(req, res, next) {
     });
 }
 
-app.get('/api/getUserProfile/:username', verifyToken, (req, res) => {
+app.get('/api/profile/:username', verifyAccessToken, (req, res) => {
     const requestedUsername = req.params.username;
     const sql = 'SELECT username, email, is_email_verified, pfp FROM Users WHERE username = ?';
 
@@ -212,7 +212,7 @@ app.get('/api/getUserProfile/:username', verifyToken, (req, res) => {
     });
 });
 
-app.post('/api/refresh-token', (req, res) => {
+app.post('/api/refreshAccessToken', (req, res) => {
     const { refreshToken } = req.body;
 
     // Verify the refresh token
@@ -244,7 +244,7 @@ app.post('/api/logout', (req, res) => {
     }
 });
 
-app.post('/api/editUser/:username', verifyToken, upload.single('pfp'), (req, res) => {
+app.post('/api/editProfile/:username', verifyAccessToken, upload.single('pfp'), (req, res) => {
     let { old_password, old_username, username, password, email } = req.body;
     password = password != '' ? password : old_password;
 
@@ -328,7 +328,7 @@ app.post('/api/editUser/:username', verifyToken, upload.single('pfp'), (req, res
     });
 });
 
-app.post('/api/sendVerificationEmail', verifyToken, (req, res) => {
+app.post('/api/sendVerificationEmail', verifyAccessToken, (req, res) => {
     let { email, username } = req.body;
 
     const sql = 'SELECT user_id FROM Users WHERE email = ? AND username = ?';

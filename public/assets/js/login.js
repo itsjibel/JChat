@@ -56,7 +56,7 @@ toggleLoginPassword.addEventListener('click', () => {
     toggleLoginPassword.classList.toggle('bi-eye-slash');
 });
 
-function addUser(e) {
+function signup(e) {
     e.preventDefault(); // Prevent the default form submission
 
     // Get input values
@@ -72,7 +72,7 @@ function addUser(e) {
     formData.append("email", signUpEmail);
 
     // Make an HTTP POST request to the server
-    fetch('/api/addUser', {
+    fetch('/api/signup', {
         method: 'POST',
         body: new URLSearchParams(formData),
     })
@@ -99,7 +99,7 @@ function addUser(e) {
     });
 }
 
-function loginUser(e) {
+function login(e) {
     e.preventDefault();
 
     // Get input values
@@ -113,7 +113,7 @@ function loginUser(e) {
     formData.append("password", loginPassword);
 
     // Make an HTTP POST request to the server
-    fetch('/api/loginUser', {
+    fetch('/api/login', {
         method: 'POST',
         body: new URLSearchParams(formData),
     })
@@ -209,5 +209,5 @@ forgotPasswordLink.addEventListener('click', (e) => {
     });
 });
 
-document.getElementById("signUpForm").addEventListener("submit", addUser);
-document.getElementById("loginForm").addEventListener("submit", loginUser);
+document.getElementById("signUpForm").addEventListener("submit", signup);
+document.getElementById("loginForm").addEventListener("submit", login);

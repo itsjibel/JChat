@@ -34,7 +34,7 @@ if (token) {
     
         if (refreshTokenExpirationTime > new Date()) {
             // Access token has expired, but refresh token is still valid
-            return fetch('/api/refresh-token', {
+            return fetch('/api/refreshAccessToken', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
