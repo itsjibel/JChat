@@ -78,7 +78,7 @@ if (token) {
 
             // Function to fetch user data
             function fetchUserData() {
-                fetch('/api/getUserProfile/' + tokenData.username, {
+                fetch('/api/profile/' + tokenData.username, {
                     headers: {
                         'Authorization': 'Bearer ' + token
                     }

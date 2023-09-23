@@ -360,9 +360,18 @@ app.post('/api/sendVerificationEmail', verifyAccessToken, (req, res) => {
             from: process.env.JCHAT_EMAIL_ADDR,
             to: email,
             subject: "Please verify your JChat account email address",
-            html: `<body style="height:100%;margin:0;padding:0;display:flex;"><div style="width:450px;height:600px;background:linear-gradient(to bottom left,#78e5e5,#3dc6cb,#169a95);margin:auto;text-align:center;border-radius:10px;padding:20px;font-family:sans-serif;"><a href="https://imageupload.io/6Nq3FH5HcSYhRcF"><img src="https://imageupload.io/ib/QDbvQI5KsU7QLr8_1695304766.png"alt="JChat-Logo.png"style="height:60px;width:auto;"></a><h2>Please verify your JChat account email address.</h2><h5 style="color:rgb(242,242,242);">When you verify your email, you can change your password</h5><div style="background-color:#006aff;border-radius:5px;height:50px;width:160px;margin:auto;display:flex;"><a href="` +
-            'https://jchat.com/api/verifyUserEmail?token=' + token + '&username=' + username
-            + `"style="color:white;text-decoration:none;font-size:20px;margin:auto;font-weight:bold;">Verify</a></div><h4>Thank you,<br/>The JChat Team</h4></div></body>`,
+            html:
+            `<body style="height: 100%; margin: 0; padding: 0; display: flex;">
+                <div style="width: 450px; height: 600px; background: linear-gradient(to bottom left, #78e5e5, #3dc6cb, #169a95); margin: auto; text-align: center; border-radius: 10px; padding: 20px; font-family: sans-serif;">
+                    <img src="public/assets/images/JChat-Logo.png" alt="" style="height: 60px; width: auto;">
+                    <h2>Hello `+ username + `, please verify your JChat account email address.</h2>
+                    <h5 style="color: rgb(242, 242, 242);">When you verify your email, you can change your password</h5>
+                    <div style="background-color: #006aff; border-radius: 5px; height: 50px; width: 160px; margin: auto; display: flex;">
+                        <a href="https://jchat.com/api/verifyUserEmail?token=` + token + '&username=' + username + `"style="color:white;text-decoration:none;font-size:20px;margin:auto;font-weight:bold;">Verify</a>
+                    </div>
+                    <h4>Thank you,<br/>The JChat Team</h4>
+                </div>
+            </body>`,
         }
 
         smtpProtocol.sendMail(mailoption, (err) => {
