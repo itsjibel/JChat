@@ -224,57 +224,71 @@ applyChangesButton.addEventListener('click', (e) => {
     document.getElementById('confirmPasswordBtn').addEventListener('click', () => {
         refreshAccessToken()
             .then(() => {
-            token = getCookie('token');
-            const tokenData = parseJwt(token);
-            const currentPassword = document.getElementById('currentPassword').value;
-            const usernameElement = document.getElementById('username');
-            const emailElement = document.getElementById('email');
-            const passwordElement = document.getElementById('password');
-            const profilePictureInput = document.getElementById('profile-picture-input');
-        
-            const newUsername = usernameElement.value;
-            const newEmail = emailElement.value;
-            const newPassword = passwordElement.value;
-            const newProfilePicture = profilePictureInput.files[0]; // Get the selected image file
-        
-            // Create a FormData object to send the data as a multipart/form-data request
-            const formData = new FormData();
-            formData.append('old_username', tokenData.username);
-            formData.append('old_password', currentPassword);
-            formData.append('username', newUsername);
-            formData.append('email', newEmail);
-            formData.append('password', newPassword);
-            formData.append('pfp', newProfilePicture);
-        
-            // Send the data to the server using a fetch POST request
-            fetch('/api/editProfile/' + tokenData.username, {
-                method: 'POST',
-                headers: {
-                    'Authorization': 'Bearer ' + token
-                },
-                body: formData // Use the FormData object as the request body
-            })
-            .then((response) => response.json())
-            .then((data) => {
-                if (data.success) {
-                    // Handle successful profile edit, such as displaying a success message or redirecting
-                    const token = data.token; // Get JWT token from response
-                    const refreshToken = data.refreshToken; // Get refresh token from response
-        
-                    setCookie('token', token, 7);
-                    setCookie('refreshToken', refreshToken, 15);
+                token = getCookie('token');
+                const tokenData = parseJwt(token);
+                const currentPassword = document.getElementById('currentPassword').value;
+                const usernameElement = document.getElementById('username');
+                const emailElement = document.getElementById('email');
+                const passwordElement = document.getElementById('password');
 
-                    showMessage('Profile updated successfully');
-                } else {
-                    // Handle edit failure, display an error message or take appropriate action
-                    showMessage(data.message);
+                const newUsername = usernameElement.value;
+                const newEmail = emailElement.value;
+                const newPassword = passwordElement.value;
+
+                // Check if the Cropper instance exists and is not null
+                if (cropper) {
+                    // Disable the crop button while cropping is in progress
+                    document.getElementById('cropImageBtn').disabled = true;
+                    
+                    // Get the cropped image as a blob
+                    cropper.getCroppedCanvas().toBlob((blob) => {
+                        if (blob) {
+                            // Create a FormData object to send the data as a multipart/form-data request
+                            const formData = new FormData();
+                            formData.append('old_username', tokenData.username);
+                            formData.append('old_password', currentPassword);
+                            formData.append('username', newUsername);
+                            formData.append('email', newEmail);
+                            formData.append('password', newPassword);
+                            formData.append('pfp', blob, 'profile_picture.jpg'); // Append the blob as 'pfp'
+
+                            // Send the data to the server using a fetch POST request
+                            fetch('/api/editProfile/' + tokenData.username, {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': 'Bearer ' + token
+                                },
+                                body: formData // Use the FormData object as the request body
+                            })
+                            .then((response) => response.json())
+                            .then((data) => {
+                                if (data.success) {
+                                    // Handle successful profile edit, such as displaying a success message or redirecting
+                                    const token = data.token; // Get JWT token from response
+                                    const refreshToken = data.refreshToken; // Get refresh token from response
+                
+                                    setCookie('token', token, 7);
+                                    setCookie('refreshToken', refreshToken, 15);
+                
+                                    showMessage('Profile updated successfully');
+                                } else {
+                                    // Handle edit failure, display an error message or take appropriate action
+                                    showMessage(data.message);
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Error updating profile:', error);
+                            })
+                            .finally(() => {
+                                // Re-enable the crop button and destroy the Cropper instance
+                                document.getElementById('cropImageBtn').disabled = false;
+                                cropper.destroy();
+                                passwordModal.hide();
+                            });
+                        }
+                    }, 'image/jpeg'); // Specify the desired image format
                 }
-            })
-            .catch((error) => {
-                console.error('Error updating profile:', error);
             });
-            passwordModal.hide();
-        });
     });
 });
 
@@ -313,14 +327,41 @@ verifyEmailButton.addEventListener('click', (e) => {
     });
 });
 
-document.getElementById('profile-picture-input').addEventListener('change', function (event) {
-    const profilePictureElement = document.querySelector('.profile-picture-template img');
-    const selectedImage = event.target.files[0];
+let cropper = null; // Initialize cropper as null
 
+document.getElementById('profile-picture-input').addEventListener('change', function (event) {
+    const selectedImage = event.target.files[0];
+    
     if (selectedImage) {
         const imageUrl = URL.createObjectURL(selectedImage);
-        profilePictureElement.src = imageUrl;
+
+        // Destroy the previous Cropper instance if it exists
+        if (cropper) {
+            cropper.destroy();
+        }
+
+        const cropModal = new bootstrap.Modal(document.getElementById('cropModal'));
+        cropModal.show();
+
+        const cropImage = document.getElementById('cropImage');
+        cropImage.src = imageUrl;
+
+        cropper = new Cropper(cropImage, {
+            aspectRatio: 1, // Set the aspect ratio (in this case, 1:1 for a square crop)
+            viewMode: 1, // Set the view mode to restrict the crop box to the container
+        });
     }
+});
+
+document.getElementById('cropImageBtn').addEventListener('click', () => {
+    const canvas = cropper.getCroppedCanvas();
+    const croppedImage = canvas.toDataURL(); // This will be your cropped image in base64 format
+    
+    const profilePictureElement = document.querySelector('.profile-picture-template img');
+    profilePictureElement.src = croppedImage;
+
+    const cropModal = bootstrap.Modal.getInstance(document.getElementById('cropModal'));
+    cropModal.hide();
 });
 
 const toggleLoginPassword = document.getElementById('togglePassword');

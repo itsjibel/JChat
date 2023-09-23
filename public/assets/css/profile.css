@@ -165,3 +165,9 @@ body {
     transform: translateY(-50%);
     cursor: pointer;
 }
+
+.cropModal .modal-body {
+    height: 300px;
+    width: auto !important;
+    padding: 0px;
+}
