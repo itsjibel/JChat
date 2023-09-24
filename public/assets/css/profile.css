@@ -175,3 +175,16 @@ body {
     width: auto !important;
     padding: 0px;
 }
+
+.confirm-password-input i {
+    position: absolute;
+    top: 67%;
+    right: 25px;
+    transform: translateY(-50%);
+    font-size: 20px;
+    cursor: pointer;
+}
+
+#currentPassword {
+    padding-right: 37px;
+}

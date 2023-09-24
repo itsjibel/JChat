@@ -221,6 +221,16 @@ applyChangesButton.addEventListener('click', (e) => {
 
     const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
     passwordModal.show();
+    const toggleConfirmPassword = document.querySelector('#toggleConfirmPassword');
+    const confirmPassword = document.querySelector('#currentPassword');
+
+    toggleConfirmPassword.addEventListener('click', () => {
+        const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+        confirmPassword.setAttribute('type', type);
+        toggleConfirmPassword.classList.toggle('bi-eye');
+        toggleConfirmPassword.classList.toggle('bi-eye-slash');
+    });
+
     document.getElementById('confirmPasswordBtn').addEventListener('click', () => {
         refreshAccessToken()
             .then(() => {
