@@ -16,7 +16,6 @@ body {
 	background: linear-gradient(to bottom, #0a6f6f, #095e61, #033432);
     height: 100%;
     overflow-y: auto;
-    padding: 5px;
 }
 
 .chat-texts {
@@ -32,8 +31,8 @@ body {
     padding: 10px;
 	background: linear-gradient(to bottom left, #34e2e2ae, #23bfc4af, #169a96b7);
     border-radius: 10px;
-    margin: 5px;
-    max-width: 100%;
+    margin: 10px auto;
+    width: 95% !important;
     height: 60px;
     position: relative;
 }
