@@ -83,6 +83,8 @@ if (token) {
                 tokenData = parseJwt(token);
                 const dropdownMenuLink = document.getElementById('dropdownMenuLink');
                 const dropdownMenu = document.getElementById('dropdownMenu');
+                const addFriendButton = document.getElementById('add-friend-button');
+                const backButton = document.getElementById('back-button');
 
                 document.body.addEventListener('click', () => {
                     dropdownMenu.style.display = dropdownMenu.style.display === 'inline' ? 'inline-block' : dropdownMenu.style.display === 'inline-block' ? 'none' : dropdownMenu.style.display;
@@ -90,6 +92,16 @@ if (token) {
 
                 dropdownMenuLink.addEventListener('click', () => {
                     dropdownMenu.style.display = dropdownMenu.style.display === 'inline-block' ? 'none' : 'inline';
+                });
+
+                addFriendButton.addEventListener('click', () => {
+                    document.getElementById("chats").style.display = 'none';
+                    document.getElementById("add-firend-section").style.display = 'inline';
+                });
+
+                backButton.addEventListener('click', () => {
+                    document.getElementById("add-firend-section").style.display = 'none';
+                    document.getElementById("chats").style.display = 'inline';
                 });
             });
         }

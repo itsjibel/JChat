@@ -75,3 +75,38 @@ body {
 .bi {
     margin-right: 5px;
 }
+
+.add-firend-section {
+    display: none;
+	background: linear-gradient(to bottom, #0a6f6f, #095e61, #033432);
+    height: 100%;
+    overflow-y: auto;
+}
+
+.navbar-light {
+    background-color: rgba(255, 255, 255, 0) !important;
+    width: 95%;
+    border-radius: 8px;
+    margin: 10px auto;
+}
+
+.back-button {
+    color: rgb(255, 255, 255);
+    text-decoration: none;
+    font-size: 25px;
+    margin-right: 10px;
+    width: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.bi-search {
+    color: #ffffff;
+}
+
+.d-flex {
+    margin: auto;
+}
