@@ -4,18 +4,22 @@
 	align-items: center;
 	min-height: 100vh;
 	font-family: 'Jost', sans-serif;
-	background: linear-gradient(to bottom, #2de4e4, #118e92, #076c68);
+    background-image: url("https://imageupload.io/ib/ibgg4svmX06uIKP_1695540003.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
 }
 
 header {
 	height: 80px;
-	background: linear-gradient(to bottom, #2de4e450, #2de4e4);
+	background: linear-gradient(to right, #30fffffe, #13a9a9);
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
 
 .main {
+	background: linear-gradient(to bottom, #2de4e4ec, #118e92eb, #076c69e8);
 	width: 350px;
 	height: 500px;
 	overflow: hidden;
@@ -68,7 +72,7 @@ input {
 
 .login {
 	height: 460px;
-	background: #05656c;
+	background: linear-gradient(to bottom, #076c69, #118e92, #27d0d0);
 	border-radius: 60% / 10%;
 	transform: translateY(-180px);
 	transition: .8s ease-in-out;

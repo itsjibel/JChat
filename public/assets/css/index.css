@@ -13,19 +13,22 @@ body {
 }
 
 .chats {
-	background: linear-gradient(to bottom, #a2dcdc, #84b4b6, #72a4a2);
+	background: linear-gradient(to bottom, #0a6f6f, #095e61, #033432);
     height: 100%;
 }
 
 .chat-texts {
-    background-image: url("../images/backgroud-image.jpg");
+    background-image: url("https://imageupload.io/ib/ibgg4svmX06uIKP_1695540003.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
 }
 
 .user-profile {
     display: flex;
     align-items: center;
     padding: 10px;
-	background: linear-gradient(to bottom left, #34e2e2, #23bfc4, #169a95);
+	background: linear-gradient(to bottom left, #34e2e2ae, #23bfc4af, #169a96b7);
     border-radius: 10px;
     margin: 5px;
     max-width: 100%;
@@ -57,6 +60,7 @@ body {
     white-space: nowrap; /* Prevent the username from wrapping to the next line */
     overflow: hidden; /* Hide any overflow text */
     text-overflow: ellipsis; /* Show ellipsis (...) for long usernames */
+    color: white;
 }
 
 a {

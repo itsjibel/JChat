@@ -1,5 +1,5 @@
 .container {
-	background: linear-gradient(to bottom, #27cdcd, #118e92, #097571);
+	background: linear-gradient(to bottom, #0e8585e9, #08686cfb, #034543f0);
     align-items: center;
     flex-direction: column;
     height: 100vh;
@@ -12,7 +12,10 @@ html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    background-image: url("../images/backgroud-image.jpg");
+    background-image: url("https://imageupload.io/ib/ibgg4svmX06uIKP_1695540003.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
 }
 
 body {
@@ -65,6 +68,7 @@ body {
 }
 
 .form-label {
+    color: white;
     margin-top: 15px;
 }
 
@@ -94,7 +98,7 @@ body {
     position: absolute;
     top: 30px;
     left: 30px;
-    color: black;
+    color: rgb(255, 255, 255);
     text-decoration: none;
     font-size: 25px;
 }
