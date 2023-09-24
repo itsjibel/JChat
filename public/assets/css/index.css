@@ -32,38 +32,45 @@ body {
     border-radius: 10px;
     margin: 5px;
     max-width: 100%;
-}
-
-.profile-picture-template {
-    width: 50px !important;
-    height: 50px;
-    border-radius: 50%;
-    background-color: #fff;
+    height: 60px;
     position: relative;
-    display: flex;
-    justify-content: center; /* Center horizontally */
-    align-items: center; /* Center vertically */
 }
 
-.pfp {
-    height: 100%;
-    max-width: 100%;
-    object-fit: cover; /* Maintain aspect ratio and cover entire container */
-    border-radius: 50%;
+.dropdown-menu {
+    top: 50px;
+    left: 0px;
+    position: absolute;
+    background-color: #34e2e2ae !important;
 }
 
-.user-name {
-    font-size: 16px;
+.dropdown {
+    position: relative;
+    transition: all ease 3s;
+}
+
+.bar {
+    width: 30px;
+    height: 4px;
+    background-color: #ededed;
+    margin: 5px 0;
+    border-radius: 2px;
+}
+
+.dropdown-item:hover {
+	background: linear-gradient(to right, #12a0a0, #1cbebe);
+}
+
+.dropdown-item {
     font-weight: bold;
-    margin-left: 10px; /* Add a left margin of 10px */
-    flex-grow: 1; /* Allow the username to grow and take up remaining space */
-    white-space: nowrap; /* Prevent the username from wrapping to the next line */
-    overflow: hidden; /* Hide any overflow text */
-    text-overflow: ellipsis; /* Show ellipsis (...) for long usernames */
-    color: white;
 }
 
-a {
-    color:black !important;
-    text-decoration: none !important;
+.logo {
+    height: 60%;
+    width: auto;
+    position: absolute;
+    right: 15px;
+}
+
+.bi {
+    margin-right: 5px;
 }

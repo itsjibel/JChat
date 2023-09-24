@@ -72,7 +72,7 @@ input {
 
 .login {
 	height: 460px;
-	background: linear-gradient(to bottom, #076c69, #118e92, #27d0d0);
+	background: linear-gradient(to bottom, #076c69, #118e92, #13a9a9);
 	border-radius: 60% / 10%;
 	transform: translateY(-180px);
 	transition: .8s ease-in-out;
