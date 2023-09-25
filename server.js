@@ -76,10 +76,9 @@ app.post('/api/signup', (req, res) => {
         }
 
         // If no user with the same username or email exists, proceed with insertion
-        const sql = 'INSERT INTO Users (username, password, email, pfp) VALUES (?, ?, ?, ?)';
         password = crypto.createHash('sha256').update(password).digest('hex'); // Hash the password with the sha256 algorithm
         const defaultProfilePicturePath = 'public/assets/images/new_user_pfp.jpg';
-
+        
         // Read the default profile picture file as binary data
         fs.readFile(defaultProfilePicturePath, (readError, imageBinaryData) => {
             if (readError) {
@@ -87,7 +86,8 @@ app.post('/api/signup', (req, res) => {
                 res.status(500).json({ message: 'An error occurred.' });
                 return;
             }
-
+            
+            const sql = 'INSERT INTO Users (username, password, email, pfp) VALUES (?, ?, ?, ?)';
             const values = [username, password, email, imageBinaryData]; // Include the image binary data in values
             connection.execute(sql, values, (error) => {
                 if (error) {
@@ -647,6 +647,43 @@ app.get('/api/recoverUserPassword', (req, res) => {
             });
         } else {
             res.status(400).json({ message: "Invalid password recovery token" });
+        }
+    });
+});
+
+app.post('/api/sendFriendRequest/:username', verifyAccessToken, (req, res) => {
+    const senderUsername = req.body.sender_username;
+    const receiverUsername = req.params.username;
+    const sql = 'INSERT INTO FriendRequests (sender_username, receiver_username, is_accepted) VALUES (?, ?, false)';
+    const values = [senderUsername, receiverUsername]; // Include the image binary data in values
+    connection.execute(sql, values, (error) => {
+        if (error) {
+            console.error(error);
+            res.status(500).json({ message: 'An error occurred.' });
+            return;
+        }
+        
+        console.log(senderUsername, 'sent a friend request to', receiverUsername)
+        res.json({ success: true, message: "The friend request was sent successfully"});
+    });
+});
+
+app.post('/api/checkFriendRequest', verifyRefreshToken, (req, res) => {
+    const { sender_username, receiver_username } = req.body;
+    
+    const sql = 'SELECT is_accepted FROM FriendRequests WHERE BINARY sender_username = ? AND BINARY receiver_username = ?';
+    const values = [sender_username, receiver_username]; // Include the image binary data in values
+    connection.execute(sql, values, (error, results) => {
+        if (error) {
+            console.error(error);
+            res.status(500).json({ message: 'An error occurred.' });
+            return;
+        }
+
+        if (results.length > 0) {
+            res.json({ success: true, message: results[0].is_accepted });
+        } else {
+            res.json({ success: false, message: "This request doesn't sent before"});
         }
     });
 });
