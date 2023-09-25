@@ -79,12 +79,9 @@ if (token) {
             // Call the function to fetch user data
             refreshAccessToken()
             .then(() => {
-                token = getCookie('token');
-                tokenData = parseJwt(token);
                 const dropdownMenuLink = document.getElementById('dropdownMenuLink');
                 const dropdownMenu = document.getElementById('dropdownMenu');
                 const addFriendButton = document.getElementById('add-friend-button');
-                const backButton = document.getElementById('back-button');
 
                 document.body.addEventListener('click', () => {
                     dropdownMenu.style.display = dropdownMenu.style.display === 'inline' ? 'inline-block' : dropdownMenu.style.display === 'inline-block' ? 'none' : dropdownMenu.style.display;
@@ -97,12 +94,53 @@ if (token) {
                 addFriendButton.addEventListener('click', () => {
                     document.getElementById("chats").style.display = 'none';
                     document.getElementById("add-firend-section").style.display = 'inline';
+
+                    const backButton = document.getElementById('back-button');
+                    backButton.addEventListener('click', () => {
+                        document.getElementById('user-found').style.cssText = 'display:none !important';
+                        document.getElementById("add-firend-section").style.display = 'none';
+                        document.getElementById("chats").style.display = 'inline';
+                    });
+
+                    const searchButton = document.getElementById('search-button');
+                    searchButton.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        token = getCookie('token');
+                        tokenData = parseJwt(token);
+                        document.getElementById('user-found').style.cssText = 'display:flex !important';
+
+                        fetch('/api/profile/' + document.getElementById('search-bar').value, {
+                            headers: {
+                                'Authorization': 'Bearer ' + token
+                            }
+                        })
+                        .then((response) => response.json())
+                        .then((userData) => {
+                            if (userData) {
+                                const userProfileData = {
+                                    profilePicture: userData.profilePicture,
+                                    userName: userData.username,
+                                };
+        
+                                const userNameElement = document.getElementById('username');
+                        
+                                if (userData.profilePicture) {
+                                    const arrayBufferView = new Uint8Array(userData.profilePicture.data);
+                                    const blob = new Blob([arrayBufferView], { type: userData.profilePicture.type });
+                                    const imageUrl = URL.createObjectURL(blob);
+                                    
+                                    const profilePictureElement = document.getElementById('pfp');
+                                    profilePictureElement.src = imageUrl;
+                                }
+                                userNameElement.textContent = userProfileData.userName;
+                            }
+                        })
+                        .catch((error) => {
+                            console.error('Error fetching user data:', error);
+                        });
+                    });
                 });
 
-                backButton.addEventListener('click', () => {
-                    document.getElementById("add-firend-section").style.display = 'none';
-                    document.getElementById("chats").style.display = 'inline';
-                });
             });
         }
     })

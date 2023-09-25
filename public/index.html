@@ -52,11 +52,18 @@
                         <div class="back-button" id="back-button">
                             <i class="fas bi-arrow-left"></i>
                         </div>
-                        <input class="form-control me-2" type="search" placeholder="Enter your friend's username" aria-label="Search">
-                        <button class="btn btn-primary" type="submit">
+                        <input class="form-control me-2" type="search" placeholder="Enter your friend's username" aria-label="Search" id="search-bar">
+                        <button class="btn btn-primary" type="submit" id="search-button">
                             <i class="fas bi-search"></i>
                         </button>
                     </form>
+                </div>
+                <div class="user-found container-fluid bg-light" id="user-found">
+                    <img id="pfp"/>
+                    <p id="username"></p>
+                    <div id="add-friend">
+                       <p id="add-friend-text">Send friend request&nbsp;&nbsp;&nbsp;<i class="bi bi-person-plus"></i></p>
+                    </div>
                 </div>
             </nav>
         </div>
