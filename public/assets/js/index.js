@@ -98,6 +98,8 @@ if (token) {
                         document.getElementById('user-found').style.cssText = 'display:none !important';
                         document.getElementById("add-firend-section").style.display = 'none';
                         document.getElementById("chats").style.display = 'inline';
+                        document.getElementById('error-msg').style.cssText = 'display: none !important';
+                        document.getElementById('search-bar').value = "";
                     });
 
                     const searchButton = document.getElementById('search-button');
@@ -105,9 +107,16 @@ if (token) {
                         e.preventDefault();
                         token = getCookie('token');
                         tokenData = parseJwt(token);
+
+                        // Reset the elements for user search
                         document.getElementById('user-found').style.cssText = 'display:none !important';
                         document.getElementById('add-friend-text').textContent = "Send friend request";
                         document.getElementById('add-friend').style.cssText = 'background-color: #0325ff;';
+                        document.getElementById('error-msg').style.cssText = 'display: none !important';
+
+                        if (tokenData.username === document.getElementById('search-bar').value) {
+                            return;
+                        }
 
                         fetch('/api/profile/' + document.getElementById('search-bar').value, {
                             headers: {
@@ -116,7 +125,7 @@ if (token) {
                         })
                         .then((response) => response.json())
                         .then((userData) => {
-                            if (userData) {
+                            if (userData.username) {
                                 document.getElementById('user-found').style.cssText = 'display:flex !important';
                                 const userProfileData = {
                                     profilePicture: userData.profilePicture,
@@ -185,6 +194,8 @@ if (token) {
                                 .catch((error) => {
                                     console.error('Error updating profile:', error);
                                 });
+                            } else {
+                                document.getElementById('error-msg').style.cssText = 'display:flex !important';
                             }
                         })
                         .catch((error) => {

@@ -147,7 +147,7 @@ body {
     margin: 10px;
     flex-grow: 1;
     cursor: pointer;
-    transition: all ease 0.5s;
+    transition: box-shadow ease 0.5s;
 }
 
 #add-friend:hover {
@@ -190,4 +190,17 @@ body {
     background-color: #007bff;
     border-radius: 5px;
     transition: all 0.04s;
+}
+
+#error-msg {
+    border-radius: 7px;
+    margin: 20px auto !important;
+    padding: 5px;
+    display: none;
+}
+
+#error-msg {
+    color: rgb(255, 255, 255);
+    margin: 0 auto;
+    font-size: 20px;
 }
