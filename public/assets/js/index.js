@@ -94,18 +94,54 @@ if (token) {
                         return;
                     }
 
+                    const friendRequestsTitleDiv = document.getElementById("friend-requests-list");
+                    while (friendRequestsTitleDiv.firstChild) {
+                        friendRequestsTitleDiv.removeChild(friendRequestsTitleDiv.firstChild);
+                    }
+
                     document.getElementById("chats").style.display = 'none';
                     document.getElementById("friend-requests-section").style.display = 'inline';
 
                     for (const request of friendRequestList) {
-                        const pElement = document.createElement("p");
-                        pElement.classList.add("your-class-name");
-                        pElement.textContent = request.sender_username;
+                        fetch('/api/profile/' + request.sender_username, {
+                            headers: {
+                                'Authorization': 'Bearer ' + token
+                            }
+                        })
+                        .then((response) => response.json())
+                        .then((userData) => {
+                            const userProfileData = {
+                                profilePicture: userData.profilePicture,
+                                userName: userData.username,
+                            };
+                            
+                            const pfpElement = document.createElement("img");
+                            pfpElement.classList.add("pfp");
+                            if (userProfileData.profilePicture) {
+                                const arrayBufferView = new Uint8Array(userProfileData.profilePicture.data);
+                                const blob = new Blob([arrayBufferView], { type: userProfileData.profilePicture.type });
+                                const imageUrl = URL.createObjectURL(blob);
+                                
+                                pfpElement.src = imageUrl;
+                            }
 
-                        const friendRequestsTitleDiv = document.getElementById("friend-requests-list");
+                            const pElement = document.createElement("p");
+                            pElement.classList.add("friend-requests-username");
+                            pElement.textContent = request.sender_username;
 
-                        // Append the <p> element to the div
-                        friendRequestsTitleDiv.appendChild(pElement);
+                            const friendRequestsTitleDiv = document.getElementById("friend-requests-list");
+
+                            const friendRequestProfile = document.createElement("div");
+                            friendRequestProfile.classList.add("friend-request-profile");
+                            friendRequestProfile.appendChild(pfpElement);
+                            friendRequestProfile.appendChild(pElement);
+
+                            // Append the <p> element to the div
+                            friendRequestsTitleDiv.appendChild(friendRequestProfile);
+                        })
+                        .catch((error) => {
+                            console.error('Error fetching user data:', error);
+                        });
                     }
 
                     const backButton = document.getElementById('friend-requests-back-button');
@@ -262,10 +298,6 @@ if (token) {
             document.getElementById('friend-requests-notif-text').textContent = requests.length;
             friendRequestList = requests;
             if (document.getElementById('friend-requests-section').style.display) {
-                const friendRequestsTitleDiv = document.getElementById("friend-requests-list");
-                while (friendRequestsTitleDiv.firstChild) {
-                    friendRequestsTitleDiv.removeChild(friendRequestsTitleDiv.firstChild);
-                }
                 document.getElementById('friend-requests-notif').click();
             }
         }

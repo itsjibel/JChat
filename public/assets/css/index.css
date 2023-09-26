@@ -120,14 +120,14 @@ body {
 	background: linear-gradient(to bottom left, #34e2e2, #19a9ae, #0b7e7a);
 }
 
-#pfp {
+.pfp {
     left: 20px;
     height: 65px;
     width: 65px;
     border-radius: 50%;
     margin: 8px;
     object-fit: cover;
-    box-shadow: -5px 5px 10px rgba(0, 0, 0, 0.409);;
+    box-shadow: -5px 5px 10px rgba(0, 0, 0, 0.409);
 }
 
 #username {
@@ -234,6 +234,7 @@ body {
     display: none;
 	background: linear-gradient(to bottom, #0a6f6f, #095e61, #033432);
     overflow-y: auto;
+    height: 100% !important;
 }
 
 #friend-requests-title {
@@ -260,4 +261,19 @@ body {
     border-radius: 7px;
     padding: 10px;
     margin: auto;
+}
+
+.friend-request-profile {
+	background: linear-gradient(to bottom right, #0e8787, #095e61, #033432);
+    margin: 10px;
+    padding: 2px;
+    border-radius: 5px;
+    display: flex;
+}
+
+.friend-requests-username {
+    color: white;
+    font-size: 19px;
+    flex-grow: 1;
+    margin-top: 10px !important;
 }
