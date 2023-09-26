@@ -7,6 +7,7 @@ const https = require('https');
 const cookieParser = require('cookie-parser');
 const multer = require('multer');
 const mailer = require('nodemailer');
+const socketIo = require('socket.io');
 require('dotenv').config();
 
 const app = express();
@@ -192,9 +193,25 @@ function verifyRefreshToken(req, res, next) {
 app.get('/api/checkLoggedIn', verifyRefreshToken, (req, res) => {
     // Check if the user is logged in
     if (req.user) {
-        // User is logged in
-        const token = jwt.sign({ username: req.user.username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
-        res.json({ loggedIn: true, username: req.user.username, accessToken: token });
+        const checkSql = 'SELECT * FROM Users WHERE BINARY username = ?';
+        const checkValue = [req.user.username];
+
+        connection.execute(checkSql, checkValue, (error, results) => {
+            if (error) {
+                console.error('Error checking for existing user:', error);
+                res.status(500).json({ message: 'An error occurred.' });
+                return;
+            }
+
+            if (results.length === 0) {
+                // User doesn't exist
+                res.json({ loggedIn: false });
+            } else {
+                // User exists
+                const token = jwt.sign({ username: req.user.username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
+                res.json({ loggedIn: true, username: req.user.username, accessToken: token });
+            }
+        });
     } else {
         // User is not logged in
         res.json({ loggedIn: false });
@@ -651,42 +668,6 @@ app.get('/api/recoverUserPassword', (req, res) => {
     });
 });
 
-app.post('/api/sendFriendRequest/:username', verifyAccessToken, (req, res) => {
-    const senderUsername = req.body.sender_username;
-    const receiverUsername = req.params.username;
-    const sql = 'INSERT INTO FriendRequests (sender_username, receiver_username, is_accepted) VALUES (?, ?, false)';
-    const values = [senderUsername, receiverUsername]; // Include the image binary data in values
-    connection.execute(sql, values, (error) => {
-        if (error) {
-            console.error(error);
-            res.status(500).json({ message: 'An error occurred.' });
-            return;
-        }
-        
-        console.log(senderUsername, 'sent a friend request to', receiverUsername)
-        res.json({ success: true, message: "The friend request was sent successfully"});
-    });
-});
-
-app.post('/api/checkFriendRequest', verifyRefreshToken, (req, res) => {
-    const { sender_username, receiver_username } = req.body;
-    
-    const sql = 'SELECT is_accepted FROM FriendRequests WHERE BINARY sender_username = ? AND BINARY receiver_username = ?';
-    const values = [sender_username, receiver_username]; // Include the image binary data in values
-    connection.execute(sql, values, (error, results) => {
-        if (error) {
-            console.error(error);
-            res.status(500).json({ message: 'An error occurred.' });
-            return;
-        }
-
-        if (results.length > 0) {
-            res.json({ success: true, message: results[0].is_accepted });
-        } else {
-            res.json({ success: false, message: "This request doesn't sent before"});
-        }
-    });
-});
 
 // Load SSL certificate and private key
 const privateKey = fs.readFileSync('key.pem', 'utf8');
@@ -700,6 +681,112 @@ const credentials = {
 
 const httpsServer = https.createServer(credentials, app);
 const port = 443;
+const io = socketIo(httpsServer);
+
+// Maintain a list of connected sockets
+const connectedSockets = new Set();
+
+// Middleware to verify WebSocket connections
+io.use((socket, next) => {
+    const token = socket.handshake.query.token; // Get the token from the WebSocket handshake query
+
+    // Verify the token (similar to how you verify access tokens)
+    jwt.verify(token, jwtSecretKey, (err, decoded) => {
+        if (err) {
+            return next(new Error('Authentication error'));
+        }
+        socket.user = decoded; // Attach the user information to the socket
+        connectedSockets.add(socket); // Add the socket to the connectedSockets set
+        next();
+    });
+});
+
+// WebSocket connection event
+io.on('connection', (socket) => {
+    // Access the authenticated user information via socket.user
+    console.log(`'${socket.user.username}' connected`);
+    const sql = 'SELECT sender_username, is_accepted FROM FriendRequests WHERE BINARY receiver_username = ?';
+    const values = [socket.user.username]; // Include the image binary data in values
+    connection.execute(sql, values, (error, results) => {
+        if (error) {
+            console.error(error);
+            // Handle the error if needed
+            return;
+        }
+
+        io.to(socket.id).emit('friendRequestCount', results.length);
+    });
+
+    // Handle other WebSocket events here
+
+    // Handle disconnection
+    socket.on('disconnect', () => {
+        connectedSockets.delete(socket); // Remove the socket from the connectedSockets set
+    });
+});
+
+// Update all connected sockets with friend request count
+function updateFriendRequestCount(count, username) {
+    for (const socket of connectedSockets) {
+        if (username === socket.user.username) {
+            io.to(socket.id).emit('friendRequestCount', count);
+        }
+    }
+}
+
+app.post('/api/sendFriendRequest/:username', verifyAccessToken, (req, res) => {
+    const senderUsername = req.body.sender_username;
+    const receiverUsername = req.params.username;
+    const sql = 'INSERT INTO FriendRequests (sender_username, receiver_username, is_accepted) VALUES (?, ?, false)';
+    const values = [senderUsername, receiverUsername]; // Include the image binary data in values
+
+    connection.execute(sql, values, (error) => {
+        if (error) {
+            console.error(error);
+            res.status(500).json({ message: 'An error occurred.' });
+            return;
+        }
+
+        console.log(`'${senderUsername}' sent a friend request to '${receiverUsername}'`);
+
+        const countFriendRequestsSql = 'SELECT sender_username, is_accepted FROM FriendRequests WHERE BINARY receiver_username = ?';
+        const countFriendRequestsValues = [receiverUsername]; // Include the image binary data in values
+        connection.execute(countFriendRequestsSql, countFriendRequestsValues, (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).json({ message: 'An error occurred.' });
+                return;
+            }
+            
+            // Emit the friendRequestCount event to all connected sockets
+            updateFriendRequestCount(results.length, receiverUsername);
+
+            res.json({ success: true, message: "The friend request was sent successfully" });
+        });
+    });
+});
+
+// Handle checking friend requests
+app.post('/api/checkFriendRequest', verifyRefreshToken, (req, res) => {
+    const { sender_username, receiver_username } = req.body;
+
+    const sql = 'SELECT is_accepted FROM FriendRequests WHERE BINARY sender_username = ? AND BINARY receiver_username = ?';
+    const values = [sender_username, receiver_username]; // Include the image binary data in values
+
+    connection.execute(sql, values, (error, results) => {
+        if (error) {
+            console.error(error);
+            res.status(500).json({ message: 'An error occurred.' });
+            return;
+        }
+
+        if (results.length > 0) {
+            res.json({ success: true, message: results[0].is_accepted });
+        } else {
+            res.json({ success: false, message: "This request hasn't been sent before" });
+        }
+    });
+});
 
 // Start the server
 httpsServer.listen(port, () => {

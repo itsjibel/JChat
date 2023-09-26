@@ -19,7 +19,7 @@ body {
 }
 
 .chat-texts {
-    background-image: url("https://imageupload.io/ib/ibgg4svmX06uIKP_1695540003.jpg");
+    background-image: url("../images/backgroud-image.jpg");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -206,4 +206,25 @@ body {
     color: rgb(255, 255, 255);
     margin: 0 auto;
     font-size: 20px;
+}
+
+.friend-requests-notif {
+    width: 35px;
+    height: 35px;
+    margin: 20px;
+    background-color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+}
+
+.friend-requests-notif .bi {
+    margin: auto;
+    font-size: 20px;
+}
+
+#friend-requests-notif-text {
+    display: none;
 }

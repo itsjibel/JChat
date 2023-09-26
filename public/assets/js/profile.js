@@ -142,16 +142,11 @@ logoutButton.addEventListener('click', () => {
         })
         .then((response) => response.json())
         .then((data) => {
-            if (data.success) {
-                // Clear the access token and refresh token cookies
-                document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                // Redirect to the login page or perform other actions as needed
-                window.location.href = '/login.html';
-            } else {
-                // Handle logout failure
-                console.error('Failed to log out:', data.message);
-            }
+            // Clear the access token and refresh token cookies
+            document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+            // Redirect to the login page or perform other actions as needed
+            window.location.href = '/login.html';
         })
         .catch((error) => {
             console.error('Error logging out:', error);

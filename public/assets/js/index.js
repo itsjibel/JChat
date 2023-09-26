@@ -204,10 +204,36 @@ if (token) {
                     });
                 });
             });
+        } else {
+            alert('asasasasa');
+            var cookies = document.cookie.split(';');
+
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i];
+                var eqPos = cookie.indexOf('=');
+                var name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+                document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname;
+            }
+            // Redirect to the login page or perform other actions as needed
+            window.location.href = '/login.html';
         }
     })
     .catch((error) => {
         console.error('Error checking login status:', error);
+    });
+
+    const socket = io.connect('https://jchat.com', {
+        query: { token: token },
+    });
+
+    // Listen for WebSocket events and handle them
+    socket.on('friendRequestCount', (count) => {
+        // Update the UI with the friend request count
+        if (count > 0) {
+            document.getElementById('friend-requests-notif-text').style.display = 'inline-block';
+            document.getElementById('friend-requests-notif-text').textContent = count;
+        }
     });
 } else {
     // Token does not exist
