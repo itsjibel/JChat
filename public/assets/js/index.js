@@ -19,6 +19,7 @@ function setCookie(name, value, days) {
 let token = getCookie('token');
 const refreshToken = getCookie('refreshToken');
 let tokenData;
+var friendRequestList = null;
 
 if (token) {
     // Function to refresh the token
@@ -76,6 +77,7 @@ if (token) {
                 const dropdownMenuLink = document.getElementById('dropdownMenuLink');
                 const dropdownMenu = document.getElementById('dropdownMenu');
                 const addFriendButton = document.getElementById('add-friend-button');
+                const requestsButton = document.getElementById('friend-requests-notif');
 
                 // Hide dropdown menu after user clicks on any element in the site
                 document.body.addEventListener('click', () => {
@@ -85,6 +87,32 @@ if (token) {
                 // Show dropdown menu after user clicks on the three line icon
                 dropdownMenuLink.addEventListener('click', () => {
                     dropdownMenu.style.display = dropdownMenu.style.display === 'inline-block' ? 'none' : 'inline';
+                });
+
+                requestsButton.addEventListener('click', () => {
+                    if (!friendRequestList) {
+                        return;
+                    }
+
+                    document.getElementById("chats").style.display = 'none';
+                    document.getElementById("friend-requests-section").style.display = 'inline';
+
+                    for (const request of friendRequestList) {
+                        const pElement = document.createElement("p");
+                        pElement.classList.add("your-class-name");
+                        pElement.textContent = request.sender_username;
+
+                        const friendRequestsTitleDiv = document.getElementById("friend-requests-list");
+
+                        // Append the <p> element to the div
+                        friendRequestsTitleDiv.appendChild(pElement);
+                    }
+
+                    const backButton = document.getElementById('friend-requests-back-button');
+                    backButton.addEventListener('click', () => {
+                        document.getElementById("chats").style.display = 'inline';
+                        document.getElementById("friend-requests-section").style.display = 'none';
+                    });
                 });
 
                 addFriendButton.addEventListener('click', () => {
@@ -205,7 +233,6 @@ if (token) {
                 });
             });
         } else {
-            alert('asasasasa');
             var cookies = document.cookie.split(';');
 
             for (var i = 0; i < cookies.length; i++) {
@@ -228,11 +255,19 @@ if (token) {
     });
 
     // Listen for WebSocket events and handle them
-    socket.on('friendRequestCount', (count) => {
+    socket.on('friendRequest', (requests) => {
         // Update the UI with the friend request count
-        if (count > 0) {
+        if (requests.length > 0) {
             document.getElementById('friend-requests-notif-text').style.display = 'inline-block';
-            document.getElementById('friend-requests-notif-text').textContent = count;
+            document.getElementById('friend-requests-notif-text').textContent = requests.length;
+            friendRequestList = requests;
+            if (document.getElementById('friend-requests-section').style.display) {
+                const friendRequestsTitleDiv = document.getElementById("friend-requests-list");
+                while (friendRequestsTitleDiv.firstChild) {
+                    friendRequestsTitleDiv.removeChild(friendRequestsTitleDiv.firstChild);
+                }
+                document.getElementById('friend-requests-notif').click();
+            }
         }
     });
 } else {

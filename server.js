@@ -714,7 +714,7 @@ io.on('connection', (socket) => {
             return;
         }
 
-        io.to(socket.id).emit('friendRequestCount', results.length);
+        io.to(socket.id).emit('friendRequest', results);
     });
 
     // Handle other WebSocket events here
@@ -726,10 +726,10 @@ io.on('connection', (socket) => {
 });
 
 // Update all connected sockets with friend request count
-function updateFriendRequestCount(count, username) {
+function updateFriendRequestCount(results, username) {
     for (const socket of connectedSockets) {
         if (username === socket.user.username) {
-            io.to(socket.id).emit('friendRequestCount', count);
+            io.to(socket.id).emit('friendRequest', results);
         }
     }
 }
@@ -758,8 +758,8 @@ app.post('/api/sendFriendRequest/:username', verifyAccessToken, (req, res) => {
                 return;
             }
             
-            // Emit the friendRequestCount event to all connected sockets
-            updateFriendRequestCount(results.length, receiverUsername);
+            // Emit the friendRequest event to all connected sockets
+            updateFriendRequestCount(results, receiverUsername);
 
             res.json({ success: true, message: "The friend request was sent successfully" });
         });
