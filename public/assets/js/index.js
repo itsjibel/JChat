@@ -74,6 +74,23 @@ if (token) {
             // Refresh the access token for POST and GET APIs without problems
             refreshAccessToken()
             .then(() => {
+                const socket = io.connect('https://jchat.com', {
+                    query: { token: token },
+                });
+
+                // Listen for WebSocket events and handle them
+                socket.on('friendRequest', (requests) => {
+                    // Update the UI with the friend request count
+                    if (requests.length > 0) {
+                        document.getElementById('friend-requests-notif-text').style.display = 'inline-block';
+                        document.getElementById('friend-requests-notif-text').textContent = requests.length;
+                        friendRequestList = requests;
+                        if (document.getElementById('friend-requests-section').style.display) {
+                            document.getElementById('friend-requests-notif').click();
+                        }
+                    }
+                });
+
                 const dropdownMenuLink = document.getElementById('dropdownMenuLink');
                 const dropdownMenu = document.getElementById('dropdownMenu');
                 const addFriendButton = document.getElementById('add-friend-button');
@@ -284,23 +301,6 @@ if (token) {
     })
     .catch((error) => {
         console.error('Error checking login status:', error);
-    });
-
-    const socket = io.connect('https://jchat.com', {
-        query: { token: token },
-    });
-
-    // Listen for WebSocket events and handle them
-    socket.on('friendRequest', (requests) => {
-        // Update the UI with the friend request count
-        if (requests.length > 0) {
-            document.getElementById('friend-requests-notif-text').style.display = 'inline-block';
-            document.getElementById('friend-requests-notif-text').textContent = requests.length;
-            friendRequestList = requests;
-            if (document.getElementById('friend-requests-section').style.display) {
-                document.getElementById('friend-requests-notif').click();
-            }
-        }
     });
 } else {
     // Token does not exist
