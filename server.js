@@ -7,7 +7,7 @@ const https = require('https');
 const cookieParser = require('cookie-parser');
 const multer = require('multer');
 const mailer = require('nodemailer');
-const socketIo = require('socket.io');
+const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
@@ -17,6 +17,7 @@ app.use(express.static('public'));
 app.use(express.json()); // To parse JSON requests
 app.use(express.urlencoded({ extended: true })); // To parse form data
 app.use(cookieParser());
+app.use(cors());
 const storage = multer.memoryStorage(); // Store the uploaded file in memory as binary data
 const upload = multer({ storage: storage });
 
@@ -681,7 +682,7 @@ const credentials = {
 
 const httpsServer = https.createServer(credentials, app);
 const port = 443;
-const io = socketIo(httpsServer);
+const io = require('socket.io')(httpsServer);
 
 // Maintain a list of connected sockets
 const connectedSockets = new Set();
