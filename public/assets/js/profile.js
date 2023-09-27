@@ -18,6 +18,7 @@ function setCookie(name, value, days) {
 
 let token = getCookie('token');
 let refreshToken = getCookie('refreshToken');
+let userEmail;
 
 function refreshAccessToken() {
     if (!token || !refreshToken) {
@@ -88,6 +89,8 @@ function fetchUserData() {
                             email: userData.email,
                             isEmailVerified: userData.isEmailVerified,
                         };
+
+                        userEmail = userData.email;
 
                         const userNameElement = document.getElementById('username');
                         const emailElement = document.getElementById('email');
@@ -208,27 +211,30 @@ function showNextMessage() {
         }, 40);
     }
 }
+const toggleConfirmPassword = document.querySelector('#toggleConfirmPassword');
+const confirmPassword = document.querySelector('#currentPassword');
 
-// Add an event listener to the logout button
-const applyChangesButton = document.getElementById('apply-changes-btn');
-applyChangesButton.addEventListener('click', (e) => {
-    e.preventDefault(); // Prevent the default form submission behavior
+toggleConfirmPassword.addEventListener('click', () => {
+    const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
+    confirmPassword.setAttribute('type', type);
+    toggleConfirmPassword.classList.toggle('bi-eye');
+    toggleConfirmPassword.classList.toggle('bi-eye-slash');
+});
 
-    const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+let confirmButtonIsListening = false;
+
+function applyTheUserChanges(passwordModal)
+{
     passwordModal.show();
-    const toggleConfirmPassword = document.querySelector('#toggleConfirmPassword');
-    const confirmPassword = document.querySelector('#currentPassword');
 
-    toggleConfirmPassword.addEventListener('click', () => {
-        const type = confirmPassword.getAttribute('type') === 'password' ? 'text' : 'password';
-        confirmPassword.setAttribute('type', type);
-        toggleConfirmPassword.classList.toggle('bi-eye');
-        toggleConfirmPassword.classList.toggle('bi-eye-slash');
-    });
+    function confirmPasswordBtnClickHandler() {
+        // Remove the event listener first to prevent multiple clicks
+        document.getElementById('confirmPasswordBtn').removeEventListener('click', confirmPasswordBtnClickHandler);
+        confirmButtonIsListening = false;
 
-    document.getElementById('confirmPasswordBtn').addEventListener('click', () => {
         refreshAccessToken()
             .then(() => {
+                document.getElementById('confirmPasswordBtn').removeEventListener('click', confirmPasswordBtnClickHandler);
                 token = getCookie('token');
                 const tokenData = parseJwt(token);
                 const currentPassword = document.getElementById('currentPassword').value;
@@ -243,6 +249,7 @@ applyChangesButton.addEventListener('click', (e) => {
                 // Create a FormData object to send the data as a multipart/form-data request
                 const formData = new FormData();
                 formData.append('old_username', tokenData.username);
+                formData.append('old_email', userEmail);
                 formData.append('old_password', currentPassword);
                 formData.append('username', newUsername);
                 formData.append('email', newEmail);
@@ -250,6 +257,7 @@ applyChangesButton.addEventListener('click', (e) => {
 
                 // Check if the Cropper instance exists and is not null
                 if (cropper) {
+                    console.log('Cropper instance exists');
                     // Disable the crop button while cropping is in progress
                     document.getElementById('cropImageBtn').disabled = true;
 
@@ -296,9 +304,23 @@ applyChangesButton.addEventListener('click', (e) => {
                     document.getElementById('cropImageBtn').disabled = false;
                     cropper.destroy();
                 }
-
-                passwordModal.hide();
             });
+            passwordModal.hide();
+        }
+        
+    if (!confirmButtonIsListening) {
+        document.getElementById('confirmPasswordBtn').addEventListener('click', confirmPasswordBtnClickHandler);
+        confirmButtonIsListening = true;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    // Wait for the DOM to be fully loaded
+    const applyChangesButton = document.getElementById('apply-changes-btn');
+    const passwordModal = new bootstrap.Modal(document.getElementById('passwordModal'));
+    applyChangesButton.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent the default form submission behavior
+        applyTheUserChanges(passwordModal);
     });
 });
 

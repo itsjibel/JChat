@@ -297,7 +297,7 @@ app.post('/api/logout', (req, res) => {
 });
 
 app.post('/api/editProfile/:username', verifyAccessToken, upload.single('pfp'), (req, res) => {
-    let { old_password, old_username, username, password, email } = req.body;
+    let { old_password, old_username, old_email, username, password, email } = req.body;
     password = password != '' ? password : old_password;
 
     if (!isValidUsername(username)) {
@@ -310,7 +310,7 @@ app.post('/api/editProfile/:username', verifyAccessToken, upload.single('pfp'), 
         return;
     }
 
-    const checkSqlDuplicate = 'SELECT * FROM Users WHERE BINARY username = ? OR email = ?';
+    const checkSqlDuplicate = 'SELECT username, email FROM Users WHERE BINARY username = ? OR email = ?';
     const checkValuesDuplicate = [username, email];
 
     connection.execute(checkSqlDuplicate, checkValuesDuplicate, (error, results) => {
@@ -320,15 +320,16 @@ app.post('/api/editProfile/:username', verifyAccessToken, upload.single('pfp'), 
             return;
         }
 
-        if (results.length === 2 || (results.length === 1 && results[0].username != old_username)) {
+        if (results.length === 2 || (results.length === 1 && (results[0].username != old_username && results[0].email != old_email))) {
+            console.log('Old email:', old_email, 'Old username:', old_username, 'Result username', results[0].username, 'Result email', results[0].email);
             res.status(400).json({ message: 'This email or username is already in use.' });
             return;
         }
 
         // Check if the username or email already exists
-        const checkSql = 'SELECT * FROM Users WHERE BINARY username = ? AND password = ?';
+        const checkSql = 'SELECT * FROM Users WHERE BINARY ' + (results.length === 0 ? 'username' : old_username != results[0].username ? 'email' : 'username') + ' = ? AND password = ?';
         old_password = crypto.createHash('sha256').update(old_password).digest('hex');
-        const checkValues = [old_username, old_password];
+        const checkValues = [results.length === 0 ? old_username : old_username != results[0].username ? old_email : old_username, old_password];
 
         connection.execute(checkSql, checkValues, (error, results) => {
             if (error) {
@@ -336,7 +337,7 @@ app.post('/api/editProfile/:username', verifyAccessToken, upload.single('pfp'), 
                 res.status(500).json({ message: 'An error occurred.' });
                 return;
             }
-
+            
             if (results.length > 0) {
                 // User with the same username or email already exists
                 // Update the existing user's data
@@ -370,6 +371,7 @@ app.post('/api/editProfile/:username', verifyAccessToken, upload.single('pfp'), 
                     // Generate JWT token and send it in the response
                     const token = jwt.sign({ username }, jwtSecretKey, { expiresIn: accessTokenExpiry });
                     const refreshToken = jwt.sign({ username }, jwtSecretKey, { expiresIn: refreshTokenExpiry });
+                    console.log(`'${username}' updated his/her profile`);
 
                     res.json({ success: true, message: 'User profile updated successfully!', token, refreshToken });
                 });
