@@ -122,8 +122,8 @@ body {
 
 .pfp {
     left: 20px;
-    height: 65px;
-    width: 65px;
+    height: 60px;
+    width: 60px;
     border-radius: 50%;
     margin: 8px;
     object-fit: cover;
@@ -258,7 +258,7 @@ body {
 .friend-requests-list {
     width: 90%;
     background-color: white;
-    border-radius: 7px;
+    border-radius: 10px;
     padding: 10px;
     margin: auto;
 }
@@ -267,8 +267,10 @@ body {
 	background: linear-gradient(to bottom right, #0e8787, #095e61, #033432);
     margin: 10px;
     padding: 2px;
-    border-radius: 5px;
+    border-radius: 15px;
     display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .friend-requests-username {
@@ -276,4 +278,19 @@ body {
     font-size: 19px;
     flex-grow: 1;
     margin-top: 10px !important;
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide overflowing text */
+    text-overflow: ellipsis; /* Display ellipsis for truncated text */
+}
+
+.accept-button {
+    height: 80%;
+    width: 90px;
+    margin: 10px;
+}
+
+.no-request-available {
+    color: black;
+    text-align: center;
+    font-size: 18px;
 }

@@ -88,6 +88,8 @@ if (token) {
                         if (document.getElementById('friend-requests-section').style.display) {
                             document.getElementById('friend-requests-notif').click();
                         }
+                    } else {
+                        document.getElementById('friend-requests-notif-text').style.display = 'none';
                     }
                 });
 
@@ -146,15 +148,60 @@ if (token) {
                             pElement.classList.add("friend-requests-username");
                             pElement.textContent = request.sender_username;
 
-                            const friendRequestsTitleDiv = document.getElementById("friend-requests-list");
+                            const acceptButtonElement = document.createElement("button");
+                            acceptButtonElement.classList.add("btn");
+                            acceptButtonElement.classList.add("btn-success");
+                            acceptButtonElement.classList.add("accept-button");
+                            acceptButtonElement.textContent = "Accept";
 
+                            const friendRequestsTitleDiv = document.getElementById("friend-requests-list");
                             const friendRequestProfile = document.createElement("div");
                             friendRequestProfile.classList.add("friend-request-profile");
+
                             friendRequestProfile.appendChild(pfpElement);
                             friendRequestProfile.appendChild(pElement);
+                            friendRequestProfile.appendChild(acceptButtonElement);
 
                             // Append the <p> element to the div
                             friendRequestsTitleDiv.appendChild(friendRequestProfile);
+
+                            const formData = new FormData();
+                            token = getCookie('token');
+                            tokenData = parseJwt(token);
+                            formData.append('sender_username', tokenData.username);
+
+                            acceptButtonElement.addEventListener("click", () => {
+                                fetch('/api/acceptFriendRequest/' + userProfileData.userName, {
+                                    method: 'POST',
+                                    headers: {
+                                        'Authorization': 'Bearer ' + token
+                                    },
+                                    body: new URLSearchParams(formData)
+                                })
+                                .then((response) => response.json())
+                                .then((data) => {
+                                    if (data.success) {
+                                        showMessage(userProfileData.userName + ' added to your friends');
+                                        friendRequestProfile.remove();
+                                        if (friendRequestsTitleDiv.childElementCount === 0) {
+                                            const pElement = document.createElement("p");
+                                            pElement.classList.add("no-request-available");
+                                            pElement.textContent = 'No friend requests are available';
+                    
+                                            friendRequestsTitleDiv.appendChild(pElement);
+                                            return;
+                                        } else {
+                                            console.log(friendRequestsTitleDiv.childElementCount);
+                                        }
+                                    } else {
+                                        showMessage('An error occurred while accepting a friend request from ' + userProfileData.userName + '.');
+                                    }
+                                })
+                                .catch((error) => {
+                                    console.error('Error updating profile:', error);
+                                });
+                            });
+
                         })
                         .catch((error) => {
                             console.error('Error fetching user data:', error);
@@ -267,7 +314,7 @@ if (token) {
                                                 }
                                             })
                                             .catch((error) => {
-                                                console.error('Error updating profile:', error);
+                                                console.error('An error occurred while sending a friend request:', error);
                                             });
                                         });
                                     }

@@ -705,7 +705,7 @@ io.use((socket, next) => {
 io.on('connection', (socket) => {
     // Access the authenticated user information via socket.user
     console.log(`'${socket.user.username}' connected`);
-    const sql = 'SELECT sender_username, is_accepted FROM FriendRequests WHERE BINARY receiver_username = ?';
+    const sql = 'SELECT sender_username, is_accepted FROM FriendRequests WHERE BINARY receiver_username = ? AND is_accepted = false';
     const values = [socket.user.username]; // Include the image binary data in values
     connection.execute(sql, values, (error, results) => {
         if (error) {
@@ -749,7 +749,7 @@ app.post('/api/sendFriendRequest/:username', verifyAccessToken, (req, res) => {
 
         console.log(`'${senderUsername}' sent a friend request to '${receiverUsername}'`);
 
-        const countFriendRequestsSql = 'SELECT sender_username, is_accepted FROM FriendRequests WHERE BINARY receiver_username = ?';
+        const countFriendRequestsSql = 'SELECT sender_username, is_accepted FROM FriendRequests WHERE BINARY receiver_username = ? AND is_accepted = false';
         const countFriendRequestsValues = [receiverUsername]; // Include the image binary data in values
         connection.execute(countFriendRequestsSql, countFriendRequestsValues, (error, results) => {
             if (error) {
@@ -757,9 +757,42 @@ app.post('/api/sendFriendRequest/:username', verifyAccessToken, (req, res) => {
                 res.status(500).json({ message: 'An error occurred.' });
                 return;
             }
-            
+
             // Emit the friendRequest event to all connected sockets
             updateFriendRequestCount(results, receiverUsername);
+
+            res.json({ success: true, message: "The friend request was sent successfully" });
+        });
+    });
+});
+
+app.post('/api/acceptFriendRequest/:username', verifyAccessToken, (req, res) => {
+    const senderUsername = req.body.sender_username;
+    const receiverUsername = req.params.username;
+
+    const values = [receiverUsername, senderUsername];
+    const updateSql = 'UPDATE FriendRequests SET is_accepted = true WHERE BINARY sender_username = ? AND BINARY receiver_username = ?';
+
+    connection.execute(updateSql, values, (error) => {
+        if (error) {
+            console.error(error);
+            res.status(500).json({ message: 'An error occurred.' });
+            return;
+        }
+
+        console.log(`'${senderUsername}' accepted a friend request from '${receiverUsername}'`);
+
+        const countFriendRequestsSql = 'SELECT sender_username, is_accepted FROM FriendRequests WHERE BINARY receiver_username = ? AND is_accepted = false';
+        const countFriendRequestsValues = [receiverUsername]; // Include the image binary data in values
+        connection.execute(countFriendRequestsSql, countFriendRequestsValues, (error, results) => {
+            if (error) {
+                console.error(error);
+                res.status(500).json({ message: 'An error occurred.' });
+                return;
+            }
+
+            // Emit the friendRequest event to all connected sockets
+            updateFriendRequestCount(results, senderUsername);
 
             res.json({ success: true, message: "The friend request was sent successfully" });
         });
