@@ -182,17 +182,21 @@ if (token) {
                                 .then((data) => {
                                     if (data.success) {
                                         showMessage(userProfileData.userName + ' added to your friends');
-                                        friendRequestProfile.remove();
-                                        if (friendRequestsTitleDiv.childElementCount === 0) {
-                                            const pElement = document.createElement("p");
-                                            pElement.classList.add("no-request-available");
-                                            pElement.textContent = 'No friend requests are available';
-                    
-                                            friendRequestsTitleDiv.appendChild(pElement);
-                                            return;
-                                        } else {
-                                            console.log(friendRequestsTitleDiv.childElementCount);
-                                        }
+                                        friendRequestProfile.classList.add("fade-out");
+                                        setTimeout(() => {
+                                            // After the transition completes, remove the element
+                                            friendRequestProfile.remove();
+                                    
+                                            if (friendRequestsTitleDiv.childElementCount === 0) {
+                                                const pElement = document.createElement("p");
+                                                pElement.classList.add("no-request-available");
+                                                pElement.textContent = 'No friend requests are available';
+                                    
+                                                friendRequestsTitleDiv.appendChild(pElement);
+                                            } else {
+                                                console.log(friendRequestsTitleDiv.childElementCount);
+                                            }
+                                        }, 500);
                                     } else {
                                         showMessage('An error occurred while accepting a friend request from ' + userProfileData.userName + '.');
                                     }

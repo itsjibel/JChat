@@ -285,6 +285,11 @@ body {
     justify-content: center;
 }
 
+.friend-request-profile.fade-out {
+    opacity: 0;
+    transition: opacity 0.5s ease; /* Adjust the transition duration as needed */
+}
+
 .friend-requests-username {
     color: white;
     font-size: 19px;
