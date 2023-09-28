@@ -149,8 +149,10 @@ body {
     font-size: 20px;
     font-weight: bold;
     color: white;
-    margin-bottom: 30px;
-    margin-left: 5px;
+    margin: auto;
+    white-space: nowrap; /* Prevent text from wrapping */
+    overflow: hidden; /* Hide overflowing text */
+    text-overflow: ellipsis; /* Display ellipsis for truncated text */
 }
 
 #add-friend {
@@ -158,7 +160,7 @@ body {
     border-radius: 5px;
     background-color: #0325ff;
     color: white;
-    padding: 10px;
+    padding: 7px;
     font-size: 15px;
     margin: 10px;
     flex-grow: 1;
@@ -175,6 +177,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    font-size: 16px;
+    font-weight: bold;
 }
 
 .message-box {

@@ -707,8 +707,8 @@ io.use((socket, next) => {
 io.on('connection', (socket) => {
     // Access the authenticated user information via socket.user
     console.log(`'${socket.user.username}' connected`);
-    const sql = 'SELECT sender_username, is_accepted FROM FriendRequests WHERE BINARY receiver_username = ?';
-    const values = [socket.user.username]; // Include the image binary data in values
+    const sql = 'SELECT sender_username, receiver_username, is_accepted FROM FriendRequests WHERE BINARY sender_username = ? OR BINARY receiver_username = ?';
+    const values = [socket.user.username, socket.user.username]; // Include the image binary data in values
     connection.execute(sql, values, (error, results) => {
         if (error) {
             console.error(error);
@@ -719,8 +719,8 @@ io.on('connection', (socket) => {
     });
 
     socket.on('refreshFriendRequests', () => {
-        const sql = 'SELECT sender_username, is_accepted FROM FriendRequests WHERE BINARY receiver_username = ?';
-        const values = [socket.user.username]; // Include the image binary data in values
+        const sql = 'SELECT sender_username, receiver_username, is_accepted FROM FriendRequests WHERE BINARY sender_username = ? OR BINARY receiver_username = ?';
+        const values = [socket.user.username, socket.user.username]; // Include the image binary data in values
         connection.execute(sql, values, (error, results) => {
             if (error) {
                 console.log(error);
@@ -818,8 +818,8 @@ app.post('/api/acceptFriendRequest/:username', verifyAccessToken, (req, res) => 
 app.post('/api/checkFriendRequest', verifyRefreshToken, (req, res) => {
     const { sender_username, receiver_username } = req.body;
 
-    const sql = 'SELECT is_accepted FROM FriendRequests WHERE BINARY sender_username = ? AND BINARY receiver_username = ?';
-    const values = [sender_username, receiver_username]; // Include the image binary data in values
+    const sql = 'SELECT is_accepted FROM FriendRequests WHERE (BINARY sender_username = ? AND BINARY receiver_username = ?) OR (BINARY receiver_username = ? AND BINARY sender_username = ?)';
+    const values = [sender_username, receiver_username, sender_username, receiver_username]; // Include the image binary data in values
 
     connection.execute(sql, values, (error, results) => {
         if (error) {

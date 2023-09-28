@@ -78,10 +78,14 @@ if (token) {
                     query: { token: token },
                 });
 
+                token = getCookie('token');
+                tokenData = parseJwt(token);
+
                 // Listen for WebSocket events and handle them
                 socket.on('friendRequest', (requests) => {
                     // Update the UI with the friend request count
                     let unAcceptedRequests = 0;
+                    console.log(requests);
                     if (requests.length > 0) {
                         document.getElementById('friend-requests-notif-text').style.display = 'inline-block';
                         for (const request of requests) {
@@ -102,7 +106,8 @@ if (token) {
 
                         for (const request of requests) {
                             if (request.is_accepted) {
-                                fetch('/api/profile/' + request.sender_username, {
+                                const friendUsername = request.sender_username === tokenData.username ? request.receiver_username : request.sender_username;
+                                fetch('/api/profile/' + friendUsername, {
                                     headers: {
                                         'Authorization': 'Bearer ' + token
                                     }
@@ -343,8 +348,14 @@ if (token) {
                                 .then((response) => response.json())
                                 .then((data) => {
                                     if (data.success) {
-                                        document.getElementById('add-friend-text').textContent = "Friend request sent";
-                                        document.getElementById('add-friend').style.cssText = 'background-color: #a2a2a2;';
+                                        console.log(data.message);
+                                        if (data.message === 1) {
+                                            document.getElementById('add-friend-text').textContent = "Friend";
+                                            document.getElementById('add-friend').style.cssText = 'background-color: #16a606;';
+                                        } else {
+                                            document.getElementById('add-friend-text').textContent = "Friend request sent";
+                                            document.getElementById('add-friend').style.cssText = 'background-color: #a2a2a2;';
+                                        }
                                     } else {
                                         const sendFriendRequestButton = document.getElementById('add-friend');
                                         sendFriendRequestButton.addEventListener('click', () => {
