@@ -257,7 +257,6 @@ function applyTheUserChanges(passwordModal)
 
                 // Check if the Cropper instance exists and is not null
                 if (cropper) {
-                    console.log('Cropper instance exists');
                     // Disable the crop button while cropping is in progress
                     document.getElementById('cropImageBtn').disabled = true;
 
@@ -265,44 +264,67 @@ function applyTheUserChanges(passwordModal)
                     cropper.getCroppedCanvas().toBlob((blob) => {
                         if (blob) {
                             formData.append('pfp', blob, 'profile_picture.jpg'); // Append the blob as 'pfp'
+                            fetch('/api/editProfile/' + tokenData.username, {
+                                method: 'POST',
+                                headers: {
+                                    'Authorization': 'Bearer ' + token
+                                },
+                                body: formData // Use the FormData object as the request body
+                            })
+                            .then((response) => response.json())
+                            .then((data) => {
+                                if (data.success) {
+                                    // Handle successful profile edit, such as displaying a success message or redirecting
+                                    const token = data.token; // Get JWT token from response
+                                    const refreshToken = data.refreshToken; // Get refresh token from response
+                
+                                    setCookie('token', token, 7);
+                                    setCookie('refreshToken', refreshToken, 15);
+                
+                                    showMessage('Profile updated successfully');
+                                } else {
+                                    // Handle edit failure, display an error message or take appropriate action
+                                    showMessage(data.message);
+                                }
+                            })
+                            .catch((error) => {
+                                console.error('Error updating profile:', error);
+                            })
                         }
                     }, 'image/jpeg'); // Specify the desired image format
+
+                    document.getElementById('cropImageBtn').disabled = false;
+                    cropper.destroy();
                 } else {
                     const profilePictureInput = document.getElementById('profile-picture-input');
                     const newProfilePicture = profilePictureInput.files[0];
                     formData.append('pfp', newProfilePicture);
-                }
-
-                fetch('/api/editProfile/' + tokenData.username, {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': 'Bearer ' + token
-                    },
-                    body: formData // Use the FormData object as the request body
-                })
-                .then((response) => response.json())
-                .then((data) => {
-                    if (data.success) {
-                        // Handle successful profile edit, such as displaying a success message or redirecting
-                        const token = data.token; // Get JWT token from response
-                        const refreshToken = data.refreshToken; // Get refresh token from response
-    
-                        setCookie('token', token, 7);
-                        setCookie('refreshToken', refreshToken, 15);
-    
-                        showMessage('Profile updated successfully');
-                    } else {
-                        // Handle edit failure, display an error message or take appropriate action
-                        showMessage(data.message);
-                    }
-                })
-                .catch((error) => {
-                    console.error('Error updating profile:', error);
-                })
-
-                if (cropper) {
-                    document.getElementById('cropImageBtn').disabled = false;
-                    cropper.destroy();
+                    fetch('/api/editProfile/' + tokenData.username, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': 'Bearer ' + token
+                        },
+                        body: formData // Use the FormData object as the request body
+                    })
+                    .then((response) => response.json())
+                    .then((data) => {
+                        if (data.success) {
+                            // Handle successful profile edit, such as displaying a success message or redirecting
+                            const token = data.token; // Get JWT token from response
+                            const refreshToken = data.refreshToken; // Get refresh token from response
+        
+                            setCookie('token', token, 7);
+                            setCookie('refreshToken', refreshToken, 15);
+        
+                            showMessage('Profile updated successfully');
+                        } else {
+                            // Handle edit failure, display an error message or take appropriate action
+                            showMessage(data.message);
+                        }
+                    })
+                    .catch((error) => {
+                        console.error('Error updating profile:', error);
+                    })
                 }
             });
             passwordModal.hide();
