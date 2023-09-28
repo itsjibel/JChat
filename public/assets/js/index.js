@@ -347,7 +347,6 @@ if (token) {
                                 .then((response) => response.json())
                                 .then((data) => {
                                     if (data.success) {
-                                        console.log(data.message);
                                         if (data.message === 1) {
                                             document.getElementById('add-friend-text').textContent = "Friend";
                                             document.getElementById('add-friend').style.cssText = 'background-color: #16a606;';

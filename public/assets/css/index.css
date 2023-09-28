@@ -150,6 +150,7 @@ body {
     font-weight: bold;
     color: white;
     margin: auto;
+    margin-bottom: 40px;
     white-space: nowrap; /* Prevent text from wrapping */
     overflow: hidden; /* Hide overflowing text */
     text-overflow: ellipsis; /* Display ellipsis for truncated text */
