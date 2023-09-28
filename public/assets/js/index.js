@@ -63,17 +63,17 @@ if (token) {
         }
     }
 
-    fetch('/api/checkLoggedIn', {
-        headers: {
-            'Authorization': 'Bearer ' + refreshToken
-        }
-    })
-    .then((response) => response.json())
-    .then((data) => {
-        if (data && data.loggedIn) {
-            // Refresh the access token for POST and GET APIs without problems
-            refreshAccessToken()
-            .then(() => {
+    refreshAccessToken()
+    .then(() => {
+        fetch('/api/checkLoggedIn', {
+            headers: {
+                'Authorization': 'Bearer ' + refreshToken
+            }
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            if (data && data.loggedIn) {
+                // Refresh the access token for POST and GET APIs without problems
                 const socket = io.connect('https://jchat.com', {
                     query: { token: token },
                 });
@@ -397,23 +397,23 @@ if (token) {
                         });
                     });
                 });
-            });
-        } else {
-            var cookies = document.cookie.split(';');
+            } else {
+                var cookies = document.cookie.split(';');
 
-            for (var i = 0; i < cookies.length; i++) {
-                var cookie = cookies[i];
-                var eqPos = cookie.indexOf('=');
-                var name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
-                document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-                document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname;
+                for (var i = 0; i < cookies.length; i++) {
+                    var cookie = cookies[i];
+                    var eqPos = cookie.indexOf('=');
+                    var name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+                    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                    document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=' + window.location.hostname;
+                }
+                // Redirect to the login page or perform other actions as needed
+                window.location.href = '/login.html';
             }
-            // Redirect to the login page or perform other actions as needed
-            window.location.href = '/login.html';
-        }
-    })
-    .catch((error) => {
-        console.error('Error checking login status:', error);
+        })
+        .catch((error) => {
+            console.error('Error checking login status:', error);
+        });
     });
 } else {
     // Token does not exist
