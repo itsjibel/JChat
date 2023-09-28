@@ -32,6 +32,7 @@ body {
 	background: linear-gradient(to bottom left, #34e2e2ae, #23bfc4af, #169a96b7);
     border-radius: 10px;
     margin: 10px auto;
+    margin-bottom: 30px;
     width: 95% !important;
     height: 60px;
     position: relative;
@@ -49,9 +50,9 @@ body {
 
 .dropdown-menu {
     top: 50px;
-    left: 0px;
+    left: 10px;
     position: absolute;
-    background-color: #34e2e2ae !important;
+    background-color: #199c9c !important;
 }
 
 .dropdown {
@@ -310,4 +311,33 @@ body {
     color: black;
     text-align: center;
     font-size: 18px;
+}
+
+.contact-username {
+    margin-top: 10px;
+    margin-left: 5px;
+    color: white;
+    font-size: 17px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.contact {
+    width: 90%;
+    margin: 15px auto;
+    border-radius: 10px;
+	background: linear-gradient(to bottom left, #34e2e2, #19a9ae, #0b7e7a);
+    padding: 5px;
+    display: flex;
+}
+
+.contact-pfp {
+    left: 20px;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    margin: 8px;
+    object-fit: cover;
+    box-shadow: -5px 5px 10px rgba(0, 0, 0, 0.409);
 }

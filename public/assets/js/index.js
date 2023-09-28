@@ -81,14 +81,67 @@ if (token) {
                 // Listen for WebSocket events and handle them
                 socket.on('friendRequest', (requests) => {
                     // Update the UI with the friend request count
+                    let unAcceptedRequests = 0;
                     if (requests.length > 0) {
                         document.getElementById('friend-requests-notif-text').style.display = 'inline-block';
-                        document.getElementById('friend-requests-notif-text').textContent = requests.length;
-                        friendRequestList = requests;
-                    } else {
-                        friendRequestList = requests;
-                        document.getElementById('friend-requests-notif-text').style.display = 'none';
+                        for (const request of requests) {
+                            if (!request.is_accepted) {
+                                unAcceptedRequests++;
+                            }
+                        }
+                        if (unAcceptedRequests > 0) {
+                            document.getElementById('friend-requests-notif-text').textContent = unAcceptedRequests;
+                        } else {
+                            document.getElementById('friend-requests-notif-text').style.display = 'none';
+                        }
+
+                        const contactsList = document.getElementById("contacts-list");
+                        while (contactsList.firstChild) {
+                            contactsList.removeChild(contactsList.firstChild);
+                        }
+
+                        for (const request of requests) {
+                            if (request.is_accepted) {
+                                fetch('/api/profile/' + request.sender_username, {
+                                    headers: {
+                                        'Authorization': 'Bearer ' + token
+                                    }
+                                })
+                                .then((response) => response.json())
+                                .then((userData) => {
+                                    const userProfileData = {
+                                        profilePicture: userData.profilePicture,
+                                        userName: userData.username,
+                                    };
+
+                                    const contactPFP = document.createElement("img");
+                                    contactPFP.classList.add("contact-pfp");
+                                    if (userProfileData.profilePicture) {
+                                        const arrayBufferView = new Uint8Array(userProfileData.profilePicture.data);
+                                        const blob = new Blob([arrayBufferView], { type: userProfileData.profilePicture.type });
+                                        const imageUrl = URL.createObjectURL(blob);
+                                        
+                                        contactPFP.src = imageUrl;
+                                    }
+
+                                    const contactUsername = document.createElement("p");
+                                    contactUsername.classList.add("contact-username");
+                                    contactUsername.textContent = userProfileData.userName;
+
+                                    const contact = document.createElement("div");
+                                    contact.classList.add("contact");
+                                    contact.appendChild(contactPFP);
+                                    contact.appendChild(contactUsername);
+                                    contactsList.appendChild(contact);
+                                })
+                                .catch((error) => {
+                                    console.error('Error fetching user data:', error);
+                                });
+                            }
+                        }
                     }
+
+                    friendRequestList = unAcceptedRequests != 0 ? requests : null;
                 });
 
                 const dropdownMenuLink = document.getElementById('dropdownMenuLink');
@@ -161,7 +214,9 @@ if (token) {
                             friendRequestProfile.appendChild(acceptButtonElement);
 
                             // Append the <p> element to the div
-                            friendRequestsTitleDiv.appendChild(friendRequestProfile);
+                            if (!request.is_accepted) {
+                                friendRequestsTitleDiv.appendChild(friendRequestProfile);
+                            }
 
                             const formData = new FormData();
                             token = getCookie('token');

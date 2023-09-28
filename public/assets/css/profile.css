@@ -82,7 +82,7 @@ body {
 
 .logout-button .btn {
     position: absolute; /* Position relative to the container */
-    top: 20px;
+    top: 40px;
     right: 20px;
     width: 150px;
     height: 50px;
@@ -96,11 +96,11 @@ body {
 
 .back-button {
     position: absolute;
-    top: 30px;
-    left: 30px;
+    top: 40px;
+    left: 20px;
     color: rgb(255, 255, 255);
     text-decoration: none;
-    font-size: 25px;
+    font-size: 30px;
 }
 
 .message-box {
@@ -198,12 +198,9 @@ body {
 }
 
 .image-cropper {
-    overflow: hidden;
-}
-
-.image-cropper img {
-    max-width: 100%;
-    height: auto;
+    width: 80%; /* Specify the desired width */
+    height: 300px; /* Specify the desired height */
+    margin: 0 auto;
 }
 
 .cropper-view-box,
