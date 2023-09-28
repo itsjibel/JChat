@@ -401,8 +401,15 @@ document.getElementById('profile-picture-input').addEventListener('change', func
         cropImage.src = imageUrl;
 
         cropper = new Cropper(cropImage, {
-            aspectRatio: 1, // Set the aspect ratio (in this case, 1:1 for a square crop)
+            aspectRatio: 1, // Set the aspect ratio to 1 for a circular crop
             viewMode: 1, // Set the view mode to restrict the crop box to the container
+            guides: false, // Disable the cropping guides
+            center: false, // Disable centering the crop box
+            background: false, // Disable the black background behind the crop box
+            autoCropArea: 1, // Ensure the entire image is covered by the crop box
+            scalable: false,
+            zoomable: false,
+            movable: false,
         });
     }
 });

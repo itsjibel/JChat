@@ -188,3 +188,30 @@ body {
 #currentPassword {
     padding-right: 37px;
 }
+
+.crop-modal .modal-content {
+    border-radius: 10px;
+}
+
+.crop-modal .modal-body {
+    text-align: center !important;
+}
+
+.image-cropper {
+    overflow: hidden;
+}
+
+.image-cropper img {
+    max-width: 100%;
+    height: auto;
+}
+
+.cropper-view-box,
+.cropper-face {
+    border-radius: 50%;
+}
+
+/* Hide the grid lines */
+.cropper-dashed {
+    display: none;
+}
