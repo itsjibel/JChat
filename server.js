@@ -671,7 +671,6 @@ app.get('/api/recoverUserPassword', (req, res) => {
     });
 });
 
-
 // Load SSL certificate and private key
 const privateKey = fs.readFileSync('key.pem', 'utf8');
 const certificate = fs.readFileSync('cert.pem', 'utf8');
@@ -713,11 +712,24 @@ io.on('connection', (socket) => {
     connection.execute(sql, values, (error, results) => {
         if (error) {
             console.error(error);
-            // Handle the error if needed
             return;
         }
 
         io.to(socket.id).emit('friendRequest', results);
+    });
+
+    socket.on('refreshFriendRequests', () => {
+        const sql = 'SELECT sender_username, is_accepted FROM FriendRequests WHERE BINARY receiver_username = ? AND is_accepted = false';
+        const values = [socket.user.username]; // Include the image binary data in values
+        connection.execute(sql, values, (error, results) => {
+            if (error) {
+                console.log(error);
+                res.status(500).json({ message: "An error occurred" });
+                return;
+            }
+
+            io.to(socket.id).emit('friendRequest', results);
+        });
     });
 
     // Handle other WebSocket events here

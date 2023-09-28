@@ -85,10 +85,8 @@ if (token) {
                         document.getElementById('friend-requests-notif-text').style.display = 'inline-block';
                         document.getElementById('friend-requests-notif-text').textContent = requests.length;
                         friendRequestList = requests;
-                        if (document.getElementById('friend-requests-section').style.display) {
-                            document.getElementById('friend-requests-notif').click();
-                        }
                     } else {
+                        friendRequestList = requests;
                         document.getElementById('friend-requests-notif-text').style.display = 'none';
                     }
                 });
@@ -96,7 +94,7 @@ if (token) {
                 const dropdownMenuLink = document.getElementById('dropdownMenuLink');
                 const dropdownMenu = document.getElementById('dropdownMenu');
                 const addFriendButton = document.getElementById('add-friend-button');
-                const requestsButton = document.getElementById('friend-requests-notif');
+                const friendRequestsNotifButton = document.getElementById('friend-requests-notif');
 
                 // Hide dropdown menu after user clicks on any element in the site
                 document.body.addEventListener('click', () => {
@@ -108,8 +106,8 @@ if (token) {
                     dropdownMenu.style.height = dropdownMenu.style.height === '130px' ? '0px' : '10px';
                 });
 
-                requestsButton.addEventListener('click', () => {
-                    if (!friendRequestList) {
+                friendRequestsNotifButton.addEventListener('click', () => {
+                    if (!friendRequestList || friendRequestList.length === 0) {
                         return;
                     }
 
@@ -193,8 +191,6 @@ if (token) {
                                                 pElement.textContent = 'No friend requests are available';
                                     
                                                 friendRequestsTitleDiv.appendChild(pElement);
-                                            } else {
-                                                console.log(friendRequestsTitleDiv.childElementCount);
                                             }
                                         }, 500);
                                     } else {
@@ -212,11 +208,12 @@ if (token) {
                         });
                     }
 
-                    const backButton = document.getElementById('friend-requests-back-button');
-                    backButton.addEventListener('click', () => {
-                        document.getElementById("chats").style.display = 'inline';
-                        document.getElementById("friend-requests-section").style.display = 'none';
-                    });
+                });
+                const backButton = document.getElementById('friend-requests-back-button');
+                backButton.addEventListener('click', () => {
+                    socket.emit('refreshFriendRequests');
+                    document.getElementById("chats").style.display = 'inline';
+                    document.getElementById("friend-requests-section").style.display = 'none';
                 });
 
                 addFriendButton.addEventListener('click', () => {
