@@ -100,12 +100,12 @@ if (token) {
 
                 // Hide dropdown menu after user clicks on any element in the site
                 document.body.addEventListener('click', () => {
-                    dropdownMenu.style.display = dropdownMenu.style.display === 'inline' ? 'inline-block' : dropdownMenu.style.display === 'inline-block' ? 'none' : dropdownMenu.style.display;
+                    dropdownMenu.style.height = dropdownMenu.style.height === '10px' ? '130px' : dropdownMenu.style.height === '130px' ? '0px' : dropdownMenu.style.height;
                 });
 
                 // Show dropdown menu after user clicks on the three line icon
                 dropdownMenuLink.addEventListener('click', () => {
-                    dropdownMenu.style.display = dropdownMenu.style.display === 'inline-block' ? 'none' : 'inline';
+                    dropdownMenu.style.height = dropdownMenu.style.height === '130px' ? '0px' : '10px';
                 });
 
                 requestsButton.addEventListener('click', () => {

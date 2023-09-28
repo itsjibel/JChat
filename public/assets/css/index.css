@@ -37,6 +37,16 @@ body {
     position: relative;
 }
 
+#dropdownMenu {
+    overflow: hidden;
+    display: inline;
+    height: 0px;
+    padding: 0px;
+    width: 150px;
+    border: hidden;
+    transition: all ease-out 0.5s !important;
+}
+
 .dropdown-menu {
     top: 50px;
     left: 0px;
@@ -50,21 +60,23 @@ body {
 
 .bar {
     width: 30px;
-    height: 4px;
+    height: 3px;
     background-color: #ededed;
     margin: 5px 0;
-    border-radius: 2px;
+    border-radius: 5px;
 }
 
 .dropdown-item:hover {
-	background: linear-gradient(to right, #12a0a0, #1cbebe);
     box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.297);
 }
 
 .dropdown-item {
-	background: linear-gradient(to right, #1cbebe, #1cbebe);
+	background: #18b5b500 !important;
     transition: all ease 0.5s !important;
     font-weight: bold;
+    color: white !important;
+    font-size: 18px;
+    margin: 5px auto;
 }
 
 .logo {
