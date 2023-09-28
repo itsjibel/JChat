@@ -797,8 +797,8 @@ app.post('/api/acceptFriendRequest/:username', verifyAccessToken, (req, res) => 
 
         console.log(`'${senderUsername}' accepted a friend request from '${receiverUsername}'`);
 
-        const countFriendRequestsSql = 'SELECT sender_username, is_accepted FROM FriendRequests WHERE BINARY receiver_username = ?';
-        const countFriendRequestsValues = [receiverUsername]; // Include the image binary data in values
+        const countFriendRequestsSql = 'SELECT receiver_username, sender_username, is_accepted FROM FriendRequests WHERE BINARY receiver_username = ? OR BINARY sender_username = ?';
+        const countFriendRequestsValues = [receiverUsername, receiverUsername]; // Include the image binary data in values
         connection.execute(countFriendRequestsSql, countFriendRequestsValues, (error, results) => {
             if (error) {
                 console.error(error);
@@ -807,7 +807,11 @@ app.post('/api/acceptFriendRequest/:username', verifyAccessToken, (req, res) => 
             }
 
             // Emit the friendRequest event to all connected sockets
-            updateFriendRequestCount(results, senderUsername);
+            for (const socket of connectedSockets) {
+                if (receiverUsername === socket.user.username) {
+                    io.to(socket.id).emit('friendRequest', results);
+                }
+            }
 
             res.json({ success: true, message: "The friend request was sent successfully" });
         });

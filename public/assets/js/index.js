@@ -92,6 +92,7 @@ if (token) {
                                 unAcceptedRequests++;
                             }
                         }
+
                         if (unAcceptedRequests > 0) {
                             document.getElementById('friend-requests-notif-text').textContent = unAcceptedRequests;
                         } else {
@@ -240,6 +241,7 @@ if (token) {
                                     if (data.success) {
                                         showMessage(userProfileData.userName + ' added to your friends');
                                         friendRequestProfile.classList.add("fade-out");
+                                        socket.emit('refreshFriendRequests');
                                         setTimeout(() => {
                                             // After the transition completes, remove the element
                                             friendRequestProfile.remove();
@@ -270,7 +272,6 @@ if (token) {
                 });
                 const backButton = document.getElementById('friend-requests-back-button');
                 backButton.addEventListener('click', () => {
-                    socket.emit('refreshFriendRequests');
                     document.getElementById("chats").style.display = 'inline';
                     document.getElementById("friend-requests-section").style.display = 'none';
                 });
