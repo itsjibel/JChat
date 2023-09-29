@@ -308,7 +308,7 @@ if (token) {
                 });
                 const backButton = document.getElementById('friend-requests-back-button');
                 backButton.addEventListener('click', () => {
-                    document.getElementById("chats").style.display = 'inline';
+                    document.getElementById("chats").style.display = 'block';
                     document.getElementById("friend-requests-section").style.display = 'none';
                 });
 
