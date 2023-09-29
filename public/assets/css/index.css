@@ -6,15 +6,18 @@ html, body {
 
 body {
     display: flex;
+    flex-direction: column; /* Ensure body and its children stack vertically */
 }
 
 .row {
     flex: 1;
+    overflow: hidden; /* Hide overflow from body */
 }
 
 .chats {
 	background: linear-gradient(to bottom, #0a6f6f, #095e61, #033432);
     padding: 0px !important;
+    overflow-y: auto;
 }
 
 .add-firend-section {
@@ -34,6 +37,7 @@ body {
     background-size: cover;
     background-position: center;
     padding: 0px !important;
+    overflow-y: auto;
 }
 
 .user-profile {
@@ -362,7 +366,7 @@ body {
     height: 80px !important;
     background-color: white;
     width: 100% !important;
-	background: linear-gradient(to right, #0a6f6f, #0d8589, #0f8e89);
+	background: linear-gradient(to right, #086565da, #0d8589b7, #0f8e8ad7);
     align-items: center;
     display: none;
 }
@@ -393,4 +397,12 @@ body {
 .friend-profile-bar .back-button {
     margin-left: 20px;
     margin-right: 5px;
+}
+
+#contacts-list {
+    align-items: center;
+    flex-direction: column;
+    height: 100%; /* Use 100% for full height */
+    position: relative;
+    overflow-y: auto; /* Enable vertical scrolling when content exceeds height */
 }
