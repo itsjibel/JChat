@@ -14,8 +14,18 @@ body {
 
 .chats {
 	background: linear-gradient(to bottom, #0a6f6f, #095e61, #033432);
-    height: 100%;
     padding: 0px !important;
+}
+
+.add-firend-section {
+    background: linear-gradient(to bottom, #0a6f6f, #095e61, #033432);
+    height: 100%;
+    overflow-y: auto;
+    display: none;
+}
+
+#left-side {
+    height: 100%;
 }
 
 .chat-texts {
@@ -23,6 +33,7 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
+    padding: 0px !important;
 }
 
 .user-profile {
@@ -89,13 +100,6 @@ body {
 
 .bi {
     margin-right: 5px;
-}
-
-.add-firend-section {
-    display: none;
-	background: linear-gradient(to bottom, #0a6f6f, #095e61, #033432);
-    height: 100%;
-    overflow-y: auto;
 }
 
 .navbar-light {
@@ -352,4 +356,41 @@ body {
     margin-left: 18px;
     object-fit: cover;
     box-shadow: -5px 5px 10px rgba(0, 0, 0, 0.409);
+}
+
+.friend-profile-bar {
+    height: 80px !important;
+    background-color: white;
+    width: 100% !important;
+	background: linear-gradient(to right, #0a6f6f, #0d8589, #0f8e89);
+    align-items: center;
+    display: none;
+}
+
+.friend-profile-bar-username {
+    margin-top: 10px;
+    margin-left: 5px;
+    color: white;
+    font-size: 17px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    margin-bottom: 30px;
+}
+
+.friend-profile-bar-pfp {
+    left: 20px;
+    height: 55px;
+    width: 55px;
+    border-radius: 50%;
+    margin: 10px;
+    margin-left: 0px;
+    object-fit: cover;
+    box-shadow: -5px 5px 10px rgba(0, 0, 0, 0.409);
+}
+
+.friend-profile-bar .back-button {
+    margin-left: 20px;
+    margin-right: 5px;
 }

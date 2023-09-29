@@ -1,3 +1,15 @@
+window.addEventListener("resize", function () {
+    if (window.innerWidth >= 768) {
+        if (document.getElementById("friend-profile-bar-username").textContent != '' && document.getElementById("friend-profile-bar").style.display != 'none') {
+            document.getElementById("left-side").style.cssText = 'display: inline !important';
+        }
+    } else {
+        if (document.getElementById("friend-profile-bar-username").textContent != '' && document.getElementById("friend-profile-bar").style.display != 'none') {
+            document.getElementById("left-side").style.cssText = 'display: none !important';
+        }
+    }
+});
+
 function getCookie(name) {
     const cookies = document.cookie.split(';');
     for (const cookie of cookies) {
@@ -135,9 +147,33 @@ if (token) {
 
                                     const contact = document.createElement("div");
                                     contact.classList.add("contact");
+                                    contact.classList.add(userProfileData.userName);
                                     contact.appendChild(contactPFP);
                                     contact.appendChild(contactUsername);
                                     contactsList.appendChild(contact);
+
+                                    document.querySelector("." + userProfileData.userName).addEventListener("click", () => {
+                                        if (document.getElementById("chat-texts")) {
+                                            document.getElementById("chat-texts").style.cssText = 'display: inline !important';
+                                            if (window.innerWidth <= 768) {
+                                                document.getElementById("left-side").style.display = 'none';
+                                            }
+                                        }
+
+                                        const frinedProfileBar = document.getElementById("friend-profile-bar");
+                                        const frinedProfileBarPFP = document.getElementById("friend-profile-bar-pfp");
+                                        const frinedProfileBarUsername = document.getElementById("friend-profile-bar-username");
+                                        frinedProfileBar.style.cssText = 'display: flex !important';
+                                        frinedProfileBarPFP.src = contactPFP.src;
+                                        frinedProfileBarUsername.textContent = userProfileData.userName;
+                                    });
+
+                                    document.getElementById("friend-profile-bar-back-button").addEventListener("click", () => {
+                                        if (window.innerWidth <= 768) {
+                                            document.getElementById("left-side").style.cssText = 'display: inline !important';
+                                        }
+                                        document.getElementById("friend-profile-bar").style.cssText = 'display: none !important';
+                                    });
                                 })
                                 .catch((error) => {
                                     console.error('Error fetching user data:', error);

@@ -18,79 +18,88 @@
 
 <body>
     <div class="row">
-        <div class="chats col-xxl-3 col-md-4 col-sm-12" id="chats">
-            <div class="user-profile col-12">
-                <div class="dropdown show">
-                    <a href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        <div>
-                            <div class="bar"></div>
-                            <div class="bar"></div>
-                            <div class="bar"></div>
+        <div id="left-side" class="chats col-xxl-3 col-md-4 col-sm-12">
+            <div class="chats" id="chats">
+                <div class="user-profile col-12">
+                    <div class="dropdown show">
+                        <a href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                                <div class="bar"></div>
+                            </div>
+                        </a>
+                    
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink" id="dropdownMenu">
+                            <a class="dropdown-item" href="profile.html">
+                                <i class="bi bi-person-circle"></i> Profile
+                            </a>
+                            <a class="dropdown-item" id="add-friend-button" href="#">
+                                <i class="bi bi-person-plus"></i> Add friend
+                            </a>
+                            <a class="dropdown-item" href="#">
+                                <i class="bi bi-gear"></i> Settings
+                            </a>
                         </div>
-                    </a>
-                
-                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink" id="dropdownMenu">
-                        <a class="dropdown-item" href="profile.html">
-                            <i class="bi bi-person-circle"></i> Profile
-                        </a>
-                        <a class="dropdown-item" id="add-friend-button" href="#">
-                            <i class="bi bi-person-plus"></i> Add friend
-                        </a>
-                        <a class="dropdown-item" href="#">
-                            <i class="bi bi-gear"></i> Settings
-                        </a>
                     </div>
-                </div>
-                
-                <div class="friend-requests-notif" id="friend-requests-notif" title="Friend requests">
-                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="friend-requests-notif-text">
-                    <span class="visually-hidden">unread messages</span>
-                </span>
-                    <i class='bi bi-people'></i>
-                </div>
+                    
+                    <div class="friend-requests-notif" id="friend-requests-notif" title="Friend requests">
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="friend-requests-notif-text">
+                        <span class="visually-hidden">unread messages</span>
+                    </span>
+                        <i class='bi bi-people'></i>
+                    </div>
 
-                <img class="logo" src="assets/images/JChat-Logo.png"/>
+                    <img class="logo" src="assets/images/JChat-Logo.png"/>
+                </div>
+                <div id="contacts-list">
+                </div>
             </div>
-            <div id="contacts-list">
-            </div>
-        </div>
 
-        <div class="add-firend-section col-xxl-3 col-md-4 col-sm-12" id="add-firend-section">
-            <nav class="navbar navbar-light">
-                <div class="container-fluid">
-                    <form class="d-flex">
-                        <div class="back-button" id="back-button">
-                            <i class="fas bi-arrow-left"></i>
+            <div class="add-firend-section" id="add-firend-section">
+                <nav class="navbar navbar-light">
+                    <div class="container-fluid">
+                        <form class="d-flex">
+                            <div class="back-button" id="back-button">
+                                <i class="fas bi-arrow-left"></i>
+                            </div>
+                            <input class="form-control me-2" type="search" placeholder="Enter your friend's username" aria-label="Search" id="search-bar" autocomplete="off">
+                            <button class="btn btn-primary" type="submit" id="search-button">
+                                <i class="fas bi-search"></i>
+                            </button>
+                        </form>
+                    </div>
+                    <div class="user-found container-fluid bg-light" id="user-found">
+                        <img id="pfp" class="pfp"/>
+                        <p id="username"></p>
+                        <div id="add-friend">
+                        <p class="user-select-none" id="add-friend-text">Send friend request&nbsp;&nbsp;&nbsp;<i class="bi bi-person-plus"></i></p>
                         </div>
-                        <input class="form-control me-2" type="search" placeholder="Enter your friend's username" aria-label="Search" id="search-bar" autocomplete="off">
-                        <button class="btn btn-primary" type="submit" id="search-button">
-                            <i class="fas bi-search"></i>
-                        </button>
-                    </form>
-                </div>
-                <div class="user-found container-fluid bg-light" id="user-found">
-                    <img id="pfp" class="pfp"/>
-                    <p id="username"></p>
-                    <div id="add-friend">
-                       <p class="user-select-none" id="add-friend-text">Send friend request&nbsp;&nbsp;&nbsp;<i class="bi bi-person-plus"></i></p>
                     </div>
+                    <div class="error-msg" id="error-msg">
+                        <p id="error-msg-text">No users were found with this username!</p>
+                    </div>
+                </nav>
+            </div>
+
+            <div class="friend-requests-section col-xxl-3 col-md-4 col-sm-12" id="friend-requests-section">
+                <div class="friend-requests-back-button" id="friend-requests-back-button">
+                    <i class="fas bi-arrow-left"></i>
                 </div>
-                <div class="error-msg" id="error-msg">
-                    <p id="error-msg-text">No users were found with this username!</p>
+                <h4 id="friend-requests-title">Friend request</h4>
+                <div class="friend-requests-list" id="friend-requests-list">
                 </div>
-            </nav>
+            </div>
         </div>
 
-        <div class="friend-requests-section col-xxl-3 col-md-4 col-sm-12" id="friend-requests-section">
-            <div class="friend-requests-back-button" id="friend-requests-back-button">
-                <i class="fas bi-arrow-left"></i>
+        <div class="chat-texts col-xxl-9 col-md-8" id="chat-texts">
+            <div id="friend-profile-bar" class="friend-profile-bar">
+                <div class="back-button" id="friend-profile-bar-back-button">
+                    <i class="fas bi-arrow-left"></i>
+                </div>
+                <img id="friend-profile-bar-pfp" class="friend-profile-bar-pfp" alt="Friend Profile Picture"/>
+                <p id="friend-profile-bar-username" class="friend-profile-bar-username"></p>
             </div>
-            <h4 id="friend-requests-title">Friend request</h4>
-            <div class="friend-requests-list" id="friend-requests-list">
-            </div>
-        </div>
-
-        <div class="chat-texts col-xxl-9 col-md-8 d-none d-sm-block">
         </div>
     </div>
 
