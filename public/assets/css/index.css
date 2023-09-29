@@ -15,7 +15,7 @@ body {
 .chats {
 	background: linear-gradient(to bottom, #0a6f6f, #095e61, #033432);
     height: 100%;
-    overflow-y: auto;
+    padding: 0px !important;
 }
 
 .chat-texts {
@@ -32,8 +32,8 @@ body {
 	background: linear-gradient(to bottom left, #34e2e2ae, #23bfc4af, #169a96b7);
     border-radius: 10px;
     margin: 10px auto;
-    margin-bottom: 30px;
-    width: 95% !important;
+    margin-bottom: 20px;
+    width: 85% !important;
     height: 60px;
     position: relative;
 }
@@ -329,12 +329,18 @@ body {
 }
 
 .contact {
-    width: 90%;
-    margin: 15px auto;
-    border-radius: 10px;
-	background: linear-gradient(to bottom left, #34e2e2, #19a9ae, #0b7e7a);
+    width: 100%;
+    margin: 0;
     padding: 5px;
+    background: #099797;
     display: flex;
+    border-bottom: rgb(0, 109, 96) 1px solid;
+    transition: box-shadow ease 0.5s;
+    position: relative; /* Add position:relative to the container */
+}
+
+.contact:hover {
+    box-shadow: inset 5px 5px 25px rgba(0, 0, 0, 0.409); /* Use 'inset' to create an inner shadow */
 }
 
 .contact-pfp {
@@ -343,6 +349,7 @@ body {
     width: 50px;
     border-radius: 50%;
     margin: 8px;
+    margin-left: 18px;
     object-fit: cover;
     box-shadow: -5px 5px 10px rgba(0, 0, 0, 0.409);
 }
