@@ -74,12 +74,12 @@ if (token) {
         .then((data) => {
             if (data && data.loggedIn) {
                 // Refresh the access token for POST and GET APIs without problems
+                token = getCookie('token');
+                tokenData = parseJwt(token);
+
                 const socket = io.connect('https://jchat.com', {
                     query: { token: token },
                 });
-
-                token = getCookie('token');
-                tokenData = parseJwt(token);
 
                 // Listen for WebSocket events and handle them
                 socket.on('friendRequest', (requests) => {
