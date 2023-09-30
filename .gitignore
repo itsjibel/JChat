@@ -1,4 +1,6 @@
 node_modules/
-cert.pem
-key.pem
-.env
+server/node_modules/
+server/cert.pem
+server/key.pem
+server/.env
+server/dist/

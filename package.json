@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "devStart": "nodemon server.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
@@ -19,6 +20,8 @@
   },
   "homepage": "https://github.com/itsjibel/JChat#readme",
   "dependencies": {
+    "@nestjs/common": "^10.2.6",
+    "@nestjs/core": "^10.2.6",
     "@sendgrid/mail": "^7.7.0",
     "cookie": "^0.5.0",
     "cookie-parser": "^1.4.6",
@@ -39,6 +42,8 @@
     "passport-local": "^1.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "reflect-metadata": "^0.1.13",
+    "rxjs": "^7.8.1",
     "socket.io": "^4.7.2",
     "ws": "^8.14.2"
   },
