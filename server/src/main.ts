@@ -2,7 +2,6 @@ import * as express from 'express';
 import * as fs from 'fs';
 import * as https from 'https';
 import * as cookieParser from 'cookie-parser';
-import * as cors from 'cors';
 
 async function bootstrap() {
   const app = express();
@@ -25,7 +24,10 @@ async function bootstrap() {
   app.use(express.json());
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
-  app.use(cors());
+
+  app.get('/test', (req, res) => {
+    res.send('Test route works');
+  });
 
   const port = 443;
   httpsServer.listen(port, () => {

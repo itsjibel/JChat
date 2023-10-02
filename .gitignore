@@ -1,6 +1,6 @@
 node_modules/
 server/node_modules/
-server/cert.pem
 server/key.pem
 server/.env
 server/dist/
+server/cert*
