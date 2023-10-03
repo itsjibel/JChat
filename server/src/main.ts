@@ -8,6 +8,8 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const server = express();
+  server.use(express.static('../public'));
+  server.use(express.json());
   const app = await NestFactory.create(
     AppModule,
     new ExpressAdapter(server),
@@ -15,8 +17,6 @@ async function bootstrap() {
   await app.init();
 
   // Express middleware and routes can be used here
-  app.use(express.static('../public'));
-  app.use(express.json());
   dotenv.config();
 
   const privateKey = fs.readFileSync('key.pem', 'utf8');

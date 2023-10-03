@@ -23,8 +23,8 @@ const upload = multer({ storage: storage });
 
 // Middleware to parse JSON requests
 const jwtSecretKey = process.env.JWT_SECRET;
-const accessTokenExpiry = '15m';
-const refreshTokenExpiry = '15d';
+const accessTokenExpiry = process.env.ACCESS_TOKEN_EXPIRY;
+const refreshTokenExpiry = process.env.REFRESH_TOKEN_EXPIRY;
 
 const connection = mysql.createConnection({
     host: process.env.DB_HOST,

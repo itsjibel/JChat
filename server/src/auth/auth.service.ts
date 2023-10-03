@@ -1,10 +1,20 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
-import { createHash } from 'crypto'; // Import the crypto library for hashing
+import { createHash } from 'crypto';
+import { JwtService } from '@nestjs/jwt';
+import * as dotenv from 'dotenv';
+dotenv.config();
+
+const jwtSecretKey = process.env.JWT_SECRET;
+const accessTokenExpiry = process.env.ACCESS_TOKEN_EXPIRY; // You can set this as a number or a string
+const refreshTokenExpiry = process.env.REFRESH_TOKEN_EXPIRY; // You can set this as a number or a string
 
 @Injectable()
 export class AuthService {
-  constructor(private usersService: UsersService) {}
+  constructor(
+    private usersService: UsersService,
+    private jwtService: JwtService
+  ) {}
 
   async signIn(username: string, plainTextPassword: string): Promise<any> {
     const user = await this.usersService.findOne(username);
@@ -21,8 +31,16 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
-    // If passwords match, return user data without the password
-    const { password, ...result } = user;
-    return result;
+    // Create a payload object with the data you want to include in the token
+    const payload = { username, jwtSecretKey };
+
+    // Generate access and refresh tokens using the payload and set expiry times
+    const accessToken = this.jwtService.sign(payload, { secret: process.env.JWT_SECRET, expiresIn: accessTokenExpiry });
+    const refreshToken = this.jwtService.sign(payload, { secret: process.env.JWT_SECRET, expiresIn: refreshTokenExpiry });
+
+    return {
+      accessToken,
+      refreshToken,
+    };
   }
 }

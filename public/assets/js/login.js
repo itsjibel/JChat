@@ -113,14 +113,15 @@ function login(e) {
     formData.append("password", loginPassword);
 
     // Make an HTTP POST request to the server
-    fetch('/api/login', {
+    fetch('/auth/login', {
         method: 'POST',
         body: new URLSearchParams(formData),
     })
     .then((response) => response.json())
     .then((data) => {
-        if (data.success) {
-            const token = data.token; // Get JWT token from response
+        console.log(data);
+        if (data.accessToken != undefined) {
+            const token = data.accessToken; // Get JWT token from response
             const refreshToken = data.refreshToken; // Get refresh token from response
 
             // Set tokens as cookies
@@ -128,7 +129,6 @@ function login(e) {
             setCookie('refreshToken', refreshToken, 15);
 
             // Redirect to the index page after successful login
-            window.location.href = "/index.html";
         } else if (data.message) {
             errorMessage.textContent = data.message;
             errorMessage.style.display = "flex";
