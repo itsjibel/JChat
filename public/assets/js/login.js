@@ -13,15 +13,15 @@ const token = getCookie('token');
 const refreshToken = getCookie('refreshToken');
 
 if (refreshToken && token) {
-    fetch('/api/checkLoggedIn', {
+    fetch('/auth/checkLoggedIn', {
         headers: {
             'Authorization': 'Bearer ' + refreshToken
         }
     })
     .then((response) => response.json())
     .then((data) => {
-        if (data && data.loggedIn) {
-            window.location.href = '/index.html';
+        if (data != undefined) {
+            window.location.href = "/index.html";
         }
     })
 }
@@ -119,7 +119,6 @@ function login(e) {
     })
     .then((response) => response.json())
     .then((data) => {
-        console.log(data);
         if (data.accessToken != undefined) {
             const token = data.accessToken; // Get JWT token from response
             const refreshToken = data.refreshToken; // Get refresh token from response
@@ -129,6 +128,7 @@ function login(e) {
             setCookie('refreshToken', refreshToken, 15);
 
             // Redirect to the index page after successful login
+            window.location.href = '/index.html';
         } else if (data.message) {
             errorMessage.textContent = data.message;
             errorMessage.style.display = "flex";

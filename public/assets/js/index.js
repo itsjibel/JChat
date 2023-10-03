@@ -47,17 +47,17 @@ if (token) {
     
         if (refreshTokenExpirationTime > new Date()) {
             // Access token has expired, but refresh token is still valid
-            return fetch('/api/refreshAccessToken', {
+            return fetch('/auth/refreshAccessToken', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
+                    'Authorization': 'Bearer ' + refreshToken
                 },
                 body: JSON.stringify({ refreshToken: refreshToken })
             })
             .then((response) => response.json())
             .then((data) => {
-                if (data.success) {
+                if (data) {
                     const newToken = data.accessToken;
                     setCookie('token', newToken, 7); // Store the new access token in a cookie
                 } else {
@@ -77,113 +77,113 @@ if (token) {
 
     refreshAccessToken()
     .then(() => {
-        fetch('/api/checkLoggedIn', {
+        fetch('/auth/checkLoggedIn', {
             headers: {
                 'Authorization': 'Bearer ' + refreshToken
             }
         })
         .then((response) => response.json())
         .then((data) => {
-            if (data && data.loggedIn) {
+            if (data.success != false) {
                 // Refresh the access token for POST and GET APIs without problems
                 token = getCookie('token');
                 tokenData = parseJwt(token);
 
-                const socket = io.connect('https://jchat.com', {
-                    query: { token: token },
-                });
+                // const socket = io.connect('https://jchat.com', {
+                //     query: { token: token },
+                // });
 
-                // Listen for WebSocket events and handle them
-                socket.on('friendRequest', (requests) => {
-                    // Update the UI with the friend request count
-                    let unAcceptedRequests = 0;
-                    if (requests.length > 0) {
-                        document.getElementById('friend-requests-notif-text').style.display = 'inline-block';
-                        for (const request of requests) {
-                            if (!request.is_accepted && request.sender_username != tokenData.username) {
-                                unAcceptedRequests++;
-                            }
-                        }
+                // // Listen for WebSocket events and handle them
+                // socket.on('friendRequest', (requests) => {
+                //     // Update the UI with the friend request count
+                //     let unAcceptedRequests = 0;
+                //     if (requests.length > 0) {
+                //         document.getElementById('friend-requests-notif-text').style.display = 'inline-block';
+                //         for (const request of requests) {
+                //             if (!request.is_accepted && request.sender_username != tokenData.username) {
+                //                 unAcceptedRequests++;
+                //             }
+                //         }
 
-                        if (unAcceptedRequests > 0) {
-                            document.getElementById('friend-requests-notif-text').textContent = unAcceptedRequests;
-                        } else {
-                            document.getElementById('friend-requests-notif-text').style.display = 'none';
-                        }
+                //         if (unAcceptedRequests > 0) {
+                //             document.getElementById('friend-requests-notif-text').textContent = unAcceptedRequests;
+                //         } else {
+                //             document.getElementById('friend-requests-notif-text').style.display = 'none';
+                //         }
 
-                        const contactsList = document.getElementById("contacts-list");
-                        while (contactsList.firstChild) {
-                            contactsList.removeChild(contactsList.firstChild);
-                        }
+                //         const contactsList = document.getElementById("contacts-list");
+                //         while (contactsList.firstChild) {
+                //             contactsList.removeChild(contactsList.firstChild);
+                //         }
 
-                        for (const request of requests) {
-                            if (request.is_accepted) {
-                                const friendUsername = request.sender_username === tokenData.username ? request.receiver_username : request.sender_username;
-                                fetch('/api/profile/' + friendUsername, {
-                                    headers: {
-                                        'Authorization': 'Bearer ' + token
-                                    }
-                                })
-                                .then((response) => response.json())
-                                .then((userData) => {
-                                    const userProfileData = {
-                                        profilePicture: userData.profilePicture,
-                                        userName: userData.username,
-                                    };
+                //         for (const request of requests) {
+                //             if (request.is_accepted) {
+                //                 const friendUsername = request.sender_username === tokenData.username ? request.receiver_username : request.sender_username;
+                //                 fetch('/api/profile/' + friendUsername, {
+                //                     headers: {
+                //                         'Authorization': 'Bearer ' + token
+                //                     }
+                //                 })
+                //                 .then((response) => response.json())
+                //                 .then((userData) => {
+                //                     const userProfileData = {
+                //                         profilePicture: userData.profilePicture,
+                //                         userName: userData.username,
+                //                     };
 
-                                    const contactPFP = document.createElement("img");
-                                    contactPFP.classList.add("contact-pfp");
-                                    if (userProfileData.profilePicture) {
-                                        const arrayBufferView = new Uint8Array(userProfileData.profilePicture.data);
-                                        const blob = new Blob([arrayBufferView], { type: userProfileData.profilePicture.type });
-                                        const imageUrl = URL.createObjectURL(blob);
+                //                     const contactPFP = document.createElement("img");
+                //                     contactPFP.classList.add("contact-pfp");
+                //                     if (userProfileData.profilePicture) {
+                //                         const arrayBufferView = new Uint8Array(userProfileData.profilePicture.data);
+                //                         const blob = new Blob([arrayBufferView], { type: userProfileData.profilePicture.type });
+                //                         const imageUrl = URL.createObjectURL(blob);
                                         
-                                        contactPFP.src = imageUrl;
-                                    }
+                //                         contactPFP.src = imageUrl;
+                //                     }
 
-                                    const contactUsername = document.createElement("p");
-                                    contactUsername.classList.add("contact-username");
-                                    contactUsername.textContent = userProfileData.userName;
+                //                     const contactUsername = document.createElement("p");
+                //                     contactUsername.classList.add("contact-username");
+                //                     contactUsername.textContent = userProfileData.userName;
 
-                                    const contact = document.createElement("div");
-                                    contact.classList.add("contact");
-                                    contact.classList.add(userProfileData.userName);
-                                    contact.appendChild(contactPFP);
-                                    contact.appendChild(contactUsername);
-                                    contactsList.appendChild(contact);
+                //                     const contact = document.createElement("div");
+                //                     contact.classList.add("contact");
+                //                     contact.classList.add(userProfileData.userName);
+                //                     contact.appendChild(contactPFP);
+                //                     contact.appendChild(contactUsername);
+                //                     contactsList.appendChild(contact);
 
-                                    document.querySelector("." + userProfileData.userName).addEventListener("click", () => {
-                                        if (document.getElementById("chat-texts")) {
-                                            document.getElementById("chat-texts").style.cssText = 'display: inline !important';
-                                            if (window.innerWidth <= 768) {
-                                                document.getElementById("left-side").style.display = 'none';
-                                            }
-                                        }
+                //                     document.querySelector("." + userProfileData.userName).addEventListener("click", () => {
+                //                         if (document.getElementById("chat-texts")) {
+                //                             document.getElementById("chat-texts").style.cssText = 'display: inline !important';
+                //                             if (window.innerWidth <= 768) {
+                //                                 document.getElementById("left-side").style.display = 'none';
+                //                             }
+                //                         }
 
-                                        const frinedProfileBar = document.getElementById("friend-profile-bar");
-                                        const frinedProfileBarPFP = document.getElementById("friend-profile-bar-pfp");
-                                        const frinedProfileBarUsername = document.getElementById("friend-profile-bar-username");
-                                        frinedProfileBar.style.cssText = 'display: flex !important';
-                                        frinedProfileBarPFP.src = contactPFP.src;
-                                        frinedProfileBarUsername.textContent = userProfileData.userName;
-                                    });
+                //                         const frinedProfileBar = document.getElementById("friend-profile-bar");
+                //                         const frinedProfileBarPFP = document.getElementById("friend-profile-bar-pfp");
+                //                         const frinedProfileBarUsername = document.getElementById("friend-profile-bar-username");
+                //                         frinedProfileBar.style.cssText = 'display: flex !important';
+                //                         frinedProfileBarPFP.src = contactPFP.src;
+                //                         frinedProfileBarUsername.textContent = userProfileData.userName;
+                //                     });
 
-                                    document.getElementById("friend-profile-bar-back-button").addEventListener("click", () => {
-                                        if (window.innerWidth <= 768) {
-                                            document.getElementById("left-side").style.cssText = 'display: inline !important';
-                                        }
-                                        document.getElementById("friend-profile-bar").style.cssText = 'display: none !important';
-                                    });
-                                })
-                                .catch((error) => {
-                                    console.error('Error fetching user data:', error);
-                                });
-                            }
-                        }
-                    }
+                //                     document.getElementById("friend-profile-bar-back-button").addEventListener("click", () => {
+                //                         if (window.innerWidth <= 768) {
+                //                             document.getElementById("left-side").style.cssText = 'display: inline !important';
+                //                         }
+                //                         document.getElementById("friend-profile-bar").style.cssText = 'display: none !important';
+                //                     });
+                //                 })
+                //                 .catch((error) => {
+                //                     console.error('Error fetching user data:', error);
+                //                 });
+                //             }
+                //         }
+                //     }
 
-                    friendRequestList = unAcceptedRequests != 0 ? requests : null;
-                });
+                //     friendRequestList = unAcceptedRequests != 0 ? requests : null;
+                // });
 
                 const dropdownMenuLink = document.getElementById('dropdownMenuLink');
                 const dropdownMenu = document.getElementById('dropdownMenu');
