@@ -4,14 +4,16 @@ import { User } from './user.interface'; // Create a User interface for better t
 
 @Injectable()
 export class UsersService {
-  constructor(@Inject('MYSQL_CONNECTION') private readonly connection: Connection) {}
+  constructor(
+    @Inject('MYSQL_CONNECTION') private readonly connection: Connection,
+  ) {}
 
   async findOne(username: string): Promise<User | undefined> {
     try {
       // Query the database to find a user by username
       const [rows] = await this.connection.execute(
         'SELECT * FROM Users WHERE username = ?',
-        [username]
+        [username],
       );
 
       // Check if a user was found
