@@ -72,7 +72,7 @@ function signup(e) {
     formData.append("email", signUpEmail);
 
     // Make an HTTP POST request to the server
-    fetch('/api/signup', {
+    fetch('/auth/signup', {
         method: 'POST',
         body: new URLSearchParams(formData),
     })

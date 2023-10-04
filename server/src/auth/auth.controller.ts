@@ -11,12 +11,21 @@ export class AuthController {
     return this.authService.signIn(signInDto.username, signInDto.password);
   }
 
+  @Post('signup')
+  signUp(@Body() signInDto: Record<string, any>) {
+    return this.authService.signUp(
+      signInDto.username,
+      signInDto.email,
+      signInDto.password,
+    );
+  }
+
   @Get('checkLoggedIn')
   async checkLoggedIn(@Headers() refreshToken: any, @Res() res: Response) {
     this.authService
       .checkLoggedIn(refreshToken.authorization.split(' ')[1])
       .then((results) => {
-        res.send({ success: results ? true : false });
+        res.send(results);
       });
   }
 
