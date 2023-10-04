@@ -119,7 +119,7 @@ if (token) {
                         for (const request of requests) {
                             if (request.is_accepted) {
                                 const friendUsername = request.sender_username === tokenData.username ? request.receiver_username : request.sender_username;
-                                fetch('/api/profile/' + friendUsername, {
+                                fetch('/profile/' + friendUsername, {
                                     headers: {
                                         'Authorization': 'Bearer ' + token
                                     }

@@ -5,9 +5,10 @@ import { MysqlModule } from './mysql.module';
 import { FrinedRequests } from './websocket/websocket.gateway';
 import { EmailService } from './email/email.service';
 import { EmailModule } from './email/email.module';
+import { ProfileModule } from './profile/profile.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, MysqlModule, EmailModule],
+  imports: [AuthModule, UsersModule, MysqlModule, EmailModule, ProfileModule],
   providers: [FrinedRequests, EmailService],
 })
 export class AppModule {}

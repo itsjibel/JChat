@@ -32,7 +32,7 @@ function refreshAccessToken() {
 
     if (refreshTokenExpirationTime > new Date()) {
         // Access token has expired, but refresh token is still valid
-        return fetch('/api/refreshAccessToken', {
+        return fetch('/auth/refreshAccessToken', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -42,7 +42,7 @@ function refreshAccessToken() {
         })
         .then((response) => response.json())
         .then((data) => {
-            if (data.success) {
+            if (data) {
                 const newToken = data.accessToken;
                 setCookie('token', newToken, 7); // Store the new access token in a cookie
             } else {
@@ -61,23 +61,22 @@ function refreshAccessToken() {
 }
 
 function fetchUserData() {
-    refreshAccessToken();
     token = getCookie('token');
     const tokenData = parseJwt(token);
-    fetch('/api/checkLoggedIn', {
+    fetch('/auth/checkLoggedIn', {
         headers: {
             'Authorization': 'Bearer ' + refreshToken
         }
     })
     .then((response) => response.json())
     .then((data) => {
-        if (data && data.loggedIn) {
+        if (data.success != false) {
             // Function to fetch user data
             function fetchUserData() {
                 token = getCookie('token');
-                fetch('/api/profile/' + tokenData.username, {
+                fetch('/profile/' + tokenData.username, {
                     headers: {
-                        'Authorization': 'Bearer ' + token
+                        'Authorization': 'Bearer ' + refreshToken
                     }
                 })
                 .then((response) => response.json())
