@@ -37,4 +37,13 @@ export class AuthController {
         res.send({ accessToken: result });
       });
   }
+
+  @Post('logout')
+  logout(@Headers() refreshToken: any, @Res() res: Response) {
+    this.authService
+      .logout(refreshToken.authorization.split(' ')[1])
+      .then((result) => {
+        res.send({ success: result });
+      });
+  }
 }

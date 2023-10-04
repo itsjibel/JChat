@@ -19,6 +19,7 @@ dotenv.config();
 const jwtSecretKey = process.env.JWT_SECRET;
 const accessTokenExpiry = process.env.ACCESS_TOKEN_EXPIRY;
 const refreshTokenExpiry = process.env.REFRESH_TOKEN_EXPIRY;
+const revokedTokens = [];
 
 function isTokenValid(token) {
   try {
@@ -161,7 +162,7 @@ export class AuthService {
     }
   }
 
-  async checkLoggedIn(refreshToken: any): Promise<any> {
+  async checkLoggedIn(refreshToken: string): Promise<any> {
     const username = isTokenValid(refreshToken);
     const user = await this.usersService.findOne(username);
 
@@ -177,7 +178,7 @@ export class AuthService {
     };
   }
 
-  async refreshAccessToken(refreshToken: any): Promise<any> {
+  async refreshAccessToken(refreshToken: string): Promise<any> {
     const username = isTokenValid(refreshToken);
     if (username != undefined) {
       const payload = { username, jwtSecretKey };
@@ -190,5 +191,17 @@ export class AuthService {
     }
 
     return undefined;
+  }
+
+  async logout(token: any): Promise<any> {
+    console.log(token);
+    if (token && !revokedTokens.includes(token)) {
+      revokedTokens.push(token);
+      const username = jwt.decode(token).username; // Decode the token to get the username
+      console.log(`'${username}' successfully logged out!`);
+      return true;
+    } else {
+      return false;
+    }
   }
 }

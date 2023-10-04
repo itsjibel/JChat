@@ -135,7 +135,7 @@ logoutButton.addEventListener('click', () => {
     refreshAccessToken()
     .then(() => {
         token = getCookie('token');
-        fetch('/api/logout', {
+        fetch('/auth/logout', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -144,11 +144,15 @@ logoutButton.addEventListener('click', () => {
         })
         .then((response) => response.json())
         .then((data) => {
-            // Clear the access token and refresh token cookies
-            document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-            document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
-            // Redirect to the login page or perform other actions as needed
-            window.location.href = '/login.html';
+            if (data.success === true) {
+                // Clear the access token and refresh token cookies
+                document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                document.cookie = 'refreshToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+                // Redirect to the login page or perform other actions as needed
+                window.location.href = '/login.html';
+            } else {
+                showMessage("An error occurred while logging out");
+            }
         })
         .catch((error) => {
             console.error('Error logging out:', error);
