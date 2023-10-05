@@ -1,4 +1,12 @@
-import { Body, Controller, Post, Get, Headers, Res } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Get,
+  Headers,
+  Res,
+  Query,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 
@@ -45,5 +53,14 @@ export class AuthController {
       .then((result) => {
         res.send({ success: result });
       });
+  }
+
+  @Get('verifyUserEmail')
+  verifyUserEmail(@Query() token: any, @Res() res: Response) {
+    this.authService.verifyUserEmail(token).then((result) => {
+      res.redirect(
+        'https://jchat.com/emailVerification.html?success=' + result,
+      );
+    });
   }
 }

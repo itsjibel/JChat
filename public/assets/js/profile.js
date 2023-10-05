@@ -36,7 +36,7 @@ function refreshAccessToken() {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + token
+                'Authorization': 'Bearer ' + refreshToken
             },
             body: JSON.stringify({ refreshToken: refreshToken })
         })
@@ -363,7 +363,7 @@ verifyEmailButton.addEventListener('click', (e) => {
         formData.append('email', email);
         formData.append('username', tokenData.username);
 
-        fetch('/api/sendVerificationEmail', {
+        fetch('/email/emailVerification', {
             method: 'POST',
             headers: {
                 'Authorization': 'Bearer ' + token

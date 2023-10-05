@@ -208,4 +208,28 @@ export class AuthService {
       return false;
     }
   }
+
+  async verifyUserEmail(data: any): Promise<any> {
+    const { token, username } = data;
+    const sql =
+      'SELECT email, verify_email_token FROM Users WHERE BINARY username = ?';
+    const checkValue = [username];
+
+    try {
+      const [result] = await this.connection.execute(sql, checkValue);
+      if (token === result[0].verify_email_token) {
+        console.log('Verified email');
+        const updateSql =
+          'UPDATE Users SET is_email_verified = 1, verify_email_token = NULL WHERE BINARY username = ?';
+        await this.connection.execute(updateSql, checkValue);
+        console.log("'" + username + "' verified his/her email");
+        return true;
+      } else {
+        return false;
+      }
+    } catch (error) {
+      console.log('An error occured while verifying user email:', error);
+      return false;
+    }
+  }
 }
