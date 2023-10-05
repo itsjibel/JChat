@@ -145,7 +145,7 @@ body {
     height: 55px;
     width: 55px;
     border-radius: 50%;
-    margin: 8px;
+    margin: 14px;
     object-fit: cover;
     box-shadow: -5px 5px 10px rgba(0, 0, 0, 0.409);
     pointer-events: none;
@@ -156,7 +156,6 @@ body {
     height: auto;
     flex-grow: 1;
     font-size: 20px;
-    font-weight: bold;
     color: white;
     white-space: nowrap; /* Prevent text from wrapping */
     overflow: hidden; /* Hide overflowing text */
@@ -221,16 +220,11 @@ body {
 }
 
 #error-msg {
-    border-radius: 7px;
-    margin: 20px auto !important;
-    padding: 5px;
-    display: none;
-}
-
-#error-msg {
     color: rgb(255, 255, 255);
     margin: 0 auto;
     font-size: 20px;
+    display: none;
+    padding: 20px;
 }
 
 .friend-requests-notif {
@@ -260,6 +254,7 @@ body {
 	background: linear-gradient(to bottom, #0a6f6f, #095e61, #033432);
     overflow-y: auto;
     height: 100% !important;
+    padding: 0px !important;
 }
 
 #friend-requests-title {
@@ -281,21 +276,28 @@ body {
 }
 
 .friend-requests-list {
-    width: 90%;
-    background-color: white;
-    border-radius: 10px;
-    padding: 10px;
-    margin: auto;
+    align-items: center;
+    flex-direction: column;
+    height: calc(100% - 90px); /* Use 100% for full height */
+    position: relative;
+    overflow-y: auto; /* Enable vertical scrolling when content exceeds height */
 }
 
 .friend-request-profile {
-	background: linear-gradient(to bottom right, #0e8787, #095e61, #033432);
-    margin: 10px;
-    padding: 2px;
-    border-radius: 15px;
+    width: 100%;
+    margin: 0;
+    padding: 0px 15px;
+    background: #099797;
     display: flex;
-    align-items: center;
-    justify-content: center;
+    border-bottom: rgb(0, 109, 96) 1px solid;
+    transition: box-shadow ease 0.5s;
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+}
+
+.friend-request-profile:hover {
+    box-shadow: inset 0px 0px 20px rgba(0, 0, 0, 0.258); /* Use 'inset' to create an inner shadow */
 }
 
 .friend-request-profile.fade-out {
@@ -307,7 +309,7 @@ body {
     color: white;
     font-size: 19px;
     flex-grow: 1;
-    margin-top: 10px !important;
+    margin-top: 15px !important;
     white-space: nowrap; /* Prevent text from wrapping */
     overflow: hidden; /* Hide overflowing text */
     text-overflow: ellipsis; /* Display ellipsis for truncated text */
@@ -316,13 +318,14 @@ body {
 .accept-button {
     height: 80%;
     width: 90px;
-    margin: 10px;
+    margin: auto 10px;
 }
 
 .no-request-available {
-    color: black;
+    color: rgb(255, 255, 255);
     text-align: center;
     font-size: 18px;
+    padding: 10px;
 }
 
 .contact-username {
