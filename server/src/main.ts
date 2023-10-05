@@ -74,6 +74,20 @@ async function bootstrap() {
       console.error('Error executing SQL query:', error);
     }
 
+    socket.on('refreshFriendRequests', async () => {
+      try {
+        const connection = await pool.getConnection();
+        const [results] = await connection.execute(
+          'SELECT sender_username, receiver_username, is_accepted FROM FriendRequests WHERE BINARY sender_username = ? OR BINARY receiver_username = ?',
+          [socket.user.username, socket.user.username],
+        );
+
+        io.to(socket.id).emit('friendRequest', results);
+      } catch (error) {
+        console.error('Error executing SQL query:', error);
+      }
+    });
+
     socket.on('disconnect', () => {
       console.log(`'${socket.user.username}' disconnected`);
       connectedSockets.delete(socket); // Remove the socket from the connectedSockets set
