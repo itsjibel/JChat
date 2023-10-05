@@ -9,7 +9,14 @@ import { ProfileModule } from './profile/profile.module';
 import { ContactsModule } from './contacts/contacts.module';
 
 @Module({
-  imports: [AuthModule, UsersModule, MysqlModule, EmailModule, ProfileModule, ContactsModule],
+  imports: [
+    AuthModule,
+    UsersModule,
+    MysqlModule,
+    EmailModule,
+    ProfileModule,
+    ContactsModule,
+  ],
   providers: [FrinedRequests, EmailService],
 })
 export class AppModule {}

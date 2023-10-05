@@ -296,7 +296,7 @@ app.post('/api/logout', (req, res) => {
     }
 });
 
-app.post('/api/editProfile/:username', verifyAccessToken, upload.single('pfp'), (req, res) => {
+app.post('/profile/edit/:username', verifyAccessToken, upload.single('pfp'), (req, res) => {
     let { old_password, old_username, old_email, username, password, email } = req.body;
     password = password != '' ? password : old_password;
 
