@@ -214,7 +214,7 @@ if (token) {
                     document.getElementById("friend-requests-section").style.display = 'inline';
 
                     for (const request of friendRequestList) {
-                        fetch('/api/profile/' + request.sender_username, {
+                        fetch('/profile/' + request.sender_username, {
                             headers: {
                                 'Authorization': 'Bearer ' + token
                             }
@@ -343,7 +343,7 @@ if (token) {
                             return;
                         }
 
-                        fetch('/api/profile/' + document.getElementById('search-bar').value, {
+                        fetch('/profile/' + document.getElementById('search-bar').value, {
                             headers: {
                                 'Authorization': 'Bearer ' + token
                             }

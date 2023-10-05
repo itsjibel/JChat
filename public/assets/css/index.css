@@ -19,6 +19,7 @@ body {
     padding: 0px !important;
     overflow-y: auto;
     display: block;
+    height: calc(100%);
 }
 
 .add-firend-section {
@@ -403,7 +404,7 @@ body {
 #contacts-list {
     align-items: center;
     flex-direction: column;
-    height: calc(100%); /* Use 100% for full height */
+    height: calc(100% - 90px); /* Use 100% for full height */
     position: relative;
     overflow-y: auto; /* Enable vertical scrolling when content exceeds height */
 }
