@@ -16,4 +16,27 @@ export class ContactsController {
         res.send({ success: result });
       });
   }
+
+  @Post('sendFriendRequest')
+  @UseGuards(JwtAuthGuard)
+  sendFriendRequest(@Body() usernames: any, @Res() res: Response) {
+    this.authService
+      .sendFriendRequest(usernames.sender_username, usernames.receiver_username)
+      .then((result) => {
+        res.send({ success: result });
+      });
+  }
+
+  @Post('acceptFriendRequest')
+  @UseGuards(JwtAuthGuard)
+  acceptFriendRequest(@Body() usernames: any, @Res() res: Response) {
+    this.authService
+      .acceptFriendRequest(
+        usernames.sender_username,
+        usernames.receiver_username,
+      )
+      .then((result) => {
+        res.send({ success: result });
+      });
+  }
 }

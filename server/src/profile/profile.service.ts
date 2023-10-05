@@ -151,19 +151,6 @@ export class ProfileService {
 
         await this.connection.execute(updateSql, values);
 
-        // Update the friend requests table if username updated
-        if (username != old_username) {
-          const updateSql1 =
-            'UPDATE FriendRequests SET sender_username = ? WHERE BINARY sender_username = ?';
-          const values1 = [username, old_username];
-          await this.connection.execute(updateSql1, values1);
-
-          const updateSql2 =
-            'UPDATE FriendRequests SET receiver_username = ? WHERE BINARY receiver_username = ?';
-          const values2 = [username, old_username];
-          await this.connection.execute(updateSql2, values2);
-        }
-
         // Create a payload object
         const payload = { username, jwtSecretKey };
 

@@ -32,6 +32,7 @@ let token = getCookie('token');
 const refreshToken = getCookie('refreshToken');
 let tokenData;
 var friendRequestList = null;
+var addFriendButtonEventAlreadyListening = false;
 
 if (token) {
     // Function to refresh the token
@@ -263,9 +264,10 @@ if (token) {
                             token = getCookie('token');
                             tokenData = parseJwt(token);
                             formData.append('sender_username', tokenData.username);
+                            formData.append('receiver_username', userProfileData.userName);
 
                             acceptButtonElement.addEventListener("click", () => {
-                                fetch('/api/acceptFriendRequest/' + userProfileData.userName, {
+                                fetch('/contacts/acceptFriendRequest', {
                                     method: 'POST',
                                     headers: {
                                         'Authorization': 'Bearer ' + token
@@ -391,14 +393,15 @@ if (token) {
                                             document.getElementById('add-friend-text').textContent = "Friend request sent";
                                             document.getElementById('add-friend').style.cssText = 'background-color: #a2a2a2;';
                                         }
-                                    } else {
+                                    } else if (addFriendButtonEventAlreadyListening === false) {
                                         const sendFriendRequestButton = document.getElementById('add-friend');
+                                        addFriendButtonEventAlreadyListening = true;
                                         sendFriendRequestButton.addEventListener('click', () => {
                                             if (document.getElementById('add-friend-text').textContent === "Friend request sent") {
                                                 return;
                                             }
 
-                                            fetch('/api/sendFriendRequest/' + userProfileData.userName, {
+                                            fetch('/contacts/sendFriendRequest', {
                                                 method: 'POST',
                                                 headers: {
                                                     'Authorization': 'Bearer ' + token
@@ -407,6 +410,7 @@ if (token) {
                                             })
                                             .then((response) => response.json())
                                             .then((data) => {
+                                                console.log(data);
                                                 if (data.success) {
                                                     showMessage('You successfully sent a friend request to ' + userProfileData.userName + '.');
                                                     document.getElementById('add-friend-text').textContent = "Friend request sent";
