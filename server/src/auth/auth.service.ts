@@ -194,7 +194,6 @@ export class AuthService {
   }
 
   async logout(token: any): Promise<any> {
-    console.log(token);
     if (token && !revokedTokens.includes(token)) {
       revokedTokens.push(token);
       const username = jwt.decode(token).username; // Decode the token to get the username
