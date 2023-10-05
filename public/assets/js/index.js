@@ -374,7 +374,7 @@ if (token) {
                                 formData.append('sender_username', tokenData.username);
                                 formData.append('receiver_username', userProfileData.userName);
 
-                                fetch('/api/checkFriendRequest', {
+                                fetch('/contacts/checkIsContact', {
                                     method: 'POST',
                                     headers: {
                                         'Authorization': 'Bearer ' + token
