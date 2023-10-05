@@ -54,6 +54,7 @@ body {
     width: 85% !important;
     height: 60px;
     position: relative;
+    user-select: none;
 }
 
 #dropdownMenu {
@@ -103,6 +104,7 @@ body {
     width: auto;
     position: absolute;
     right: 15px;
+    pointer-events: none;
 }
 
 .bi {
@@ -114,7 +116,6 @@ body {
     text-decoration: none;
     font-size: 25px;
     margin-right: 10px;
-    width: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -147,6 +148,7 @@ body {
     margin: 8px;
     object-fit: cover;
     box-shadow: -5px 5px 10px rgba(0, 0, 0, 0.409);
+    pointer-events: none;
 }
 
 #username {
@@ -341,11 +343,13 @@ body {
     display: flex;
     border-bottom: rgb(0, 109, 96) 1px solid;
     transition: box-shadow ease 0.5s;
-    position: relative; /* Add position:relative to the container */
+    position: relative;
+    cursor: pointer;
+    user-select: none;
 }
 
 .contact:hover {
-    box-shadow: inset 5px 5px 25px rgba(0, 0, 0, 0.409); /* Use 'inset' to create an inner shadow */
+    box-shadow: inset 0px 0px 20px rgba(0, 0, 0, 0.258); /* Use 'inset' to create an inner shadow */
 }
 
 .contact-pfp {
@@ -357,6 +361,7 @@ body {
     margin-left: 18px;
     object-fit: cover;
     box-shadow: -5px 5px 10px rgba(0, 0, 0, 0.409);
+    pointer-events: none;
 }
 
 .friend-profile-bar {
@@ -366,6 +371,7 @@ body {
 	background: linear-gradient(to right, #086565da, #0d8589b7, #0f8e8ad7);
     align-items: center;
     display: none;
+    user-select: none;
 }
 
 .friend-profile-bar-username {
@@ -386,9 +392,10 @@ body {
     width: 55px;
     border-radius: 50%;
     margin: 10px;
-    margin-left: 0px;
+    margin-left: 20px;
     object-fit: cover;
     box-shadow: -5px 5px 10px rgba(0, 0, 0, 0.409);
+    pointer-events: none;
 }
 
 .friend-profile-bar .back-button {
