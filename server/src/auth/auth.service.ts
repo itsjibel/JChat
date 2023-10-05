@@ -53,10 +53,13 @@ export class AuthService {
   ) {}
 
   async signIn(username: string, password: string): Promise<any> {
+    console.log('signIn', username, password);
     const user = await this.usersService.findOne(username);
 
     if (!user) {
-      throw new UnauthorizedException();
+      return {
+        message: 'Incorrect username or password.',
+      };
     }
 
     // Hash the incoming password using SHA-256
@@ -194,10 +197,12 @@ export class AuthService {
   }
 
   async logout(token: any): Promise<any> {
-    if (token && !revokedTokens.includes(token)) {
-      revokedTokens.push(token);
-      const username = jwt.decode(token).username; // Decode the token to get the username
-      console.log(`'${username}' successfully logged out!`);
+    if (!revokedTokens.includes(token)) {
+      if (jwt.decode(token)) {
+        revokedTokens.push(token);
+        const username = jwt.decode(token).username; // Decode the token to get the username
+        console.log(`'${username}' successfully logged out!`);
+      }
       return true;
     } else {
       return false;

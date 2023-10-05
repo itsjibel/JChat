@@ -193,7 +193,12 @@ body {
 }
 
 .crop-modal .modal-body {
-    text-align: center !important;
+    height: 400px !important;
+    width: 400px !important;
+    margin: 20px auto !important;
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Center vertically */
 }
 
 .image-cropper {
@@ -219,13 +224,4 @@ body {
 
 .cropper-line {
     display: none !important;
-}
-
-.modal-body {
-    height: 400px !important;
-    width: 400px !important;
-    margin: 20px auto !important;
-    display: flex;
-    justify-content: center;
-    align-items: center; /* Center vertically */
 }

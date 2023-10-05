@@ -259,7 +259,7 @@ function applyTheUserChanges(passwordModal)
                 formData.append('password', newPassword);
 
                 // Check if the Cropper instance exists and is not null
-                if (cropper) {
+                if (cropper && cropper.getCroppedCanvas()) {
                     // Disable the crop button while cropping is in progress
                     document.getElementById('cropImageBtn').disabled = true;
 
@@ -267,7 +267,7 @@ function applyTheUserChanges(passwordModal)
                     cropper.getCroppedCanvas().toBlob((blob) => {
                         if (blob) {
                             formData.append('pfp', blob, 'profile_picture.jpg'); // Append the blob as 'pfp'
-                            fetch('/api/editProfile/' + tokenData.username, {
+                            fetch('/profile/edit/' + tokenData.username, {
                                 method: 'POST',
                                 headers: {
                                     'Authorization': 'Bearer ' + token
@@ -278,7 +278,7 @@ function applyTheUserChanges(passwordModal)
                             .then((data) => {
                                 if (data.success) {
                                     // Handle successful profile edit, such as displaying a success message or redirecting
-                                    const token = data.token; // Get JWT token from response
+                                    const token = data.accessToken; // Get JWT token from response
                                     const refreshToken = data.refreshToken; // Get refresh token from response
                 
                                     setCookie('token', token, 7);
@@ -302,7 +302,7 @@ function applyTheUserChanges(passwordModal)
                     const profilePictureInput = document.getElementById('profile-picture-input');
                     const newProfilePicture = profilePictureInput.files[0];
                     formData.append('pfp', newProfilePicture);
-                    fetch('/api/editProfile/' + tokenData.username, {
+                    fetch('/profile/edit/' + tokenData.username, {
                         method: 'POST',
                         headers: {
                             'Authorization': 'Bearer ' + token
@@ -313,7 +313,7 @@ function applyTheUserChanges(passwordModal)
                     .then((data) => {
                         if (data.success) {
                             // Handle successful profile edit, such as displaying a success message or redirecting
-                            const token = data.token; // Get JWT token from response
+                            const token = data.accessToken; // Get JWT token from response
                             const refreshToken = data.refreshToken; // Get refresh token from response
         
                             setCookie('token', token, 7);

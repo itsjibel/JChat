@@ -321,7 +321,6 @@ app.post('/profile/edit/:username', verifyAccessToken, upload.single('pfp'), (re
         }
 
         if (results.length === 2 || (results.length === 1 && (results[0].username != old_username && results[0].email != old_email))) {
-            console.log('Old email:', old_email, 'Old username:', old_username, 'Result username', results[0].username, 'Result email', results[0].email);
             res.status(400).json({ message: 'This email or username is already in use.' });
             return;
         }
