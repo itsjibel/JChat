@@ -315,13 +315,13 @@ if (token) {
                 addFriendButton.addEventListener('click', () => {
                     // Hide the chats section, and show the search section for search for users friend
                     document.getElementById("chats").style.display = 'none';
-                    document.getElementById("add-firend-section").style.display = 'inline';
+                    document.getElementById("add-friend-section").style.display = 'inline';
 
                     // Hide the search friend section, and show the chats section for user can come back to the chats
                     const backButton = document.getElementById('back-button');
                     backButton.addEventListener('click', () => {
                         document.getElementById('user-found').style.cssText = 'display:none !important';
-                        document.getElementById("add-firend-section").style.display = 'none';
+                        document.getElementById("add-friend-section").style.display = 'none !important';
                         document.getElementById("chats").style.display = 'inline';
                         document.getElementById('error-msg').style.cssText = 'display: none !important';
                         document.getElementById('search-bar').value = "";

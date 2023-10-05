@@ -15,7 +15,9 @@ export class ProfileService {
       const [results] = await this.connection.execute(sql, [username]);
 
       if (results.length === 0) {
-        throw new Error('User not found.');
+        return {
+          success: false,
+        };
       }
 
       const userData = results[0];
