@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ContactsController } from './contacts.controller';
 import { ContactsService } from './contacts.service';
+import { WebsocketService } from '../websocket/websocket.service';
 import { JwtModule } from '@nestjs/jwt';
 
 @Module({
@@ -13,6 +14,6 @@ import { JwtModule } from '@nestjs/jwt';
     }),
   ],
   controllers: [ContactsController],
-  providers: [ContactsService],
+  providers: [ContactsService, WebsocketService],
 })
 export class ContactsModule {}

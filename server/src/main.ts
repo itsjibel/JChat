@@ -1,5 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
+import { updateFriendRequestCount } from './friend-request.utils';
+import { WebsocketService } from './websocket/websocket.service';
 import * as express from 'express';
 import * as fs from 'fs';
 import * as https from 'https';
@@ -15,6 +17,7 @@ async function bootstrap() {
   server.use(express.static('../public'));
   server.use(express.json());
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+  const websocketService = app.get(WebsocketService);
   await app.init();
 
   // Express middleware and routes can be used here
@@ -33,6 +36,7 @@ async function bootstrap() {
   const port = 443;
 
   const io = new socket.Server(httpsServer);
+  websocketService.setIo(io);
   const connectedSockets = new Set();
   const jwtSecretKey = process.env.JWT_SECRET;
   const pool = mysql.createPool({
@@ -57,8 +61,7 @@ async function bootstrap() {
   });
 
   io.on('connection', async (socket) => {
-    const myWebSocketGateway = app.get(FrinedRequests);
-    myWebSocketGateway.createSocket(socket);
+    websocketService.addSocket(socket);
     console.log(`'${socket.user.username}' connected`);
 
     try {
@@ -82,7 +85,31 @@ async function bootstrap() {
           [socket.user.username, socket.user.username],
         );
 
-        io.to(socket.id).emit('friendRequest', results);
+        websocketService.emitToUser(
+          socket.user.username,
+          'friendRequest',
+          results,
+        );
+
+        for (const result of results) {
+          const friendRequestUsername =
+            result.sender_username != socket.user.username
+              ? result.sender_username
+              : result.receiver_username;
+
+          const [results] = await connection.execute(
+            'SELECT sender_username, receiver_username, is_accepted FROM FriendRequests WHERE BINARY sender_username = ? OR BINARY receiver_username = ?',
+            [friendRequestUsername, friendRequestUsername],
+          );
+
+          websocketService.emitToUser(
+            friendRequestUsername,
+            'friendRequest',
+            results,
+          );
+        }
+
+        connection.release();
       } catch (error) {
         console.error('Error executing SQL query:', error);
       }
@@ -91,6 +118,7 @@ async function bootstrap() {
     socket.on('disconnect', () => {
       console.log(`'${socket.user.username}' disconnected`);
       connectedSockets.delete(socket); // Remove the socket from the connectedSockets set
+      websocketService.removeSocket(socket);
     });
   });
 

@@ -98,6 +98,7 @@ if (token) {
                 socket.on('friendRequest', (requests) => {
                     // Update the UI with the friend request count
                     let unAcceptedRequests = 0;
+                    console.log(requests);
                     if (requests.length > 0) {
                         document.getElementById('friend-requests-notif-text').style.display = 'inline-block';
                         for (const request of requests) {
@@ -323,7 +324,7 @@ if (token) {
                     const backButton = document.getElementById('back-button');
                     backButton.addEventListener('click', () => {
                         document.getElementById('user-found').style.cssText = 'display:none !important';
-                        document.getElementById("add-friend-section").style.display = 'none !important';
+                        document.getElementById("add-friend-section").style.display = 'none';
                         document.getElementById("chats").style.display = 'inline';
                         document.getElementById('error-msg').style.cssText = 'display: none !important';
                         document.getElementById('search-bar').value = "";
@@ -410,7 +411,6 @@ if (token) {
                                             })
                                             .then((response) => response.json())
                                             .then((data) => {
-                                                console.log(data);
                                                 if (data.success) {
                                                     showMessage('You successfully sent a friend request to ' + userProfileData.userName + '.');
                                                     document.getElementById('add-friend-text').textContent = "Friend request sent";

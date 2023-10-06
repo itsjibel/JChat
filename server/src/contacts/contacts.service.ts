@@ -1,10 +1,12 @@
 import { Injectable, Inject } from '@nestjs/common';
 import { Connection } from 'mysql2/promise';
+import { WebsocketService } from '../websocket/websocket.service';
 
 @Injectable()
 export class ContactsService {
   constructor(
     @Inject('MYSQL_CONNECTION') private readonly connection: Connection,
+    private readonly websocketService: WebsocketService,
   ) {}
 
   async checkIsContact(
@@ -40,6 +42,19 @@ export class ContactsService {
       await this.connection.execute(sql, values);
       console.log(
         `'${senderUsername}' sent a friend request to '${receiverUsername}'`,
+      );
+      const countFriendRequestsSql =
+        'SELECT sender_username, is_accepted FROM FriendRequests WHERE BINARY receiver_username = ?';
+      const countFriendRequestsValues = [receiverUsername]; // Include the image binary data in values
+      const [results] = await this.connection.execute(
+        countFriendRequestsSql,
+        countFriendRequestsValues,
+      );
+
+      this.websocketService.emitToUser(
+        receiverUsername,
+        'friendRequest',
+        results,
       );
       return true;
     } catch (error) {
