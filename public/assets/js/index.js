@@ -98,7 +98,6 @@ if (token) {
                 socket.on('friendRequest', (requests) => {
                     // Update the UI with the friend request count
                     let unAcceptedRequests = 0;
-                    console.log(requests);
                     if (requests.length > 0) {
                         document.getElementById('friend-requests-notif-text').style.display = 'inline-block';
                         for (const request of requests) {
