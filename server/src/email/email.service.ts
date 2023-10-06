@@ -24,6 +24,34 @@ export class EmailService {
     });
   }
 
+  async sendPasswordEditedEmail(username: string, email: string) {
+    const mailOptions = {
+      from: process.env.JCHAT_EMAIL_ADDR,
+      to: email,
+      subject: 'Your password is updated successfully',
+      html:
+        `<body style="height: 100%; margin: 0; padding: 0; display: flex;">
+          <div style="width: 450px; height: 600px; background: linear-gradient(to bottom left, #78e5e5, #3dc6cb, #169a95); margin: auto; text-align: center; border-radius: 10px; padding: 20px; font-family: sans-serif;">
+            <a href="https://imageupload.io/6Nq3FH5HcSYhRcF"><img src="https://imageupload.io/ib/QDbvQI5KsU7QLr8_1695304766.png"alt="JChat-Logo.png"style="height:60px;width:auto;"></a>
+              <h1>Hello ` +
+        username +
+        `</h1>
+              <h2>You changed your JChat account password successfully.</h2>
+              <h4>Thank you,<br/>The JChat Team</h4>
+          </div>
+      </body>`,
+    };
+
+    try {
+      await this.transporter.sendMail(mailOptions);
+      console.log(`Email sent to '${email}'`);
+      return { success: true };
+    } catch (error) {
+      console.error('Error sending email:', error);
+      throw new Error('An error occurred while sending the email');
+    }
+  }
+
   async sendWelcomeEmail(username: string, email: string) {
     const mailOptions = {
       from: process.env.JCHAT_EMAIL_ADDR,
@@ -105,6 +133,68 @@ export class EmailService {
     } catch (error) {
       console.error('An error occurred:', error);
       throw new Error('An error occurred while sending the email');
+    }
+  }
+
+  async passwordRecovery(username: string) {
+    const sql =
+      'SELECT email FROM Users WHERE BINARY username = ? AND is_email_verified = 1';
+    const checkValues = [username];
+    try {
+      const [result] = await this.connection.execute(sql, checkValues);
+      if (result.length === 0) {
+        return {
+          success: false,
+          message:
+            'This user email is not verified or this user does not exist',
+        };
+      }
+
+      const updateSql =
+        'UPDATE Users SET recover_password_token = ? WHERE BINARY username = ?';
+      const token = randomBytes(64).toString('hex');
+      const updateValues = [token, username];
+
+      await this.connection.execute(updateSql, updateValues);
+
+      const mailOptions = {
+        from: process.env.JCHAT_EMAIL_ADDR,
+        to: result[0].email,
+        subject: 'Recover your JChat account password',
+        html:
+          `<body style="height: 100%; margin: 0; padding: 0; display: flex;">
+            <div style="width: 450px; height: 600px; background: linear-gradient(to bottom left, #78e5e5, #3dc6cb, #169a95); margin: auto; text-align: center; border-radius: 10px; padding: 20px; font-family: sans-serif;">
+                <a href="https://imageupload.io/6Nq3FH5HcSYhRcF"><img src="https://imageupload.io/ib/QDbvQI5KsU7QLr8_1695304766.png"alt="JChat-Logo.png"style="height:60px;width:auto;"></a>
+                <h1>Hello ` +
+          username +
+          `</h1>
+                <h2>To recover your user password, please click on the button below:</h2>
+                <div style="background-color: #006aff; border-radius: 5px; height: 50px; width: 240px; margin: auto; display: flex;">
+                    <a href="https://jchat.com/recoverPassword.html?token=` +
+          token +
+          '&username=' +
+          username +
+          `" style="color: white; text-decoration: none; font-size: 20px; margin: auto; font-weight: bold;">Recover Password</a>
+                </div>
+                <h4>Thank you,<br/>The JChat Team</h4>
+            </div>
+        </body>`,
+      };
+
+      await this.transporter.sendMail(mailOptions);
+      console.log(
+        `Password recovery email send to '${result[0].email}' successfully`,
+      );
+
+      return {
+        success: true,
+      };
+    } catch (error) {
+      console.error('An error occurred:', error);
+      return {
+        success: false,
+        message: 'An error occurred while sending the password recovery email',
+      };
     }
   }
 }

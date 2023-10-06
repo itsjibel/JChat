@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const token = getParameterByName('token');
     const username = getParameterByName('username');
 
-    fetch('/api/isValidRecoverPasswordToken?token=' + token + '&username=' + username, {
+    fetch('/auth/isValidRecoverPasswordToken?token=' + token + '&username=' + username, {
     })
     .then((response) => response.json())
     .then((data) => {
@@ -35,12 +35,15 @@ document.addEventListener('DOMContentLoaded', function () {
                 } else if (newPassword === '') {
                     showMessage("Please fill out the password form");
                 } else {
-                    fetch('/api/recoverUserPassword?token=' + token + '&password=' + newPassword + "&username=" + username, {
+                    fetch('/profile/editPassword?token=' + token + '&password=' + newPassword + "&username=" + username, {
                     })
                     .then((response) => response.json())
                     .then((data) => {
                         if (data.success) {
                             showMessage("Your password is updated successfully");
+                            setTimeout(() => {
+                                window.location.href = '/login.html';
+                            }, 4000);
                         } else {
                             showMessage(data.message);
                         }

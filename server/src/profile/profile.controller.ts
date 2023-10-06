@@ -7,6 +7,7 @@ import {
   UseInterceptors,
   Body,
   UploadedFile,
+  Query,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express/multer';
 import { ProfileService } from './profile.service';
@@ -15,6 +16,12 @@ import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 @Controller('profile')
 export class ProfileController {
   constructor(private readonly profileService: ProfileService) {}
+
+  @Get('editPassword')
+  async editPassword(@Query() parameters: any) {
+    const result = await this.profileService.editPassword(parameters);
+    return result;
+  }
 
   @Get(':username')
   @UseGuards(JwtAuthGuard)
@@ -36,17 +43,21 @@ export class ProfileController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     try {
-      var { old_password, old_username, old_email, username, password, email } =
-        body;
-
-      password = password != '' ? password : old_password;
+      const {
+        old_password,
+        old_username,
+        old_email,
+        username,
+        password,
+        email,
+      } = body;
 
       const result = await this.profileService.editProfile(
         username,
         old_password,
         old_username,
         old_email,
-        password,
+        password != '' ? password : old_password,
         email,
         file,
       );

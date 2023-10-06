@@ -1,8 +1,8 @@
 import { Injectable, Inject, BadRequestException } from '@nestjs/common';
 import { Connection } from 'mysql2/promise';
 import { createHash } from 'crypto';
-import * as jwt from 'jsonwebtoken';
 import { JwtService } from '@nestjs/jwt';
+import { EmailService } from '../email/email.service';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
@@ -26,6 +26,7 @@ function isValidPassword(password) {
 @Injectable()
 export class ProfileService {
   constructor(
+    private emailService: EmailService,
     private jwtService: JwtService,
     @Inject('MYSQL_CONNECTION') private readonly connection: Connection,
   ) {}
@@ -183,6 +184,51 @@ export class ProfileService {
         console.log(error);
         throw new Error('An error occurred while fetching the user profile.');
       }
+    }
+  }
+
+  async editPassword(parameters: any) {
+    const { token, password, username } = parameters;
+
+    const sql =
+      'SELECT email, recover_password_token FROM Users WHERE BINARY username = ?';
+    const checkValue = [username];
+    try {
+      const [results] = await this.connection.execute(sql, checkValue);
+      if (
+        token === results[0].recover_password_token &&
+        results[0].recover_password_token != null
+      ) {
+        if (!isValidPassword(password)) {
+          return {
+            success: false,
+            message:
+              'Invalid password. Only use valid characters and lengths between 5-100.',
+          };
+        }
+
+        const updateSql =
+          'UPDATE Users SET password = ?, recover_password_token = NULL WHERE BINARY username = ?';
+        const updateValues = [
+          createHash('sha256').update(password).digest('hex'),
+          username,
+        ];
+        const email = results[0].email;
+        this.emailService.sendPasswordEditedEmail(username, email);
+
+        await this.connection.execute(updateSql, updateValues);
+        console.log("'" + username + "' updated the password successfully");
+        return {
+          success: true,
+          message: 'The password is updated successfully',
+        };
+      }
+    } catch (error) {
+      console.log('An error occurred while editing user password:', error);
+      return {
+        success: false,
+        message: 'An error occurred while editing user password',
+      };
     }
   }
 }

@@ -208,7 +208,7 @@ forgotPasswordLink.addEventListener('click', (e) => {
         return;
     }
 
-    fetch('/api/sendPasswordRecoveryEmail', {
+    fetch('/email/passwordRecovery', {
         method: 'POST',
         body: new URLSearchParams(formData)
     })

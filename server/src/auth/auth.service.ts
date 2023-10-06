@@ -232,4 +232,45 @@ export class AuthService {
       return false;
     }
   }
+
+  async isValidRecoverPasswordToken(data: any): Promise<any> {
+    const { username, token } = data;
+    const sql =
+      'SELECT recover_password_token FROM Users WHERE BINARY username = ?';
+    const checkValue = [username];
+    try {
+      const [result] = await this.connection.execute(sql, checkValue);
+
+      if (result.length === 0) {
+        return {
+          success: false,
+          message: 'An error occured while verifying recover password token',
+        };
+      }
+
+      if (
+        token === result[0].recover_password_token &&
+        result[0].recover_password_token != null
+      ) {
+        return {
+          success: true,
+          message: 'The password recovery token is valid',
+        };
+      } else {
+        return {
+          success: false,
+          message: 'Invalid password recovery token',
+        };
+      }
+    } catch (error) {
+      console.log(
+        'An error occured while verifying recover password token:',
+        error,
+      );
+      return {
+        success: false,
+        message: 'An error occured while verifying recover password token',
+      };
+    }
+  }
 }

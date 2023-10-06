@@ -16,4 +16,11 @@ export class EmailController {
         res.send({ success: result });
       });
   }
+
+  @Post('passwordRecovery')
+  passwordRecovery(@Body() data: any, @Res() res: Response) {
+    this.emailService.passwordRecovery(data.username).then((result) => {
+      res.send(result);
+    });
+  }
 }

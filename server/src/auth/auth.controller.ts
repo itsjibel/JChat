@@ -63,4 +63,11 @@ export class AuthController {
       );
     });
   }
+
+  @Get('isValidRecoverPasswordToken')
+  isValidRecoverPasswordToken(@Query() data: any, @Res() res: Response) {
+    this.authService.isValidRecoverPasswordToken(data).then((result) => {
+      res.send(result);
+    });
+  }
 }
