@@ -1,13 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
-import { updateFriendRequestCount } from './friend-request.utils';
 import { WebsocketService } from './websocket/websocket.service';
 import * as express from 'express';
 import * as fs from 'fs';
 import * as https from 'https';
 import * as dotenv from 'dotenv';
 import { AppModule } from './app.module';
-import { FrinedRequests } from './websocket/websocket.gateway';
 import * as socket from 'socket.io';
 import * as jwt from 'jsonwebtoken';
 import * as mysql from 'mysql2/promise';
@@ -15,7 +13,6 @@ import * as mysql from 'mysql2/promise';
 async function bootstrap() {
   const server = express(); // Initialize Express as a function
   server.use(express.static('../public'));
-  server.use(express.json());
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
   const websocketService = app.get(WebsocketService);
   await app.init();
