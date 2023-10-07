@@ -1,11 +1,11 @@
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { WebsocketService } from './websocket/websocket.service';
+import { AppModule } from './app.module';
+import { readFileSync } from 'fs';
 import * as express from 'express';
-import * as fs from 'fs';
 import * as https from 'https';
 import * as dotenv from 'dotenv';
-import { AppModule } from './app.module';
 import * as socket from 'socket.io';
 import * as jwt from 'jsonwebtoken';
 import * as mysql from 'mysql2/promise';
@@ -20,8 +20,8 @@ async function bootstrap() {
   // Express middleware and routes can be used here
   dotenv.config();
 
-  const privateKey = fs.readFileSync('key.pem', 'utf8');
-  const certificate = fs.readFileSync('cert.pem', 'utf8');
+  const privateKey = readFileSync('key.pem', 'utf8');
+  const certificate = readFileSync('cert.pem', 'utf8');
 
   const credentials = {
     key: privateKey,
