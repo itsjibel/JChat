@@ -138,28 +138,28 @@ a {
     position: fixed;
     top: 10px !important;
     min-width: 20%;
-    background-color: rgba(255, 255, 255, 0.9); /* Transparent background */
     z-index: 2;
     border-radius: 10px;
+	color: #017c89;
+	font-family: Arial, Helvetica, sans-serif;
 }
 
 .message-content {
-    background-color: #fff;
+    background: linear-gradient(to right, #8cfcf8, #74faff, #47ffff);
     padding: 20px;
     text-align: center;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2); /* Add shadow for better visibility */
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3); /* Add shadow for better visibility */
     border-radius: 10px;
 }
 
 #message-text {
     margin-bottom: 10px;
-    font-weight: bold;
 }
 
 #message-progress {
     width: 100%;
     height: 5px;
-    background-color: #007bff;
+    background-color: #017c89;
     border-radius: 5px;
     transition: all 0.04s;
 }
