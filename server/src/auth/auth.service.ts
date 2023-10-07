@@ -53,7 +53,6 @@ export class AuthService {
   ) {}
 
   async signIn(username: string, password: string): Promise<any> {
-    console.log('signIn', username, password);
     const user = await this.usersService.findOne(username);
 
     if (!user) {
