@@ -15,7 +15,7 @@ body {
 }
 
 .chats {
-	background: linear-gradient(to bottom, #0a6f6f, #095e61, #033432);
+	background: linear-gradient(to bottom, #0a6f6f, #095e61, #065350);
     padding: 0px !important;
     overflow-y: auto;
     display: block;
@@ -23,7 +23,7 @@ body {
 }
 
 .add-friend-section {
-    background: linear-gradient(to bottom, #0a6f6f, #095e61, #033432);
+    background: linear-gradient(to bottom, #0a6f6f, #095e61, #065350);
     padding: 0px !important;
     overflow-y: auto;
     display: none;
@@ -46,12 +46,9 @@ body {
 .user-profile {
     display: flex;
     align-items: center;
-    padding: 10px;
-	background: linear-gradient(to bottom left, #34e2e2ae, #23bfc4af, #169a96b7);
-    border-radius: 10px;
-    margin: 10px auto;
-    margin-bottom: 20px;
-    width: 85% !important;
+	background: linear-gradient(to left, #39dbdb, #36c0c5, #27b6b1);
+    width: 100% !important;
+    padding-left: 30px;
     height: 60px;
     position: relative;
     user-select: none;
@@ -121,6 +118,7 @@ body {
     justify-content: center;
     border-radius: 5px;
     cursor: pointer;
+    margin-left: 10px;
 }
 
 .bi-search {
@@ -134,7 +132,7 @@ body {
 .user-found {
     margin: 20px auto;
     display: none !important;
-	background: linear-gradient(to bottom left, #34e2e2, #19a9ae, #0b7e7a);
+	background: linear-gradient(#099797, #099797);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -177,7 +175,7 @@ body {
 
 #add-friend:hover {
     background-color: rgb(0, 29, 214);
-    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 0px 15px rgba(0, 0, 0, 0.2);
 }
 
 #add-friend-text {
@@ -251,26 +249,36 @@ body {
 
 .friend-requests-section {
     display: none;
-	background: linear-gradient(to bottom, #0a6f6f, #095e61, #033432);
+	background: linear-gradient(to bottom, #0a6f6f, #095e61, #065350);
     overflow-y: auto;
     height: 100% !important;
     padding: 0px !important;
 }
 
 #friend-requests-title {
+    display: flex;
+    align-items: center;
+    padding: 35px;
+    position: relative;
+}
+
+#friend-requests-title p {
+    position: absolute;
     color: white;
+    margin: auto;
     text-align: center;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 0px !important;
+    font-size: 19px;
 }
 
 .friend-requests-back-button {
+    position: absolute;
     color: rgb(255, 255, 255);
     text-decoration: none;
     font-size: 25px;
-    margin: 10px;
-    width: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 25px;
     border-radius: 5px;
     cursor: pointer;
 }
@@ -292,7 +300,6 @@ body {
     border-bottom: rgb(0, 109, 96) 1px solid;
     transition: box-shadow ease 0.5s;
     position: relative;
-    cursor: pointer;
     user-select: none;
 }
 
@@ -414,11 +421,6 @@ body {
     overflow-y: auto; /* Enable vertical scrolling when content exceeds height */
 }
 
-.add-friend-search-section {
-    padding-left: 5px;
-    align-items: center;
-    flex-direction: column;
-    height: calc(100% - 90px); /* Use 100% for full height */
-    position: relative;
-    overflow-y: auto; /* Enable vertical scrolling when content exceeds height */
+.add-friend-section .navbar .container-fluid {
+    margin: 15px auto;
 }
