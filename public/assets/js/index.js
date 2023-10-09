@@ -160,6 +160,7 @@ if (token) {
                                     contactsList.appendChild(contact);
 
                                     document.querySelector("." + userProfileData.userName).addEventListener("click", () => {
+                                        document.getElementById("no-chat-selected").style.display = "none";
                                         if (document.getElementById("chat-texts")) {
                                             document.getElementById("chat-texts").style.cssText = 'display: inline !important';
                                             if (window.innerWidth <= 768) {

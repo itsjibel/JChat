@@ -42,6 +42,8 @@ body {
     background-position: center;
     padding: 0px !important;
     overflow-y: auto;
+    display: flex;
+    align-items: flex-start;
 }
 
 .user-profile {
@@ -433,4 +435,19 @@ body {
     margin-top: 20px;
     margin-right: 10px;
     color: white;
+}
+
+#no-chat-selected {
+    margin-left: auto;
+    margin-right: auto;
+    color: white;
+    border-radius: 10px;
+    background-color: rgba(128, 128, 128, 0.288);
+    align-self: center;
+    padding: 0px 15px;
+    max-height: 40px;
+}
+
+#no-chat-selected p {
+    margin-top: 7px !important;
 }
