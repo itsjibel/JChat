@@ -136,7 +136,7 @@ body {
 .user-found {
     margin: 20px auto;
     display: none !important;
-	background: linear-gradient(#099797, #099797);
+	background: #005a5a;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -157,11 +157,12 @@ body {
     width: auto;
     height: auto;
     flex-grow: 1;
-    font-size: 20px;
+    font-size: 18px;
     color: white;
     white-space: nowrap; /* Prevent text from wrapping */
     overflow: hidden; /* Hide overflowing text */
     text-overflow: ellipsis; /* Display ellipsis for truncated text */
+    font-family: Tahoma, sans-serif;
 }
 
 #add-friend {
@@ -301,7 +302,7 @@ body {
     padding: 0px 15px;
     background: #099797;
     display: flex;
-    border-bottom: rgb(0, 109, 96) 1px solid;
+    border-bottom: rgba(0, 0, 0, 0.4) 1px solid;
     transition: box-shadow ease 0.5s;
     position: relative;
     user-select: none;
