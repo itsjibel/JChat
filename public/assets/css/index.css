@@ -299,10 +299,9 @@ body {
 .friend-request-profile {
     width: 100%;
     margin: 0;
-    padding: 0px 15px;
-    background: #099797;
+    padding: 5px;
     display: flex;
-    border-bottom: rgba(0, 0, 0, 0.4) 1px solid;
+    border-top: rgba(0, 0, 0, 0.4) 1px solid;
     transition: box-shadow ease 0.5s;
     position: relative;
     user-select: none;
@@ -319,7 +318,7 @@ body {
 
 .friend-requests-username {
     color: white;
-    font-size: 19px;
+    font-size: 17px;
     flex-grow: 1;
     margin-top: 15px !important;
     white-space: nowrap; /* Prevent text from wrapping */
