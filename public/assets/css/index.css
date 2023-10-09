@@ -7,6 +7,7 @@ html, body {
 body {
     display: flex;
     flex-direction: column; /* Ensure body and its children stack vertically */
+    max-width: calc(100% - 12px) !important;
 }
 
 .row {
@@ -15,7 +16,7 @@ body {
 }
 
 .chats {
-	background: linear-gradient(to bottom, #0a6f6f, #095e61, #065350);
+	background: #005a5a;
     padding: 0px !important;
     overflow-y: auto;
     display: block;
@@ -46,10 +47,10 @@ body {
 .user-profile {
     display: flex;
     align-items: center;
-	background: linear-gradient(to left, #39dbdb, #36c0c5, #27b6b1);
+	background: #006d6d;
     width: 100% !important;
     padding-left: 30px;
-    height: 60px;
+    height: 70px;
     position: relative;
     user-select: none;
 }
@@ -65,10 +66,11 @@ body {
 }
 
 .dropdown-menu {
-    top: 50px;
-    left: 10px;
+    top: 40px;
+    left: -3px;
     position: absolute;
-    background-color: #199c9c !important;
+    background-color: #0c8484 !important;
+    box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.25);
 }
 
 .dropdown {
@@ -97,7 +99,7 @@ body {
 }
 
 .logo {
-    height: 60%;
+    height: 50%;
     width: auto;
     position: absolute;
     right: 15px;
@@ -320,6 +322,7 @@ body {
     white-space: nowrap; /* Prevent text from wrapping */
     overflow: hidden; /* Hide overflowing text */
     text-overflow: ellipsis; /* Display ellipsis for truncated text */
+    font-family: Tahoma, sans-serif;
 }
 
 .accept-button {
@@ -339,19 +342,20 @@ body {
     margin-top: 10px;
     margin-left: 5px;
     color: white;
-    font-size: 17px;
+    font-size: 16px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    font-family: Tahoma, sans-serif;
+    flex-grow: 1;
 }
 
 .contact {
     width: 100%;
     margin: 0;
     padding: 5px;
-    background: #099797;
     display: flex;
-    border-bottom: rgb(0, 109, 96) 1px solid;
+    border-bottom: rgba(0, 0, 0, 0.4) 1px solid;
     transition: box-shadow ease 0.5s;
     position: relative;
     cursor: pointer;
@@ -375,42 +379,42 @@ body {
 }
 
 .friend-profile-bar {
-    height: 80px !important;
+    height: 70px !important;
     background-color: white;
     width: 100% !important;
-	background: linear-gradient(to right, #086565da, #0d8589b7, #0f8e8ad7);
+	background: #006d6d;
     align-items: center;
     display: none;
     user-select: none;
+    border-left: #00000068 1px solid;
 }
 
 .friend-profile-bar-username {
-    margin-top: 10px;
-    margin-left: 5px;
+    margin-left: 10px;
+    margin-bottom: 25px;
     color: white;
     font-size: 17px;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     display: inline-block;
-    margin-bottom: 30px;
+    font-family: Tahoma, sans-serif;
 }
 
 .friend-profile-bar-pfp {
     left: 20px;
-    height: 55px;
-    width: 55px;
+    height: 52px;
+    width: 52px;
     border-radius: 50%;
-    margin: 10px;
-    margin-left: 20px;
+    margin-left: 10px;
     object-fit: cover;
     box-shadow: -5px 5px 10px rgba(0, 0, 0, 0.409);
     pointer-events: none;
 }
 
 .friend-profile-bar .back-button {
-    margin-left: 20px;
-    margin-right: 5px;
+    margin-left: 25px;
+    font-size: 22px;
 }
 
 #contacts-list {
@@ -423,4 +427,10 @@ body {
 
 .add-friend-section .navbar .container-fluid {
     margin: 15px auto;
+}
+
+.bi-three-dots-vertical {
+    margin-top: 20px;
+    margin-right: 10px;
+    color: white;
 }

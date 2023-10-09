@@ -149,8 +149,14 @@ if (token) {
                                     const contact = document.createElement("div");
                                     contact.classList.add("contact");
                                     contact.classList.add(userProfileData.userName);
+
+                                    const threeDotsVertical = document.createElement("i");
+                                    threeDotsVertical.classList.add("bi");
+                                    threeDotsVertical.classList.add("bi-three-dots-vertical");
+
                                     contact.appendChild(contactPFP);
                                     contact.appendChild(contactUsername);
+                                    contact.appendChild(threeDotsVertical);
                                     contactsList.appendChild(contact);
 
                                     document.querySelector("." + userProfileData.userName).addEventListener("click", () => {
