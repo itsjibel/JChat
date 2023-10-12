@@ -1,17 +1,17 @@
-.container {
-	background: linear-gradient(to bottom, #0e8585e9, #08686cfb, #034543f0);
+.profile-container {
+	background: #005a5a;
     align-items: center;
     flex-direction: column;
-    height: 100vh;
     position: relative;
     overflow-y: auto;
+    height: 100%;
+    width: 100%;
 }
 
 html, body {
     height: 100%;
     margin: 0;
     padding: 0;
-    background-image: url("../images/backgroud-image.jpg");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
@@ -55,6 +55,7 @@ body {
     height: 100%;
     object-fit: cover; /* Maintain aspect ratio and cover entire container */
     border-radius: 50%;
+    box-shadow: -5px 5px 10px rgba(0, 0, 0, 0.409);
 }
 
 .edit-profile-form {
@@ -224,4 +225,8 @@ body {
 
 .cropper-line {
     display: none !important;
+}
+
+input {
+    font-family: Tahoma, sans-serif !important;
 }
