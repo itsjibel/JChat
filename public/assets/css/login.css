@@ -2,20 +2,21 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	min-height: 100vh;
+	min-height: calc(100vh - 70px);
 	font-family: 'Jost', sans-serif;
     background-image: url("../images/backgroud-image.jpg");
     background-repeat: no-repeat;
     background-size: cover;
     background-position: center;
+    font-family: Tahoma, sans-serif !important;
+	padding: 20px;
 }
 
 header {
-	height: 80px;
-	background: linear-gradient(to right, #30fffffe, #13a9a9);
+	height: 70px;
+	background: linear-gradient(to right, #1bd1d1fe, #005a5a);
 	display: flex;
 	align-items: center;
-	justify-content: center;
 }
 
 .main {
@@ -98,8 +99,9 @@ input {
 }
 
 .logo {
-	height: 60px;
+	height: 50px;
 	width: auto;
+	margin-left: 20px;
 }
 
 .password-input {
