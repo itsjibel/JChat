@@ -3,6 +3,7 @@ import { ExpressAdapter } from '@nestjs/platform-express';
 import { WebsocketService } from './websocket/websocket.service';
 import { AppModule } from './app.module';
 import { readFileSync } from 'fs';
+import { EmailConsumer } from './email/email.consumer';
 import * as express from 'express';
 import * as https from 'https';
 import * as dotenv from 'dotenv';
@@ -15,6 +16,8 @@ async function bootstrap() {
   server.use(express.static('../public'));
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
   const websocketService = app.get(WebsocketService);
+  const emailConsumer = app.get(EmailConsumer);
+  await emailConsumer.start();
   await app.init();
 
   // Express middleware and routes can be used here

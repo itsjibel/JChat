@@ -3,6 +3,7 @@ import { ProfileService } from './profile.service';
 import { ProfileController } from './profile.controller';
 import { JwtModule } from '@nestjs/jwt';
 import { EmailService } from '../email/email.service';
+import { RabbitMQService } from '../email/rabbitmq.service';
 
 @Module({
   imports: [
@@ -13,7 +14,7 @@ import { EmailService } from '../email/email.service';
       },
     }),
   ],
-  providers: [ProfileService, EmailService],
+  providers: [ProfileService, EmailService, RabbitMQService],
   controllers: [ProfileController],
 })
 export class ProfileModule {}

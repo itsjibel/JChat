@@ -2,6 +2,8 @@ import { Module } from '@nestjs/common';
 import { EmailService } from './email.service';
 import { EmailController } from './email.controller';
 import { JwtModule } from '@nestjs/jwt';
+import { RabbitMQService } from './rabbitmq.service';
+import { EmailConsumer } from './email.consumer';
 
 @Module({
   imports: [
@@ -12,7 +14,7 @@ import { JwtModule } from '@nestjs/jwt';
       },
     }),
   ],
-  providers: [EmailService],
+  providers: [EmailService, RabbitMQService, EmailConsumer],
   exports: [EmailService],
   controllers: [EmailController],
 })

@@ -8,6 +8,7 @@ import { EmailModule } from './email/email.module';
 import { ProfileModule } from './profile/profile.module';
 import { ContactsModule } from './contacts/contacts.module';
 import { WebsocketService } from './websocket/websocket.service';
+import { RabbitMQService } from './email/rabbitmq.service';
 
 @Module({
   imports: [
@@ -18,6 +19,6 @@ import { WebsocketService } from './websocket/websocket.service';
     ProfileModule,
     ContactsModule,
   ],
-  providers: [FrinedRequests, EmailService, WebsocketService],
+  providers: [FrinedRequests, EmailService, WebsocketService, RabbitMQService],
 })
 export class AppModule {}
