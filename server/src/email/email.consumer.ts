@@ -24,13 +24,16 @@ export class EmailConsumer {
           const messageContent = JSON.parse(message.content.toString());
 
           // Extract email information
-          const { username } = messageContent;
-
-          // Send the email using your EmailService
-          await this.emailService.passwordRecovery(username);
+          const { username, email } = messageContent;
+          if (email) {
+            // Send the email using EmailService
+            await this.emailService.emailVerification(username, email);
+          } else {
+            await this.emailService.passwordRecovery(username);
+          }
 
           this.rabbitMQService.channel.ack(message);
-          console.log(`Email sent to '${username}'`);
+          console.log(`Email sent to '${username}' user`);
         } catch (error) {
           console.error(`Error processing message: ${error}`);
         }
