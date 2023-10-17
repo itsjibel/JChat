@@ -13,7 +13,7 @@ import * as mysql from 'mysql2/promise';
 
 async function bootstrap() {
   const server = express(); // Initialize Express as a function
-  server.use(express.static('../public'));
+  server.use(express.static('../frontend/build'));
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
   const websocketService = app.get(WebsocketService);
   const emailConsumer = app.get(EmailConsumer);
