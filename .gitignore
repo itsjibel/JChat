@@ -4,3 +4,4 @@ server/key.pem
 server/.env
 server/dist/
 server/cert*
+frontend/build/
