@@ -44,12 +44,14 @@ export class ContactsService {
         `'${senderUsername}' sent a friend request to '${receiverUsername}'`,
       );
       const countFriendRequestsSql =
-        'SELECT sender_username, is_accepted FROM FriendRequests WHERE BINARY receiver_username = ?';
-      const countFriendRequestsValues = [receiverUsername]; // Include the image binary data in values
+        'SELECT sender_username, receiver_username, is_accepted FROM FriendRequests WHERE BINARY receiver_username = ? OR BINARY sender_username = ?';
+      const countFriendRequestsValues = [receiverUsername, receiverUsername]; // Include the image binary data in values
       const [results] = await this.connection.execute(
         countFriendRequestsSql,
         countFriendRequestsValues,
       );
+
+      console.log(results);
 
       this.websocketService.emitToUser(
         receiverUsername,
