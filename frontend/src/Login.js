@@ -72,15 +72,20 @@ function Login() {
               onChange={handleSignupInputChange}
               required
             />
-            <input
-              type="password"
-              id="sign-up-password"
-              name="password"
-              placeholder="Password"
-              value={signupForm.password}
-              onChange={handleSignupInputChange}
-              required
-            />
+
+            <div class="password-input">
+              <input
+                type="password"
+                id="sign-up-password"
+                name="password"
+                placeholder="Password"
+                value={signupForm.password}
+                onChange={handleSignupInputChange}
+                required
+              />
+              <i class="bi bi-eye-slash" id="toggleSignUpPassword"></i>
+            </div>
+
             <p className="error-message text-center">{signupErrorMessage}</p>
             <input className="button" type="submit" value="Sign Up" />
           </form>
@@ -100,15 +105,20 @@ function Login() {
               onChange={handleLoginInputChange}
               required
             />
-            <input
-              type="password"
-              id="login-password"
-              name="password"
-              placeholder="Password"
-              value={loginForm.password}
-              onChange={handleLoginInputChange}
-              required
-            />
+
+            <div class="password-input">
+              <input
+                type="password"
+                id="login-password"
+                name="password"
+                placeholder="Password"
+                value={loginForm.password}
+                onChange={handleLoginInputChange}
+                required
+              />
+              <i class="bi bi-eye-slash" id="toggleLoginPassword"></i>
+            </div>
+
             <a href="" id="forgot-password">
               Forgot password?
             </a>
