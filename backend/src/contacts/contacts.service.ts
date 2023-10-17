@@ -51,8 +51,6 @@ export class ContactsService {
         countFriendRequestsValues,
       );
 
-      console.log(results);
-
       this.websocketService.emitToUser(
         receiverUsername,
         'friendRequest',
