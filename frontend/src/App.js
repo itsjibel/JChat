@@ -5,7 +5,9 @@ function App() {
   return (
     <div className="App">
       <header>
-        {/* Header content */}
+        <div class="user-select-none header-content">
+          <img src="assets/images/JChat-Logo.png" alt="Logo" class="logo"/>
+        </div>
       </header>
       <Login /> {/* Render the Login component here */}
     </div>
