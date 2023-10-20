@@ -83,26 +83,6 @@ function Login() {
       }
     );
   }
-  
-  function login(e) {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append('username', loginForm.username);
-    formData.append('password', loginForm.password);
-
-    sendRequest(
-      '/auth/login',
-      formData,
-      (data) => {
-        setTokensCookies(data);
-        // Redirect to the index page after successful login
-        window.location.href = '/index.html';
-      },
-      (errorMessageText) => {
-        setErrorMessage(errorMessageText);
-      }
-    );
-  }
 
   function handleForgotPassword(e) {
     e.preventDefault();
@@ -175,8 +155,38 @@ function Login() {
 
   const handleLogin = (e) => {
     e.preventDefault();
+
     // Implement your login logic here
-    console.log('Login form data:', loginForm);
+    const formData = new FormData();
+    formData.append('username', loginForm.username);
+    formData.append('password', loginForm.password);
+
+    fetch('/auth/login', {
+      method: 'POST',
+      body: new URLSearchParams(formData),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`Request failed with status ${response.status}`);
+        }
+        return response.json();
+      })
+      .then((data) => {
+        if (data.accessToken !== undefined) {
+          const token = data.accessToken; // Get JWT token from response
+          const refreshToken = data.refreshToken; // Get refresh token from response
+
+          // Set tokens as cookies
+          setCookie('token', token, 7);
+          setCookie('refreshToken', refreshToken, 15);
+        } else if (data.message) {
+           errorMessage.textContent = data.message;
+          errorMessage.style.display = "flex";
+        }
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   };
 
   return (
@@ -261,7 +271,7 @@ function Login() {
               ></i>
             </div>
 
-            <a href="" id="forgot-password">
+            <a href="" id="forgot-password" onClick={handleForgotPassword}>
               Forgot password?
             </a>
             <p className="error-message text-center">{loginErrorMessage}</p>
