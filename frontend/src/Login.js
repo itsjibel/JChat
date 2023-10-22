@@ -56,12 +56,12 @@ function Login() {
 
   // Function to set tokens as cookies
   function setTokensCookies(data) {
-    const { token, refreshToken } = data;
-    setCookie('token', token, 7);
+    const { accessToken, refreshToken } = data;
+    setCookie('accessToken', accessToken, 7);
     setCookie('refreshToken', refreshToken, 15);
   }
 
-  function signup(e) {
+  function handleSignup(e) {
     e.preventDefault();
     const formData = new FormData();
     formData.append('username', signupForm.username);
@@ -72,14 +72,12 @@ function Login() {
       '/auth/signup',
       formData,
       (data) => {
+        console.log(data);
         setTokensCookies(data);
-        // Redirect to the index page after successful sign-up
-        window.location.href = '/index.html';
+        showMessage('You signed up successfuly!');
       },
       (errorMessageText) => {
-        setErrorMessage(errorMessageText);
-        // Adjust main height for sign-up (if needed)
-        // adjustMainHeightForSignUp();
+        showMessage(errorMessageText);
       }
     );
   }
@@ -190,12 +188,6 @@ function Login() {
       ...loginForm,
       [name]: value,
     });
-  };
-
-  const handleSignup = (e) => {
-    e.preventDefault();
-    // Implement your signup logic here
-    console.log('Signup form data:', signupForm);
   };
 
   const handleLogin = (e) => {
