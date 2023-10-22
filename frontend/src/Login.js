@@ -99,7 +99,7 @@ function Login() {
     sendRequest(
       '/email/passwordRecovery',
       formData,
-      (data) => {
+      () => {
         showMessage('The password recovery email was sent successfully');
       },
       (errorMessageText) => {
@@ -127,8 +127,53 @@ function Login() {
       });
   }
 
+  const messageQueue = []; // Queue to store messages
+
   function showMessage(message) {
-    setErrorMessage(message);
+    messageQueue.push(message); // Add the message to the queue
+
+    // If there is no message currently displayed, show the next one
+    if (messageQueue.length === 1) {
+        showNextMessage();
+    }
+  }
+  
+  function showNextMessage() {
+    if (messageQueue.length > 0) {
+      const message = messageQueue[0];
+      const messageBox = document.getElementById('message-box');
+      const messageText = document.getElementById('message-text');
+      const messageProgress = document.getElementById('message-progress');
+
+      // Set the message text
+      messageText.textContent = message;
+
+      // Show the message box
+      messageBox.style.display = 'inline-block';
+
+      // Center the message box
+      messageBox.style.top = '0';
+      messageBox.style.left = '50%';
+      messageBox.style.transform = 'translateX(-50%)';
+
+      // Hide the message box after 3 seconds
+      setTimeout(() => {
+        messageBox.style.display = 'none';
+        messageQueue.shift(); // Remove the displayed message from the queue
+        showNextMessage(); // Show the next message, if any
+      }, 4000);
+
+      // Update the progress bar (optional)
+      let width = 0;
+      const interval = setInterval(() => {
+        if (width >= 100) {
+          clearInterval(interval);
+        } else {
+          width++;
+          messageProgress.style.width = width + '%';
+        }
+      }, 40);
+    }
   }
 
   const handleSignupInputChange = (e) => {
@@ -271,7 +316,7 @@ function Login() {
               ></i>
             </div>
 
-            <a href="" id="forgot-password" onClick={handleForgotPassword}>
+            <a href="/#" id="forgot-password" onClick={handleForgotPassword}>
               Forgot password?
             </a>
             <p className="error-message text-center">{loginErrorMessage}</p>
