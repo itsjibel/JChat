@@ -10,12 +10,14 @@ export class EmailController {
   @Post('emailVerification')
   @UseGuards(JwtAuthGuard)
   async emailVerification(@Body() data: any, @Res() res: Response) {
+    data['kind'] = 'emailVerification';
     await this.rabbitMQService.sendMessage('email_queue', JSON.stringify(data));
     res.send({ success: true });
   }
 
   @Post('passwordRecovery')
   async passwordRecovery(@Body() data: any, @Res() res: Response) {
+    data['kind'] = 'passwordRecovery';
     await this.rabbitMQService.sendMessage('email_queue', JSON.stringify(data));
     res.send({ success: true });
   }

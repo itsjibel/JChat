@@ -12,6 +12,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Connection } from 'mysql2/promise';
 import { promisify } from 'util';
 import { readFile } from 'fs';
+import { RabbitMQService } from '../email/rabbitmq.service';
 import * as jwt from 'jsonwebtoken';
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -48,7 +49,7 @@ export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
-    private emailService: EmailService,
+    private rabbitMQService: RabbitMQService,
     @Inject('MYSQL_CONNECTION') private readonly connection: Connection,
   ) {}
 
@@ -145,7 +146,19 @@ export class AuthService {
         });
 
         console.log(`'${username}' successfully signed up!`);
-        await this.emailService.sendWelcomeEmail(username, email);
+
+        const data = {
+          username: username,
+          email: email,
+          kind: 'welcomeEmail',
+        };
+
+        await this.rabbitMQService.connect();
+
+        await this.rabbitMQService.sendMessage(
+          'email_queue',
+          JSON.stringify(data),
+        );
 
         return {
           success: true,
@@ -158,7 +171,10 @@ export class AuthService {
         // Handle ConflictException here
         throw error; // Re-throw the ConflictException to propagate it
       } else {
-        console.error('Error querying the database:', error);
+        console.error(
+          'An error occurred while the user tried to sign up:',
+          error,
+        );
         throw new Error('An error occurred while querying the database.');
       }
     }
