@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import './Login.css';
-import './bootstrap.min.css'
+import './bootstrap.min.css.map'
 
 function Login() {
   const [signupForm, setSignupForm] = useState({
@@ -14,9 +14,9 @@ function Login() {
     password: '',
   });
 
-  const [signupErrorMessage, setSignupErrorMessage] = useState('');
-  const [errorMessage, setErrorMessage] = useState('');
-  const [loginErrorMessage, setLoginErrorMessage] = useState('');
+  const [signupErrorMessage] = useState('');
+  const [errorMessage] = useState('');
+  const [loginErrorMessage] = useState('');
   const [showSignupPassword, setShowSignupPassword] = useState(false); // State to track signup password visibility
   const [showLoginPassword, setShowLoginPassword] = useState(false); // State to track login password visibility
 

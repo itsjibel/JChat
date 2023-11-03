@@ -1,5 +1,5 @@
 import React from 'react';
-import Login from './Login'; // Make sure the path is correct
+import Login from './Login';
 
 function App() {
   return (
@@ -9,7 +9,7 @@ function App() {
           <img src="assets/images/JChat-Logo.png" alt="Logo" class="logo"/>
         </div>
       </header>
-      <Login /> {/* Render the Login component here */}
+      <Login />
     </div>
   );
 }
