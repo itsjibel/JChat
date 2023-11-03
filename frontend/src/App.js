@@ -1,8 +1,8 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route }
     from 'react-router-dom';
-import LoginPage from './components/Login';
-import HomePage from './components/Home'; // Fixed the component name
+import Login from './components/Login';
+import Home from './components/Home'; // Fixed the component name
 
 function App() {
   return (
@@ -12,10 +12,10 @@ function App() {
           <img src="assets/images/JChat-Logo.png" alt="Logo" class="logo"/>
         </div>
       </header>
-      <LoginPage />
+      <Login />
 
       <Routes>
-        <Route path="/home" element={<HomePage />} />
+        <Route path="/home" element={<Home />} />
       </Routes>
     </Router>
   );
